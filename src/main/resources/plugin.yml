@@ -1,0 +1,8 @@
+author: Zhuowei
+database: false
+description: Implements a subset of the Minecraft PI modding API
+generator: http://dinnerbone.com/minecraft/tools/pluginator/
+main: net.zhuoweizhang.raspberryjuice.RaspberryJuicePlugin
+name: RaspberryJuice
+startup: postworld
+version: '1.0'
