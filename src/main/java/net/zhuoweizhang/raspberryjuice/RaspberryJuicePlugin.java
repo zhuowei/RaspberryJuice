@@ -5,11 +5,13 @@ import java.net.*;
 import java.util.*;
 
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
@@ -21,6 +23,8 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 	public ServerListenerThread serverThread;
 
 	public List<RemoteSession> sessions;
+
+	public Player hostPlayer = null;
 
 	private int tickTimerId = -1;
 
@@ -37,14 +41,15 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		tickTimerId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new TickHandler(), 1, 1);
 	}
 
-	@EventHandler
-	public void onBlockBreak(BlockBreakEvent event) {
+	@EventHandler(ignoreCancelled=true)
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
 		ItemStack currentTool = event.getPlayer().getItemInHand();
 		if (currentTool == null || !blockBreakDetectionTools.contains(currentTool.getType())) {
 			return;
 		}
 		for (RemoteSession session: sessions) {
-			session.queueBlockBreakEvent(event);
+			session.queuePlayerInteractEvent(event);
 		}
 	}
 
@@ -55,9 +60,22 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		}
 	}
 
+	public Player getHostPlayer() {
+		if (hostPlayer != null) return hostPlayer;
+		Player[] allPlayers = getServer().getOnlinePlayers();
+		if (allPlayers.length == 1) 
+			return allPlayers[0];
+		return null;
+	}
+
 
 	public void onDisable() {
 		serverThread.running = false;
+		try {
+			serverThread.serverSocket.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		getServer().getScheduler().cancelTasks(this);
 		for (RemoteSession session: sessions) {
 			try {
@@ -76,6 +94,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 			while(sI.hasNext()) {
 				RemoteSession s = sI.next();
 				if (s.pendingRemoval) {
+					s.close();
 					sI.remove();
 				} else {
 					s.tick();

@@ -17,6 +17,7 @@ public class ServerListenerThread implements Runnable {
 		this.plugin = plugin;
 		this.bindAddress = bindAddress;
 		serverSocket = new ServerSocket();
+		serverSocket.setReuseAddress(true);
 		serverSocket.bind(bindAddress);
 	}
 
@@ -24,6 +25,7 @@ public class ServerListenerThread implements Runnable {
 		while (running) {
 			try {
 				Socket newConnection = serverSocket.accept();
+				if (!running) return;
 				plugin.handleConnection(new RemoteSession(plugin, newConnection));
 			} catch (Exception e) {
 				e.printStackTrace();
