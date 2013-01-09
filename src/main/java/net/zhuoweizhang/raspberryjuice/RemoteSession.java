@@ -70,6 +70,7 @@ public class RemoteSession {
 
 	public void queuePlayerInteractEvent(PlayerInteractEvent event) {
 		plugin.getLogger().info(event.toString());
+		interactEventQueue.add(event);
 	}
 
 
@@ -202,9 +203,9 @@ public class RemoteSession {
 	}
 
 	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr) {
-		int x = Integer.parseInt(xstr);
-		int y = Integer.parseInt(ystr);
-		int z = Integer.parseInt(zstr);
+		int x = (int) Double.parseDouble(xstr);
+		int y = (int) Double.parseDouble(ystr);
+		int z = (int) Double.parseDouble(zstr);
 		return new Location(origin.getWorld(), origin.getBlockX() + x, origin.getBlockY() + y, origin.getBlockZ() + z);
 	}
 
