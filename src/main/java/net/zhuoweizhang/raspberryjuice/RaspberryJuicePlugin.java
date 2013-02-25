@@ -43,7 +43,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	@EventHandler(ignoreCancelled=true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
+		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
 		ItemStack currentTool = event.getPlayer().getItemInHand();
 		if (currentTool == null || !blockBreakDetectionTools.contains(currentTool.getType())) {
 			return;
@@ -55,6 +55,11 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	/** called when a new session is established. */
 	public void handleConnection(RemoteSession newSession) {
+		if (checkBanned(newSession)) {
+			System.out.println("Kicking " + newSession.getSocket().getRemoteSocketAddress() + " because the IP address has been banned.");
+			newSession.kick("You've been banned from this server!");
+			return;
+		}
 		synchronized(sessions) {
 			sessions.add(newSession);
 		}
@@ -66,6 +71,12 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		if (allPlayers.length == 1) 
 			return allPlayers[0];
 		return null;
+	}
+
+	public boolean checkBanned(RemoteSession session) {
+		Set<String> ipBans = getServer().getIPBans();
+		String sessionIp = session.getSocket().getInetAddress().getHostAddress();
+		return ipBans.contains(sessionIp);
 	}
 
 

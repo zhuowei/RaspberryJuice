@@ -68,6 +68,10 @@ public class RemoteSession {
 		this.origin = origin;
 	}
 
+	public Socket getSocket() {
+		return socket;
+	}
+
 	public void queuePlayerInteractEvent(PlayerInteractEvent event) {
 		plugin.getLogger().info(event.toString());
 		interactEventQueue.add(event);
@@ -109,6 +113,9 @@ public class RemoteSession {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			//System.out.println(loc);
 			send(world.getBlockTypeIdAt(loc));
+		} else if (c.equals("world.getBlockWithData")) {
+			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+			send(world.getBlockTypeIdAt(loc) + "," + world.getBlockAt(loc).getData());
 		} else if (c.equals("world.setBlock")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			//System.out.println(loc);
@@ -173,6 +180,7 @@ public class RemoteSession {
 			entity.setLocation(parseRelativeLocation(args[0], args[1], args[2]);
 		}*/ else {
 			System.err.println(c + " has not been implemented.");
+			send("Fail");
 		}
 	}
 
@@ -259,6 +267,15 @@ public class RemoteSession {
 			e.printStackTrace();
 		}
 		plugin.getLogger().info("Closed connection to" + socket.getRemoteSocketAddress() + ".");
+	}
+
+	public void kick(String reason) {
+		try {
+			out.write(reason);
+			out.flush();
+		} catch (Exception e) {
+		}
+		close();
 	}
 
 	/** socket listening thread */
