@@ -68,7 +68,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 	public Player getHostPlayer() {
 		if (hostPlayer != null) return hostPlayer;
 		Player[] allPlayers = getServer().getOnlinePlayers();
-		if (allPlayers.length == 1) 
+		if (allPlayers.length >= 1) 
 			return allPlayers[0];
 		return null;
 	}
