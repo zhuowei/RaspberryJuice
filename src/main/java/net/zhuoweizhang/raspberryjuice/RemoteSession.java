@@ -113,6 +113,10 @@ public class RemoteSession {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			//System.out.println(loc);
 			send(world.getBlockTypeIdAt(loc));
+		} else if (c.equals("world.getBlocks")) {
+			Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
+			Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
+			send(getBlocks(loc1, loc2));
 		} else if (c.equals("world.getBlockWithData")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			send(world.getBlockTypeIdAt(loc) + "," + world.getBlockAt(loc).getData());
@@ -201,6 +205,29 @@ public class RemoteSession {
 				}
 			}
 		}
+	}
+
+	private String getBlocks(Location pos1, Location pos2) {
+		StringBuilder blockData = new StringBuilder();
+
+		int minX, maxX, minY, maxY, minZ, maxZ;
+		World world = pos1.getWorld();
+		minX = pos1.getBlockX() < pos2.getBlockX() ? pos1.getBlockX() : pos2.getBlockX();
+		maxX = pos1.getBlockX() >= pos2.getBlockX() ? pos1.getBlockX() : pos2.getBlockX();
+		minY = pos1.getBlockY() < pos2.getBlockY() ? pos1.getBlockY() : pos2.getBlockY();
+		maxY = pos1.getBlockY() >= pos2.getBlockY() ? pos1.getBlockY() : pos2.getBlockY();
+		minZ = pos1.getBlockZ() < pos2.getBlockZ() ? pos1.getBlockZ() : pos2.getBlockZ();
+		maxZ = pos1.getBlockZ() >= pos2.getBlockZ() ? pos1.getBlockZ() : pos2.getBlockZ();
+
+		for (int y = minY; y <= maxY; ++y) {
+			for (int x = minX; x <= maxX; ++x) {
+				for (int z = minZ; z <= maxZ; ++z) {
+					blockData.append(new Integer(world.getBlockTypeIdAt(x, y, z)).toString() + ",");
+				}
+			}
+		}
+
+		return blockData.substring(0, blockData.length() > 0 ? blockData.length() - 1 : 0);	// We don't want last comma
 	}
 
 	public Player getCurrentPlayer() {
