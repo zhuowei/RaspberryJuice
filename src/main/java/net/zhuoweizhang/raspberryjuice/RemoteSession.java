@@ -219,9 +219,9 @@ public class RemoteSession {
 		minZ = pos1.getBlockZ() < pos2.getBlockZ() ? pos1.getBlockZ() : pos2.getBlockZ();
 		maxZ = pos1.getBlockZ() >= pos2.getBlockZ() ? pos1.getBlockZ() : pos2.getBlockZ();
 
-		for (int x = minX; x <= maxX; ++x) {
-			for (int z = minZ; z <= maxZ; ++z) {
-				for (int y = minY; y <= maxY; ++y) {
+		for (int y = minY; y <= maxY; ++y) {
+			for (int x = minX; x <= maxX; ++x) {
+				for (int z = minZ; z <= maxZ; ++z) {
 					blockData.append(new Integer(world.getBlockTypeIdAt(x, y, z)).toString() + ",");
 				}
 			}
