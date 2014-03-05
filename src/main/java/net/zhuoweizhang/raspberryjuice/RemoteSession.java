@@ -87,7 +87,7 @@ public class RemoteSession {
 			handleLine(message);
 			processedCount++;
 			if (processedCount >= maxCommandsPerTick) {
-				plugin.getLogger().warning("Over " + maxCommandsPerTick + 
+				plugin.getLogger().warning("Over " + maxCommandsPerTick +
 					" commands were queued - deferring " + inQueue.size() + " to next tick");
 				break;
 			}
@@ -119,7 +119,7 @@ public class RemoteSession {
 		} else if (c.equals("world.setBlock")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			//System.out.println(loc);
-			world.getBlockAt(loc).setTypeIdAndData(Integer.parseInt(args[3]), 
+			world.getBlockAt(loc).setTypeIdAndData(Integer.parseInt(args[3]),
 				(args.length > 4? Byte.parseByte(args[4]) : (byte) 0), true);
 		} else if (c.equals("world.setBlocks")) {
 			Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
@@ -156,17 +156,33 @@ public class RemoteSession {
 			System.out.println(b.toString());
 			send(b.toString());
 		} else if (c.equals("player.getTile")) {
-			Player currentPlayer = getCurrentPlayer();
+            String name = null;
+            if (args.length > 0) {
+                name = args[0];
+            }
+			Player currentPlayer = getCurrentPlayer(name);
 			send(blockLocationToRelative(currentPlayer.getLocation()));
 		} else if (c.equals("player.setTile")) {
-			Player currentPlayer = getCurrentPlayer();
-			currentPlayer.teleport(parseRelativeBlockLocation(args[0], args[1], args[2]));
+            String name = null, x = args[0], y = args[1], z = args[2];
+            if (args.length > 3) {
+                name = args[0]; x = args[1]; y = args[2]; z = args[3];
+            }
+			Player currentPlayer = getCurrentPlayer(name);
+			currentPlayer.teleport(parseRelativeBlockLocation(x, y, z));
 		} else if (c.equals("player.getPos")) {
-			Player currentPlayer = getCurrentPlayer();
+            String name = null;
+            if (args.length > 0) {
+                name = args[0];
+            }
+			Player currentPlayer = getCurrentPlayer(name);
 			send(locationToRelative(currentPlayer.getLocation()));
 		} else if (c.equals("player.setPos")) {
-			Player currentPlayer = getCurrentPlayer();
-			currentPlayer.teleport(parseRelativeLocation(args[0], args[1], args[2]));
+            String name = null, x = args[0], y = args[1], z = args[2];
+            if (args.length > 3) {
+                name = args[0]; x = args[1]; y = args[2]; z = args[3];
+            }
+			Player currentPlayer = getCurrentPlayer(name);
+			currentPlayer.teleport(parseRelativeLocation(x, y, z));
 		} /*else if (c.equals("entity.getTile")) {
 			Entity entity = world.getEntities()
 			send(blockLocationToRelative(entity.getLocation()));
@@ -203,12 +219,16 @@ public class RemoteSession {
 		}
 	}
 
-	public Player getCurrentPlayer() {
-		if (attachedPlayer != null) return attachedPlayer;
-		Player retval = plugin.getHostPlayer();
-		if (retval != null) return retval;
-		return null;
-	}
+    public Player getCurrentPlayer(String name) {
+        Player player = plugin.getNamedPlayer(name);
+        if (player == null) {
+            player = attachedPlayer;
+            if (player == null) {
+                player = plugin.getHostPlayer();
+            }
+        }
+        return player;
+    }
 
 	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr) {
 		int x = (int) Double.parseDouble(xstr);
@@ -225,12 +245,12 @@ public class RemoteSession {
 	}
 
 	public String blockLocationToRelative(Location loc) {
-		return (loc.getBlockX() - origin.getBlockX()) + "," + (loc.getBlockY() - origin.getBlockY()) + "," + 
+		return (loc.getBlockX() - origin.getBlockX()) + "," + (loc.getBlockY() - origin.getBlockY()) + "," +
 			(loc.getBlockZ() - origin.getBlockZ());
 	}
 
 	public String locationToRelative(Location loc) {
-		return (loc.getX() - origin.getX()) + "," + (loc.getY() - origin.getY()) + "," + 
+		return (loc.getX() - origin.getX()) + "," + (loc.getY() - origin.getY()) + "," +
 			(loc.getZ() - origin.getZ());
 	}
 

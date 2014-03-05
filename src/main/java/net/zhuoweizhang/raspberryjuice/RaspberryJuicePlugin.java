@@ -16,7 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
-	public static final Set<Material> blockBreakDetectionTools = EnumSet.of(Material.DIAMOND_SWORD, 
+	public static final Set<Material> blockBreakDetectionTools = EnumSet.of(Material.DIAMOND_SWORD,
 		Material.GOLD_SWORD, Material.IRON_SWORD, Material.STONE_SWORD, Material.WOOD_SWORD);
 	public static final int DEFAULT_PORT = 4711;
 
@@ -65,10 +65,21 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		}
 	}
 
-	public Player getHostPlayer() {
+    public Player getNamedPlayer(String name) {
+        if (name == null) return null;
+        Player[] allPlayers = getServer().getOnlinePlayers();
+        for (int i = 0; i < allPlayers.length; ++i) {
+            if (name == allPlayers[i].getPlayerListName()) {
+                return allPlayers[i];
+            }
+        }
+        return null;
+    }
+
+    public Player getHostPlayer() {
 		if (hostPlayer != null) return hostPlayer;
 		Player[] allPlayers = getServer().getOnlinePlayers();
-		if (allPlayers.length == 1) 
+		if (allPlayers.length >= 1)
 			return allPlayers[0];
 		return null;
 	}
