@@ -184,10 +184,8 @@ public class RemoteSession {
 			Player currentPlayer = getCurrentPlayer(name);
 			currentPlayer.teleport(parseRelativeLocation(x, y, z));
 		} else if (c.equals("world.getHeight")) {
-            int x = Integer.parseInt(args[0]);
-            int z = Integer.parseInt(args[1]);
-            int y = world.getHighestBlockYAt(x, z);
-            send(y);
+            send(world.getHighestBlockYAt(parseRelativeBlockLocation(
+                            args[0], "0", args[1])) - origin.getBlockY());
 		} /*else if (c.equals("entity.getTile")) {
 			Entity entity = world.getEntities()
 			send(blockLocationToRelative(entity.getLocation()));
