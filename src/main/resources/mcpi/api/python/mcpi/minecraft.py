@@ -58,18 +58,19 @@ class CmdEntity(CmdPositioner):
 
 class CmdPlayer(CmdPositioner):
     """Methods for the host (Raspberry Pi) player"""
-    def __init__(self, connection):
+    def __init__(self, connection, name=None):
         CmdPositioner.__init__(self, connection, "player")
         self.conn = connection
+        self.name = name
 
     def getPos(self):
-        return CmdPositioner.getPos(self, [])
+        return CmdPositioner.getPos(self, self.name)
     def setPos(self, *args):
-        return CmdPositioner.setPos(self, [], args)
+        return CmdPositioner.setPos(self, self.name, args)
     def getTilePos(self):
-        return CmdPositioner.getTilePos(self, [])
+        return CmdPositioner.getTilePos(self, self.name)
     def setTilePos(self, *args):
-        return CmdPositioner.setTilePos(self, [], args)
+        return CmdPositioner.setTilePos(self, self.name, args)
 
 class CmdCamera:
     def __init__(self, connection):
@@ -110,12 +111,12 @@ class CmdEvents:
 
 class Minecraft:
     """The main class to interact with a running instance of Minecraft Pi."""
-    def __init__(self, connection):
+    def __init__(self, connection, name=None):
         self.conn = connection
 
         self.camera = CmdCamera(connection)
         self.entity = CmdEntity(connection)
-        self.player = CmdPlayer(connection)
+        self.player = CmdPlayer(connection, name)
         self.events = CmdEvents(connection)
 
     def getBlock(self, *args):
@@ -167,8 +168,8 @@ class Minecraft:
         self.conn.send("world.setting", setting, 1 if bool(status) else 0)
 
     @staticmethod
-    def create(address = "localhost", port = 4711):
-        return Minecraft(Connection(address, port))
+    def create(address = "localhost", port = 4711, name = None):
+        return Minecraft(Connection(address, port), name)
 
 
 if __name__ == "__main__":
