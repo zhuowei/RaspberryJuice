@@ -15,7 +15,13 @@ from util import flatten
     (Because of this, it's possible to "erase" arguments. CmdPlayer removes
      entityId, by injecting [] that flattens to nothing)
 
-    @author: Aron Nieminen, Mojang AB"""
+    @author: Aron Nieminen, Mojang AB
+    
+    Updated to included additional functionality provided by RaspberryJuice:
+    - getBlocks() : implemented
+    - .create() : can now accept "name" (player name) for use in multiplayer
+    
+    """
 
 
 def intFloor(*args):
@@ -132,7 +138,8 @@ class Minecraft:
     """
     def getBlocks(self, *args):
         """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
-        return int(self.conn.sendReceive("world.getBlocks", intFloor(args)))
+        s = self.conn.sendReceive("world.getBlocks", intFloor(args))
+        return map(int, s.split(","))
 
     def setBlock(self, *args):
         """Set block (x,y,z,id,[data])"""
