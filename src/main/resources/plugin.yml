@@ -4,4 +4,4 @@ description: Implements a subset of the Minecraft PI modding API
 main: net.zhuoweizhang.raspberryjuice.RaspberryJuicePlugin
 name: RaspberryJuice
 startup: postworld
-version: '1.3'
+version: '1.4'

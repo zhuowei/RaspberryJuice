@@ -73,7 +73,7 @@ public class RemoteSession {
 	}
 
 	public void queuePlayerInteractEvent(PlayerInteractEvent event) {
-		plugin.getLogger().info(event.toString());
+		//plugin.getLogger().info(event.toString());
 		interactEventQueue.add(event);
 	}
 
@@ -101,6 +101,7 @@ public class RemoteSession {
 	protected void handleLine(String line) {
 		//System.out.println(line);
 		String methodName = line.substring(0, line.indexOf("("));
+		//split string into args, handles , inside " i.e. ","
 		String[] args = line.substring(line.indexOf("(") + 1, line.length() - 1).split(",");
 		//System.out.println(methodName + ":" + Arrays.toString(args));
 		handleCommand(methodName, args);
@@ -137,14 +138,22 @@ public class RemoteSession {
 				bdr.append(p.getEntityId());
 				bdr.append("|");
 			}
+			bdr.deleteCharAt(bdr.length()-1);
 			send(bdr.toString());
 		} else if (c.equals("chat.post")) {
-			server.broadcastMessage(args[0]);
+			//create chat message from args as it was split by ,
+			String chatMessage = "";
+			int count;
+			for(count=0;count<args.length;count++){
+				chatMessage = chatMessage + args[count] + ",";
+			}
+			chatMessage = chatMessage.substring(0, chatMessage.length() - 1);
+			server.broadcastMessage(chatMessage);
 		} else if (c.equals("events.clear")) {
 			interactEventQueue.clear();
 		} else if (c.equals("events.block.hits")) {
 			StringBuilder b = new StringBuilder();
-			PlayerInteractEvent event;
+	 		PlayerInteractEvent event;
 			while ((event = interactEventQueue.poll()) != null) {
 				Block block = event.getClickedBlock();
 				Location loc = block.getLocation();
@@ -188,20 +197,8 @@ public class RemoteSession {
 			Player currentPlayer = getCurrentPlayer(name);
 			currentPlayer.teleport(parseRelativeLocation(x, y, z));
 		} else if (c.equals("world.getHeight")) {
-            send(world.getHighestBlockYAt(parseRelativeBlockLocation(
-                            args[0], "0", args[1])) - origin.getBlockY());
-		} /*else if (c.equals("entity.getTile")) {
-			Entity entity = world.getEntities()
-			send(blockLocationToRelative(entity.getLocation()));
-		} else if (c.equals("entity.setTile")) {
-			entity.setLocation(parseRelativeBlockLocation(args[0], args[1], args[2]);
-		} else if (c.equals("entity.getPos")) {
-
-			send(locationToRelative(entity.getLocation()));
-		} else if (c.equals("entity.setPos")) {
-
-			entity.setLocation(parseRelativeLocation(args[0], args[1], args[2]);
-		}*/ else {
+            send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
+		} else {
 			System.err.println(c + " has not been implemented.");
 			send("Fail");
 		}

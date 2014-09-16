@@ -18,7 +18,6 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	public static final Set<Material> blockBreakDetectionTools = EnumSet.of(Material.DIAMOND_SWORD,
 		Material.GOLD_SWORD, Material.IRON_SWORD, Material.STONE_SWORD, Material.WOOD_SWORD);
-	public static final int DEFAULT_PORT = 4711;
 
 	public ServerListenerThread serverThread;
 
@@ -29,9 +28,14 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 	private int tickTimerId = -1;
 
 	public void onEnable() {
+		//save a copy of the default config.yml if one is not there
+        this.saveDefaultConfig();
+        
 		sessions = new ArrayList<RemoteSession>();
 		try {
-			serverThread = new ServerListenerThread(this, new InetSocketAddress(DEFAULT_PORT));
+			//get port frrom config.yml
+			int port = this.getConfig().getInt("port");
+			serverThread = new ServerListenerThread(this, new InetSocketAddress(port));
 			new Thread(serverThread).start();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -69,7 +73,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
         if (name == null) return null;
         Player[] allPlayers = getServer().getOnlinePlayers();
         for (int i = 0; i < allPlayers.length; ++i) {
-            if (name == allPlayers[i].getPlayerListName()) {
+            if (name.equals(allPlayers[i].getPlayerListName())) {
                 return allPlayers[i];
             }
         }
