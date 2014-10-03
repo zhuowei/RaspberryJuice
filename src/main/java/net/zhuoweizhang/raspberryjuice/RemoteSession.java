@@ -7,7 +7,6 @@ import java.util.*;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.block.*;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class RemoteSession {
@@ -19,6 +18,10 @@ public class RemoteSession {
 	private BufferedReader in;
 
 	private BufferedWriter out;
+	
+	private Thread inThread;
+	
+	private Thread outThread;
 
 	private ArrayDeque<String> inQueue = new ArrayDeque<String>();
 
@@ -55,8 +58,10 @@ public class RemoteSession {
 	}
 
 	protected void startThreads() {
-		new Thread(new InputThread()).start();
-		new Thread(new OutputThread()).start();
+		inThread = new Thread(new InputThread());
+		inThread.start();
+		outThread = new Thread(new OutputThread());
+		outThread.start();
 	}
 
 
@@ -108,30 +113,43 @@ public class RemoteSession {
 	}
 
 	protected void handleCommand(String c, String[] args) {
-		World world = origin.getWorld();
+		
+		// get the server
 		Server server = plugin.getServer();
+		
+		// get the world
+		World world = origin.getWorld();
+		
+		// world.getBlock
 		if (c.equals("world.getBlock")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			//System.out.println(loc);
 			send(world.getBlockTypeIdAt(loc));
+			
+		// world.getBlocks
 		} else if (c.equals("world.getBlocks")) {
 			Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
 			send(getBlocks(loc1, loc2));
+			
+		// world.getBlockWithData
 		} else if (c.equals("world.getBlockWithData")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			send(world.getBlockTypeIdAt(loc) + "," + world.getBlockAt(loc).getData());
+			
+		// world.setBlock
 		} else if (c.equals("world.setBlock")) {
 			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			//System.out.println(loc);
-			world.getBlockAt(loc).setTypeIdAndData(Integer.parseInt(args[3]),
-				(args.length > 4? Byte.parseByte(args[4]) : (byte) 0), true);
+			world.getBlockAt(loc).setTypeIdAndData(Integer.parseInt(args[3]), (args.length > 4? Byte.parseByte(args[4]) : (byte) 0), true);
+			
+		// world.setBlocks
 		} else if (c.equals("world.setBlocks")) {
 			Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
 			Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
 			int blockType = Integer.parseInt(args[6]);
 			byte data = args.length > 7? Byte.parseByte(args[7]) : (byte) 0;
 			setCuboid(loc1, loc2, blockType, data);
+			
+		// world.getPlayerIds
 		} else if (c.equals("world.getPlayerIds")) {
 			StringBuilder bdr = new StringBuilder();
 			for (Player p: server.getOnlinePlayers()) {
@@ -140,6 +158,8 @@ public class RemoteSession {
 			}
 			bdr.deleteCharAt(bdr.length()-1);
 			send(bdr.toString());
+			
+		// chat.post
 		} else if (c.equals("chat.post")) {
 			//create chat message from args as it was split by ,
 			String chatMessage = "";
@@ -149,8 +169,12 @@ public class RemoteSession {
 			}
 			chatMessage = chatMessage.substring(0, chatMessage.length() - 1);
 			server.broadcastMessage(chatMessage);
+			
+		// events.clear
 		} else if (c.equals("events.clear")) {
 			interactEventQueue.clear();
+			
+		// events.block.hits
 		} else if (c.equals("events.block.hits")) {
 			StringBuilder b = new StringBuilder();
 	 		PlayerInteractEvent event;
@@ -166,8 +190,11 @@ public class RemoteSession {
 					b.append("|");
 				}
 			}
-			System.out.println(b.toString());
+			//DEBUG
+			//System.out.println(b.toString());
 			send(b.toString());
+			
+		// player.getTile
 		} else if (c.equals("player.getTile")) {
             String name = null;
             if (args.length > 0) {
@@ -175,6 +202,8 @@ public class RemoteSession {
             }
 			Player currentPlayer = getCurrentPlayer(name);
 			send(blockLocationToRelative(currentPlayer.getLocation()));
+			
+		// player.setTile
 		} else if (c.equals("player.setTile")) {
             String name = null, x = args[0], y = args[1], z = args[2];
             if (args.length > 3) {
@@ -182,6 +211,8 @@ public class RemoteSession {
             }
 			Player currentPlayer = getCurrentPlayer(name);
 			currentPlayer.teleport(parseRelativeBlockLocation(x, y, z));
+			
+		// player.getPos
 		} else if (c.equals("player.getPos")) {
             String name = null;
             if (args.length > 0) {
@@ -189,6 +220,8 @@ public class RemoteSession {
             }
 			Player currentPlayer = getCurrentPlayer(name);
 			send(locationToRelative(currentPlayer.getLocation()));
+			
+		// player.setPos
 		} else if (c.equals("player.setPos")) {
             String name = null, x = args[0], y = args[1], z = args[2];
             if (args.length > 3) {
@@ -196,14 +229,19 @@ public class RemoteSession {
             }
 			Player currentPlayer = getCurrentPlayer(name);
 			currentPlayer.teleport(parseRelativeLocation(x, y, z));
+			
+		// world.getHeight
 		} else if (c.equals("world.getHeight")) {
             send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
+            
+        // not a command which is supported
 		} else {
-			System.err.println(c + " has not been implemented.");
+			plugin.getLogger().warning(c + " is not supported.");
 			send("Fail");
 		}
 	}
 
+	// create a cuboid of lots of blocks 
 	private void setCuboid(Location pos1, Location pos2, int blockType, byte data) {
 		int minX, maxX, minY, maxY, minZ, maxZ;
 		World world = pos1.getWorld();
@@ -223,6 +261,7 @@ public class RemoteSession {
 		}
 	}
 
+	// get a cuboid of lots of blocks
 	private String getBlocks(Location pos1, Location pos2) {
 		StringBuilder blockData = new StringBuilder();
 
@@ -246,12 +285,17 @@ public class RemoteSession {
 		return blockData.substring(0, blockData.length() > 0 ? blockData.length() - 1 : 0);	// We don't want last comma
 	}
 	
+	// gets the current player
     public Player getCurrentPlayer(String name) {
+    	// if a named player is returned use that
         Player player = plugin.getNamedPlayer(name);
+        // otherwise if there is an attached player for this session use that
         if (player == null) {
             player = attachedPlayer;
+            // otherwise go and get the host player and make that the attached player
             if (player == null) {
                 player = plugin.getHostPlayer();
+                attachedPlayer = player;
             }
         }
         return player;
@@ -297,14 +341,13 @@ public class RemoteSession {
 		running = false;
 		pendingRemoval = true;
 
+		//wait for threads to stop
 		try {
-			socket.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+			inThread.join(2000);
+			outThread.join(2000);
 		}
-		try {
-			in.close();
-		} catch (Exception e) {
+		catch (InterruptedException e) {
+			plugin.getLogger().warning("Failed to stop in/out thread");
 			e.printStackTrace();
 		}
 
@@ -328,7 +371,7 @@ public class RemoteSession {
 	/** socket listening thread */
 	private class InputThread implements Runnable {
 		public void run() {
-			System.out.println("Starting input thread!");
+			plugin.getLogger().info("Starting input thread");
 			while (running) {
 				try {
 					String newLine = in.readLine();
@@ -340,16 +383,26 @@ public class RemoteSession {
 						//System.out.println("Added to in queue");
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
-					running = false;
+					// if its running raise an error
+					if (running) {
+						e.printStackTrace();
+						running = false;
+					}
 				}
+			}
+			//close in buffer
+			try {
+				in.close();
+			} catch (Exception e) {
+				plugin.getLogger().warning("Failed to close in buffer");
+				e.printStackTrace();
 			}
 		}
 	}
 
 	private class OutputThread implements Runnable {
 		public void run() {
-			System.out.println("Starting output thread!");
+			plugin.getLogger().info("Starting output thread!");
 			while (running) {
 				try {
 					String line;
@@ -361,9 +414,19 @@ public class RemoteSession {
 					Thread.yield();
 					Thread.sleep(1L);
 				} catch (Exception e) {
-					e.printStackTrace();
-					running = false;
+					// if its running raise an error
+					if (running) {
+						e.printStackTrace();
+						running = false;
+					}
 				}
+			}
+			//close out buffer
+			try {
+				out.close();
+			} catch (Exception e) {
+				plugin.getLogger().warning("Failed to close out buffer");
+				e.printStackTrace();
 			}
 		}
 	}

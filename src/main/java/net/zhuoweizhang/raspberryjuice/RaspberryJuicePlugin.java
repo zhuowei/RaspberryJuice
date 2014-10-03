@@ -1,6 +1,5 @@
 package net.zhuoweizhang.raspberryjuice;
 
-import java.io.*;
 import java.net.*;
 import java.util.*;
 
@@ -10,14 +9,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
-	public static final Set<Material> blockBreakDetectionTools = EnumSet.of(Material.DIAMOND_SWORD,
-		Material.GOLD_SWORD, Material.IRON_SWORD, Material.STONE_SWORD, Material.WOOD_SWORD);
+	public static final Set<Material> blockBreakDetectionTools = EnumSet.of(
+			Material.DIAMOND_SWORD,
+			Material.GOLD_SWORD, 
+			Material.IRON_SWORD, 
+			Material.STONE_SWORD, 
+			Material.WOOD_SWORD);
 
 	public ServerListenerThread serverThread;
 
@@ -25,24 +27,29 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	public Player hostPlayer = null;
 
-	private int tickTimerId = -1;
-
 	public void onEnable() {
 		//save a copy of the default config.yml if one is not there
         this.saveDefaultConfig();
+        //get port from config.yml
+		int port = this.getConfig().getInt("port");
         
+        //setup session array
 		sessions = new ArrayList<RemoteSession>();
+		
+		//create new tcp listener thread
 		try {
-			//get port frrom config.yml
-			int port = this.getConfig().getInt("port");
 			serverThread = new ServerListenerThread(this, new InetSocketAddress(port));
 			new Thread(serverThread).start();
+			getLogger().info("ThreadListener Started");
 		} catch (Exception e) {
 			e.printStackTrace();
+			getLogger().warning("Failed to start ThreadListener");
 			return;
 		}
+		//register the events
 		getServer().getPluginManager().registerEvents(this, this);
-		tickTimerId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new TickHandler(), 1, 1);
+		//setup the schedule to called the tick handler
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new TickHandler(), 1, 1);
 	}
 
 	@EventHandler(ignoreCancelled=true)
@@ -60,7 +67,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 	/** called when a new session is established. */
 	public void handleConnection(RemoteSession newSession) {
 		if (checkBanned(newSession)) {
-			System.out.println("Kicking " + newSession.getSocket().getRemoteSocketAddress() + " because the IP address has been banned.");
+			getLogger().warning("Kicking " + newSession.getSocket().getRemoteSocketAddress() + " because the IP address has been banned.");
 			newSession.kick("You've been banned from this server!");
 			return;
 		}
@@ -96,22 +103,25 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 
 	public void onDisable() {
+		getServer().getScheduler().cancelTasks(this);
+		for (RemoteSession session: sessions) {
+			try {
+				session.close();
+			} catch (Exception e) {
+				getLogger().warning("Failed to close RemoteSession");
+				e.printStackTrace();
+			}
+		}
 		serverThread.running = false;
 		try {
 			serverThread.serverSocket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		getServer().getScheduler().cancelTasks(this);
-		for (RemoteSession session: sessions) {
-			try {
-				session.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		
 		sessions = null;
 		serverThread = null;
+		getLogger().info("Raspberry Juice Stopped");
 	}
 
 	private class TickHandler implements Runnable {
