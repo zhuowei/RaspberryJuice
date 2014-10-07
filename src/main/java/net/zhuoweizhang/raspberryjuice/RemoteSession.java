@@ -196,28 +196,28 @@ public class RemoteSession {
 			
 		// player.getTile
 		} else if (c.equals("player.getTile")) {
-            String name = null;
-            if (args.length > 0) {
-                name = args[0];
-            }
+			String name = null;
+			if (args.length > 0) {
+				name = args[0];
+			}
 			Player currentPlayer = getCurrentPlayer(name);
 			send(blockLocationToRelative(currentPlayer.getLocation()));
 			
 		// player.setTile
 		} else if (c.equals("player.setTile")) {
-            String name = null, x = args[0], y = args[1], z = args[2];
-            if (args.length > 3) {
-                name = args[0]; x = args[1]; y = args[2]; z = args[3];
-            }
+			String name = null, x = args[0], y = args[1], z = args[2];
+			if (args.length > 3) {
+				name = args[0]; x = args[1]; y = args[2]; z = args[3];
+			}
 			Player currentPlayer = getCurrentPlayer(name);
 			currentPlayer.teleport(parseRelativeBlockLocation(x, y, z));
 			
 		// player.getPos
 		} else if (c.equals("player.getPos")) {
-            String name = null;
-            if (args.length > 0) {
-                name = args[0];
-            }
+			String name = null;
+			if (args.length > 0) {
+				name = args[0];
+			}
 			Player currentPlayer = getCurrentPlayer(name);
 			send(locationToRelative(currentPlayer.getLocation()));
 			
@@ -232,7 +232,7 @@ public class RemoteSession {
 			
 		// world.getHeight
 		} else if (c.equals("world.getHeight")) {
-            send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
+			send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
             
         // not a command which is supported
 		} else {
@@ -286,20 +286,20 @@ public class RemoteSession {
 	}
 	
 	// gets the current player
-    public Player getCurrentPlayer(String name) {
-    	// if a named player is returned use that
-        Player player = plugin.getNamedPlayer(name);
-        // otherwise if there is an attached player for this session use that
-        if (player == null) {
-            player = attachedPlayer;
-            // otherwise go and get the host player and make that the attached player
-            if (player == null) {
-                player = plugin.getHostPlayer();
-                attachedPlayer = player;
-            }
-        }
-        return player;
-    }
+	public Player getCurrentPlayer(String name) {
+		// if a named player is returned use that
+		Player player = plugin.getNamedPlayer(name);
+		// otherwise if there is an attached player for this session use that
+		if (player == null) {
+			player = attachedPlayer;
+			// otherwise go and get the host player and make that the attached player
+			if (player == null) {
+				player = plugin.getHostPlayer();
+				attachedPlayer = player;
+			}
+		}
+		return player;
+	}
 
 	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr) {
 		int x = (int) Double.parseDouble(xstr);
@@ -450,7 +450,5 @@ public class RemoteSession {
 			return 7; // Good as anything here, but technically invalid
 		}
 	}
-
-
 
 }
