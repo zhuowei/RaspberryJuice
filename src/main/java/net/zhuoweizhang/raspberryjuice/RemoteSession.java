@@ -210,7 +210,9 @@ public class RemoteSession {
 				name = args[0]; x = args[1]; y = args[2]; z = args[3];
 			}
 			Player currentPlayer = getCurrentPlayer(name);
-			currentPlayer.teleport(parseRelativeBlockLocation(x, y, z));
+			//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
+			Location loc = currentPlayer.getLocation();
+			currentPlayer.teleport(parseRelativeBlockLocation(x, y, z, loc.getPitch(), loc.getYaw()));
 			
 		// player.getPos
 		} else if (c.equals("player.getPos")) {
@@ -223,12 +225,15 @@ public class RemoteSession {
 			
 		// player.setPos
 		} else if (c.equals("player.setPos")) {
-            String name = null, x = args[0], y = args[1], z = args[2];
-            if (args.length > 3) {
-                name = args[0]; x = args[1]; y = args[2]; z = args[3];
-            }
+			String name = null, x = args[0], y = args[1], z = args[2];
+			if (args.length > 3) {
+				name = args[0]; x = args[1]; y = args[2]; z = args[3];
+			}
+			
 			Player currentPlayer = getCurrentPlayer(name);
-			currentPlayer.teleport(parseRelativeLocation(x, y, z));
+			//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
+			Location loc = currentPlayer.getLocation();
+			currentPlayer.teleport(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getYaw()));
 			
 		// world.getHeight
 		} else if (c.equals("world.getHeight")) {
@@ -315,6 +320,20 @@ public class RemoteSession {
 		return new Location(origin.getWorld(), origin.getX() + x, origin.getY() + y, origin.getZ() + z);
 	}
 
+	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr, float pitch, float yaw) {
+		Location loc = parseRelativeBlockLocation(xstr, ystr, zstr);
+		loc.setPitch(pitch);
+		loc.setYaw(yaw);
+		return loc;
+	}
+
+	public Location parseRelativeLocation(String xstr, String ystr, String zstr, float pitch, float yaw) {
+		Location loc = parseRelativeLocation(xstr, ystr, zstr);
+		loc.setPitch(pitch);
+		loc.setYaw(yaw);
+		return loc;
+	}
+	
 	public String blockLocationToRelative(Location loc) {
 		return (loc.getBlockX() - origin.getBlockX()) + "," + (loc.getBlockY() - origin.getBlockY()) + "," +
 			(loc.getBlockZ() - origin.getBlockZ());
