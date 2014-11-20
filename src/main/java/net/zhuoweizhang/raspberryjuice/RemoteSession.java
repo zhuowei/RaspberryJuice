@@ -235,6 +235,15 @@ public class RemoteSession {
 			Location loc = currentPlayer.getLocation();
 			currentPlayer.teleport(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getYaw()));
 			
+		// player.getDirection
+		} else if (c.equals("player.getDirection")) {
+			String name = null;
+			if (args.length > 0) {
+				name = args[0];
+			}
+			Player currentPlayer = getCurrentPlayer(name);
+			send(currentPlayer.getLocation().getDirection().toString());
+
 		// world.getHeight
 		} else if (c.equals("world.getHeight")) {
 			send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
