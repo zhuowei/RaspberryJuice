@@ -94,6 +94,16 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 			return allPlayers[0];
 		return null;
 	}
+	
+	//get entity by id - TODO to be compatible with the pi it should be changed to return an entity not a player...
+	public Player getEntity(int id) {
+		for (Player p: getServer().getOnlinePlayers()) {
+            if (p.getEntityId() == id) {
+                return p;
+            }
+        }
+		return null;
+	}
 
 	public boolean checkBanned(RemoteSession session) {
 		Set<String> ipBans = getServer().getIPBans();

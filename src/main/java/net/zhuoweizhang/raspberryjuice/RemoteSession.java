@@ -114,135 +114,197 @@ public class RemoteSession {
 
 	protected void handleCommand(String c, String[] args) {
 		
-		// get the server
-		Server server = plugin.getServer();
-		
-		// get the world
-		World world = origin.getWorld();
-		
-		// world.getBlock
-		if (c.equals("world.getBlock")) {
-			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			send(world.getBlockTypeIdAt(loc));
+		try {
+			// get the server
+			Server server = plugin.getServer();
 			
-		// world.getBlocks
-		} else if (c.equals("world.getBlocks")) {
-			Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
-			send(getBlocks(loc1, loc2));
+			// get the world
+			World world = origin.getWorld();
 			
-		// world.getBlockWithData
-		} else if (c.equals("world.getBlockWithData")) {
-			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			send(world.getBlockTypeIdAt(loc) + "," + world.getBlockAt(loc).getData());
-			
-		// world.setBlock
-		} else if (c.equals("world.setBlock")) {
-			Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			world.getBlockAt(loc).setTypeIdAndData(Integer.parseInt(args[3]), (args.length > 4? Byte.parseByte(args[4]) : (byte) 0), true);
-			
-		// world.setBlocks
-		} else if (c.equals("world.setBlocks")) {
-			Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
-			Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
-			int blockType = Integer.parseInt(args[6]);
-			byte data = args.length > 7? Byte.parseByte(args[7]) : (byte) 0;
-			setCuboid(loc1, loc2, blockType, data);
-			
-		// world.getPlayerIds
-		} else if (c.equals("world.getPlayerIds")) {
-			StringBuilder bdr = new StringBuilder();
-			for (Player p: server.getOnlinePlayers()) {
-				bdr.append(p.getEntityId());
-				bdr.append("|");
-			}
-			bdr.deleteCharAt(bdr.length()-1);
-			send(bdr.toString());
-			
-		// chat.post
-		} else if (c.equals("chat.post")) {
-			//create chat message from args as it was split by ,
-			String chatMessage = "";
-			int count;
-			for(count=0;count<args.length;count++){
-				chatMessage = chatMessage + args[count] + ",";
-			}
-			chatMessage = chatMessage.substring(0, chatMessage.length() - 1);
-			server.broadcastMessage(chatMessage);
-			
-		// events.clear
-		} else if (c.equals("events.clear")) {
-			interactEventQueue.clear();
-			
-		// events.block.hits
-		} else if (c.equals("events.block.hits")) {
-			StringBuilder b = new StringBuilder();
-	 		PlayerInteractEvent event;
-			while ((event = interactEventQueue.poll()) != null) {
-				Block block = event.getClickedBlock();
-				Location loc = block.getLocation();
-				b.append(blockLocationToRelative(loc));
-				b.append(",");
-				b.append(blockFaceToNotch(event.getBlockFace()));
-				b.append(",");
-				b.append(event.getPlayer().getEntityId());
-				if (interactEventQueue.size() > 0) {
-					b.append("|");
+			// world.getBlock
+			if (c.equals("world.getBlock")) {
+				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				send(world.getBlockTypeIdAt(loc));
+				
+			// world.getBlocks
+			} else if (c.equals("world.getBlocks")) {
+				Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
+				send(getBlocks(loc1, loc2));
+				
+			// world.getBlockWithData
+			} else if (c.equals("world.getBlockWithData")) {
+				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				send(world.getBlockTypeIdAt(loc) + "," + world.getBlockAt(loc).getData());
+				
+			// world.setBlock
+			} else if (c.equals("world.setBlock")) {
+				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				world.getBlockAt(loc).setTypeIdAndData(Integer.parseInt(args[3]), (args.length > 4? Byte.parseByte(args[4]) : (byte) 0), true);
+				
+			// world.setBlocks
+			} else if (c.equals("world.setBlocks")) {
+				Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
+				int blockType = Integer.parseInt(args[6]);
+				byte data = args.length > 7? Byte.parseByte(args[7]) : (byte) 0;
+				setCuboid(loc1, loc2, blockType, data);
+				
+			// world.getPlayerIds
+			} else if (c.equals("world.getPlayerIds")) {
+				StringBuilder bdr = new StringBuilder();
+				for (Player p: server.getOnlinePlayers()) {
+					bdr.append(p.getEntityId());
+					bdr.append("|");
 				}
+				bdr.deleteCharAt(bdr.length()-1);
+				send(bdr.toString());
+				
+			// chat.post
+			} else if (c.equals("chat.post")) {
+				//create chat message from args as it was split by ,
+				String chatMessage = "";
+				int count;
+				for(count=0;count<args.length;count++){
+					chatMessage = chatMessage + args[count] + ",";
+				}
+				chatMessage = chatMessage.substring(0, chatMessage.length() - 1);
+				server.broadcastMessage(chatMessage);
+				
+			// events.clear
+			} else if (c.equals("events.clear")) {
+				interactEventQueue.clear();
+				
+			// events.block.hits
+			} else if (c.equals("events.block.hits")) {
+				StringBuilder b = new StringBuilder();
+		 		PlayerInteractEvent event;
+				while ((event = interactEventQueue.poll()) != null) {
+					Block block = event.getClickedBlock();
+					Location loc = block.getLocation();
+					b.append(blockLocationToRelative(loc));
+					b.append(",");
+					b.append(blockFaceToNotch(event.getBlockFace()));
+					b.append(",");
+					b.append(event.getPlayer().getEntityId());
+					if (interactEventQueue.size() > 0) {
+						b.append("|");
+					}
+				}
+				//DEBUG
+				//System.out.println(b.toString());
+				send(b.toString());
+				
+			// player.getTile
+			} else if (c.equals("player.getTile")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(blockLocationToRelative(currentPlayer.getLocation()));
+				
+			// player.setTile
+			} else if (c.equals("player.setTile")) {
+				String name = null, x = args[0], y = args[1], z = args[2];
+				if (args.length > 3) {
+					name = args[0]; x = args[1]; y = args[2]; z = args[3];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
+				Location loc = currentPlayer.getLocation();
+				currentPlayer.teleport(parseRelativeBlockLocation(x, y, z, loc.getPitch(), loc.getYaw()));
+				
+			// player.getPos
+			} else if (c.equals("player.getPos")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(locationToRelative(currentPlayer.getLocation()));
+				
+			// player.setPos
+			} else if (c.equals("player.setPos")) {
+				String name = null, x = args[0], y = args[1], z = args[2];
+				if (args.length > 3) {
+					name = args[0]; x = args[1]; y = args[2]; z = args[3];
+				}
+				
+				Player currentPlayer = getCurrentPlayer(name);
+				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
+				Location loc = currentPlayer.getLocation();
+				currentPlayer.teleport(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getYaw()));
+				
+			// world.getHeight
+			} else if (c.equals("world.getHeight")) {
+				send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
+				
+			// entity.getTile
+			} else if (c.equals("entity.getTile")) {
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					send(blockLocationToRelative(entity.getLocation()));
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+				
+			// entity.setTile
+			} else if (c.equals("entity.setTile")) {
+				String x = args[1], y = args[2], z = args[3];
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					//get entity's current location, so when they are moved we will use the same pitch and yaw (rotation)
+					Location loc = entity.getLocation();
+					entity.teleport(parseRelativeBlockLocation(x, y, z, loc.getPitch(), loc.getYaw()));
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+	        
+			// entity.getPos
+			} else if (c.equals("entity.getPos")) {
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					send(locationToRelative(entity.getLocation()));
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+			
+			// entity.setPos
+			} else if (c.equals("entity.setPos")) {
+				String x = args[1], y = args[2], z = args[3];
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					//get entity's current location, so when they are moved we will use the same pitch and yaw (rotation)
+					Location loc = entity.getLocation();
+					entity.teleport(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getYaw()));
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+			
+			// not a command which is supported
+			} else {
+				plugin.getLogger().warning(c + " is not supported.");
+				send("Fail");
 			}
-			//DEBUG
-			//System.out.println(b.toString());
-			send(b.toString());
+		} catch (Exception e) {
 			
-		// player.getTile
-		} else if (c.equals("player.getTile")) {
-			String name = null;
-			if (args.length > 0) {
-				name = args[0];
-			}
-			Player currentPlayer = getCurrentPlayer(name);
-			send(blockLocationToRelative(currentPlayer.getLocation()));
-			
-		// player.setTile
-		} else if (c.equals("player.setTile")) {
-			String name = null, x = args[0], y = args[1], z = args[2];
-			if (args.length > 3) {
-				name = args[0]; x = args[1]; y = args[2]; z = args[3];
-			}
-			Player currentPlayer = getCurrentPlayer(name);
-			//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
-			Location loc = currentPlayer.getLocation();
-			currentPlayer.teleport(parseRelativeBlockLocation(x, y, z, loc.getPitch(), loc.getYaw()));
-			
-		// player.getPos
-		} else if (c.equals("player.getPos")) {
-			String name = null;
-			if (args.length > 0) {
-				name = args[0];
-			}
-			Player currentPlayer = getCurrentPlayer(name);
-			send(locationToRelative(currentPlayer.getLocation()));
-			
-		// player.setPos
-		} else if (c.equals("player.setPos")) {
-			String name = null, x = args[0], y = args[1], z = args[2];
-			if (args.length > 3) {
-				name = args[0]; x = args[1]; y = args[2]; z = args[3];
-			}
-			
-			Player currentPlayer = getCurrentPlayer(name);
-			//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
-			Location loc = currentPlayer.getLocation();
-			currentPlayer.teleport(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getYaw()));
-			
-		// world.getHeight
-		} else if (c.equals("world.getHeight")) {
-			send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
-            
-        // not a command which is supported
-		} else {
-			plugin.getLogger().warning(c + " is not supported.");
+			plugin.getLogger().warning("Error occured handling command");
+			e.printStackTrace();
 			send("Fail");
+			
 		}
 	}
 
