@@ -51,6 +51,11 @@ class CmdPositioner:
         """Set entity tile position (entityId:int) => Vec3"""
         self.conn.send(self.pkg + ".setTile", id, intFloor(*args))
 
+    def getDirection(self, id):
+        """Get entity direction (entityId:int) => Vec3"""
+        s = self.conn.sendReceive(self.pkg + ".getDirection", id)
+        return Vec3(*map(float, s.split(",")))
+
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
         self.conn.send(self.pkg + ".setting", setting, 1 if bool(status) else 0)
@@ -77,6 +82,8 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.getTilePos(self, self.name)
     def setTilePos(self, *args):
         return CmdPositioner.setTilePos(self, self.name, args)
+    def getDirection(self):
+        return CmdPositioner.getDirection(self, self.name)
 
 class CmdCamera:
     def __init__(self, connection):
