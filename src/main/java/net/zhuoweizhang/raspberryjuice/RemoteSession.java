@@ -160,6 +160,16 @@ public class RemoteSession {
 				bdr.deleteCharAt(bdr.length()-1);
 				send(bdr.toString());
 				
+			// world.getPlayerId
+			} else if (c.equals("world.getPlayerId")) {
+				Player p = plugin.getNamedPlayer(args[0]);
+				if (p != null) {
+					send(p.getEntityId());
+				} else {
+					plugin.getLogger().info("Player [" + args[0] + "] not found.");
+					send("Fail");
+				}
+				
 			// chat.post
 			} else if (c.equals("chat.post")) {
 				//create chat message from args as it was split by ,
@@ -235,6 +245,33 @@ public class RemoteSession {
 				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
 				Location loc = currentPlayer.getLocation();
 				currentPlayer.teleport(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getYaw()));
+
+			// player.getDirection
+			} else if (c.equals("player.getDirection")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(currentPlayer.getLocation().getDirection().toString());
+
+			// player.getRotation
+			} else if (c.equals("player.getRotation")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(currentPlayer.getLocation().getYaw());
+				
+			// player.getPitch
+			} else if (c.equals("player.getPitch")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(currentPlayer.getLocation().getPitch());
 				
 			// world.getHeight
 			} else if (c.equals("world.getHeight")) {
@@ -293,7 +330,43 @@ public class RemoteSession {
 					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
 					send("Fail");
 				}
-			
+
+			// entity.getDirection
+			} else if (c.equals("entity.getDirection")) {
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					send(entity.getLocation().getDirection().toString());
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+				
+				// entity.getRotation
+				} else if (c.equals("entity.getRotation")) {
+					//get entity based on id
+					//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+					Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+					if (entity != null) {
+						send(entity.getLocation().getYaw());
+					} else {
+						plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+						send("Fail");
+					}
+					
+				// entity.getPitch
+				} else if (c.equals("entity.getPitch")) {
+					//get entity based on id
+					//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+					Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+					if (entity != null) {
+						send(entity.getLocation().getPitch());
+					} else {
+						plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+						send("Fail");
+					}
+						
 			// not a command which is supported
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");

@@ -1,7 +1,7 @@
 author: Zhuowei
 database: false
-description: Implements a subset of the Minecraft PI modding API
+description: Implementation of the Minecraft PI modding API
 main: net.zhuoweizhang.raspberryjuice.RaspberryJuicePlugin
 name: RaspberryJuice
 startup: postworld
-version: '1.5'
+version: '1.6'
