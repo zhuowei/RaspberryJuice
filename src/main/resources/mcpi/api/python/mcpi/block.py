@@ -16,6 +16,9 @@ class Block:
     def __iter__(self):
         """Allows a Block to be sent whenever id [and data] is needed"""
         return iter((self.id, self.data))
+        
+    def __repr__(self):
+        return "Block(%d, %d)"%(self.id, self.data)
 
 AIR                 = Block(0)
 STONE               = Block(1)
@@ -26,8 +29,10 @@ WOOD_PLANKS         = Block(5)
 SAPLING             = Block(6)
 BEDROCK             = Block(7)
 WATER_FLOWING       = Block(8)
+WATER               = WATER_FLOWING
 WATER_STATIONARY    = Block(9)
 LAVA_FLOWING        = Block(10)
+LAVA                = LAVA_FLOWING
 LAVA_STATIONARY     = Block(11)
 SAND                = Block(12)
 GRAVEL              = Block(13)
