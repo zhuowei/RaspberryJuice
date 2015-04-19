@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
@@ -61,6 +62,15 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		}
 		for (RemoteSession session: sessions) {
 			session.queuePlayerInteractEvent(event);
+		}
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	public void onChatPosted(AsyncPlayerChatEvent event) {
+		//debug
+		//getLogger().info("Chat event fired");
+		for (RemoteSession session: sessions) {
+			session.queueChatPostedEvent(event);
 		}
 	}
 

@@ -70,13 +70,6 @@ class Vec3:
     def rotateLeft(self):  self.x, self.z = self.z, -self.x
     def rotateRight(self): self.x, self.z = -self.z, self.x
 
-    @staticmethod
-    def y(n=1): return Vec3(0, n, 0)
-    @staticmethod
-    def up(n=1): return Vec3.y(n)
-    @staticmethod
-    def down(n=1): return Vec3.y(-n)
-
 def testVec3():
     # Note: It's not testing everything
 
