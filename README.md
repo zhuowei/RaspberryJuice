@@ -48,3 +48,5 @@ Version history:
  - 1.5 - entity functions
  - 1.6 - added getPlayerId(playerName), getDirection, getRotation, getPitch
  - 1.7 - added pollChatPosts() & block update performance improvements
+ - 1.8 - minecraft version 1.9.2 compatibility
+ 

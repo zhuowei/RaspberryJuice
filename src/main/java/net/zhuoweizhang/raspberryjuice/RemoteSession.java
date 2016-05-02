@@ -160,7 +160,7 @@ public class RemoteSession {
 			// world.getPlayerIds
 			} else if (c.equals("world.getPlayerIds")) {
 				StringBuilder bdr = new StringBuilder();
-				for (Player p: server.getOnlinePlayers()) {
+				for (Player p: Bukkit.getOnlinePlayers()) {
 					bdr.append(p.getEntityId());
 					bdr.append("|");
 				}
