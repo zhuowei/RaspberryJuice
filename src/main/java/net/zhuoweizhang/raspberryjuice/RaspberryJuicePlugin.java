@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
@@ -63,6 +64,15 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 			session.queuePlayerInteractEvent(event);
 		}
 	}
+	
+	@EventHandler(ignoreCancelled=true)
+	public void onChatPosted(AsyncPlayerChatEvent event) {
+		//debug
+		//getLogger().info("Chat event fired");
+		for (RemoteSession session: sessions) {
+			session.queueChatPostedEvent(event);
+		}
+	}
 
 	/** called when a new session is established. */
 	public void handleConnection(RemoteSession newSession) {
@@ -78,10 +88,9 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	public Player getNamedPlayer(String name) {
 		if (name == null) return null;
-		Player[] allPlayers = getServer().getOnlinePlayers();
-		for (int i = 0; i < allPlayers.length; ++i) {
-			if (name.equals(allPlayers[i].getPlayerListName())) {
-				return allPlayers[i];
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			if (name.equals(player.getPlayerListName())) {
+				return player;
 			}
 		}
 		return null;
@@ -89,9 +98,9 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	public Player getHostPlayer() {
 		if (hostPlayer != null) return hostPlayer;
-		Player[] allPlayers = getServer().getOnlinePlayers();
-		if (allPlayers.length >= 1)
-			return allPlayers[0];
+		for(Player player : Bukkit.getOnlinePlayers()) {
+			return player;
+		}
 		return null;
 	}
 	

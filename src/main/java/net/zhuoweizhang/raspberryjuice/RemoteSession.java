@@ -8,6 +8,7 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class RemoteSession {
 
@@ -34,6 +35,8 @@ public class RemoteSession {
 	public RaspberryJuicePlugin plugin;
 
 	protected ArrayDeque<PlayerInteractEvent> interactEventQueue = new ArrayDeque<PlayerInteractEvent>();
+	
+	protected ArrayDeque<AsyncPlayerChatEvent> chatPostedQueue = new ArrayDeque<AsyncPlayerChatEvent>();
 
 	private int maxCommandsPerTick = 9000;
 
@@ -82,6 +85,10 @@ public class RemoteSession {
 		interactEventQueue.add(event);
 	}
 
+	public void queueChatPostedEvent(AsyncPlayerChatEvent event) {
+		//plugin.getLogger().info(event.toString());
+		chatPostedQueue.add(event);
+	}
 
 	/** called from the server main thread */
 	public void tick() {
@@ -140,7 +147,7 @@ public class RemoteSession {
 			// world.setBlock
 			} else if (c.equals("world.setBlock")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				world.getBlockAt(loc).setTypeIdAndData(Integer.parseInt(args[3]), (args.length > 4? Byte.parseByte(args[4]) : (byte) 0), true);
+				updateBlock(world, loc, Integer.parseInt(args[3]), (args.length > 4? Byte.parseByte(args[4]) : (byte) 0));
 				
 			// world.setBlocks
 			} else if (c.equals("world.setBlocks")) {
@@ -153,7 +160,7 @@ public class RemoteSession {
 			// world.getPlayerIds
 			} else if (c.equals("world.getPlayerIds")) {
 				StringBuilder bdr = new StringBuilder();
-				for (Player p: server.getOnlinePlayers()) {
+				for (Player p: Bukkit.getOnlinePlayers()) {
 					bdr.append(p.getEntityId());
 					bdr.append("|");
 				}
@@ -184,6 +191,7 @@ public class RemoteSession {
 			// events.clear
 			} else if (c.equals("events.clear")) {
 				interactEventQueue.clear();
+				chatPostedQueue.clear();
 				
 			// events.block.hits
 			} else if (c.equals("events.block.hits")) {
@@ -198,6 +206,22 @@ public class RemoteSession {
 					b.append(",");
 					b.append(event.getPlayer().getEntityId());
 					if (interactEventQueue.size() > 0) {
+						b.append("|");
+					}
+				}
+				//DEBUG
+				//System.out.println(b.toString());
+				send(b.toString());
+			
+			// events.chat.posts
+			} else if (c.equals("events.chat.posts")) {
+				StringBuilder b = new StringBuilder();
+				AsyncPlayerChatEvent event;
+				while ((event = chatPostedQueue.poll()) != null) {
+					b.append(event.getPlayer().getEntityId());
+					b.append(",");
+					b.append(event.getMessage());
+					if (chatPostedQueue.size() > 0) {
 						b.append("|");
 					}
 				}
@@ -395,7 +419,7 @@ public class RemoteSession {
 		for (int x = minX; x <= maxX; ++x) {
 			for (int z = minZ; z <= maxZ; ++z) {
 				for (int y = minY; y <= maxY; ++y) {
-					world.getBlockAt(x, y, z).setTypeIdAndData(blockType, data, true);
+					updateBlock(world, x, y, z, blockType, data);
 				}
 			}
 		}
@@ -423,6 +447,24 @@ public class RemoteSession {
 		}
 
 		return blockData.substring(0, blockData.length() > 0 ? blockData.length() - 1 : 0);	// We don't want last comma
+	}
+
+	// updates a block
+	private void updateBlock(World world, Location loc, int blockType, byte blockData) {
+		Block thisBlock = world.getBlockAt(loc);
+		updateBlock(thisBlock, blockType, blockData);
+	}
+	
+	private void updateBlock(World world, int x, int y, int z, int blockType, byte blockData) {
+		Block thisBlock = world.getBlockAt(x,y,z);
+		updateBlock(thisBlock, blockType, blockData);
+	}
+	
+	private void updateBlock(Block thisBlock, int blockType, byte blockData) {
+		// check to see if the block is different - otherwise leave it 
+		if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
+			thisBlock.setTypeIdAndData(blockType, blockData, true);
+		}
 	}
 	
 	// gets the current player
@@ -506,7 +548,7 @@ public class RemoteSession {
 		}
 
 		try {
-			out.close();
+			socket.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

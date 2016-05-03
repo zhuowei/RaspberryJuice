@@ -6,5 +6,5 @@ def flatten(l):
             for ee in flatten(e): yield ee
         else: yield e
 
-def flatten_parameters(l):
+def flatten_parameters_to_string(l):
     return ",".join(map(str, flatten(l)))
