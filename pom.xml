@@ -11,6 +11,16 @@
         </repository>
     </repositories>
     <build>
+        <!--Exclude files that aren't actually resources-->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>mcpi/**/**</exclude>
+                    <exclude>test/**/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
