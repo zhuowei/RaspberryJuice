@@ -6,8 +6,8 @@
     <name>RaspberryJuice</name>
     <repositories>
         <repository>
-            <id>bukkit-repo</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
+            <id>elmakers-repo</id>
+            <url>http://maven.elmakers.com/repository/</url>
         </repository>
     </repositories>
     <build>
@@ -26,8 +26,8 @@
     <dependencies>
         <dependency>
             <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>craftbukkit-1.9.2-R0.1-SNAPSHOT.jar</version>
+            <artifactId>craftbukkit</artifactId>
+            <version>1.9.2-R0.1-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
