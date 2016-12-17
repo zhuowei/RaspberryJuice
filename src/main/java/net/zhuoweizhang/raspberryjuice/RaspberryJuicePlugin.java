@@ -28,13 +28,22 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	public Player hostPlayer = null;
 
+	private LocationType locationType;
+
+	public LocationType getLocationType() {
+		return locationType;
+	}
+
 	public void onEnable() {
 		//save a copy of the default config.yml if one is not there
         this.saveDefaultConfig();
         //get port from config.yml
 		int port = this.getConfig().getInt("port");
-        
-        //setup session array
+
+		String location = this.getConfig().getString("location").toUpperCase();
+		locationType = LocationType.valueOf(location);
+
+		//setup session array
 		sessions = new ArrayList<RemoteSession>();
 		
 		//create new tcp listener thread
@@ -64,7 +73,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 			session.queuePlayerInteractEvent(event);
 		}
 	}
-	
+
 	@EventHandler(ignoreCancelled=true)
 	public void onChatPosted(AsyncPlayerChatEvent event) {
 		//debug
@@ -103,7 +112,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		}
 		return null;
 	}
-	
+
 	//get entity by id - TODO to be compatible with the pi it should be changed to return an entity not a player...
 	public Player getEntity(int id) {
 		for (Player p: getServer().getOnlinePlayers()) {
@@ -137,7 +146,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		sessions = null;
 		serverThread = null;
 		getLogger().info("Raspberry Juice Stopped");

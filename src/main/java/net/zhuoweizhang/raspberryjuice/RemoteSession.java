@@ -12,6 +12,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class RemoteSession {
 
+	private final LocationType locationType;
+
 	private Location origin;
 
 	private Socket socket;
@@ -47,6 +49,7 @@ public class RemoteSession {
 	public RemoteSession(RaspberryJuicePlugin plugin, Socket socket) throws IOException {
 		this.socket = socket;
 		this.plugin = plugin;
+		this.locationType = plugin.getLocationType();
 		init();
 	}
 
