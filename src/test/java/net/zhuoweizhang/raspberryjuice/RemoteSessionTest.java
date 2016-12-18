@@ -18,15 +18,21 @@ public class RemoteSessionTest {
 	private CraftWorld world;
 
 	@Mocked
-	private RaspberryJuicePlugin plugin;
-
-	@Mocked
 	private Socket socket;
 
 	private RemoteSession remoteSession;
 
+	private LocationType locationType = LocationType.RELATIVE;
+
 	@BeforeClass
 	public void setUp() throws Exception {
+
+		RaspberryJuicePlugin plugin = new MockUp<RaspberryJuicePlugin>() {
+			@Mock
+			public LocationType getLocationType() {
+				return locationType;
+			}
+		}.getMockInstance();
 
 		new MockUp<RemoteSession>() {
 			@Mock
