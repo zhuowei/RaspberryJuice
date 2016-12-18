@@ -490,14 +490,14 @@ public class RemoteSession {
 		int x = (int) Double.parseDouble(xstr);
 		int y = (int) Double.parseDouble(ystr);
 		int z = (int) Double.parseDouble(zstr);
-		return new Location(origin.getWorld(), origin.getBlockX() + x, origin.getBlockY() + y, origin.getBlockZ() + z);
+		return parseLocation(origin.getWorld(), x, y, z, origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
 	}
 
 	public Location parseRelativeLocation(String xstr, String ystr, String zstr) {
 		double x = Double.parseDouble(xstr);
 		double y = Double.parseDouble(ystr);
 		double z = Double.parseDouble(zstr);
-		return new Location(origin.getWorld(), origin.getX() + x, origin.getY() + y, origin.getZ() + z);
+		return parseLocation(origin.getWorld(), x, y, z, origin.getX(), origin.getY(), origin.getZ());
 	}
 
 	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr, float pitch, float yaw) {
@@ -522,6 +522,17 @@ public class RemoteSession {
 	public String locationToRelative(Location loc) {
 		return (loc.getX() - origin.getX()) + "," + (loc.getY() - origin.getY()) + "," +
 			(loc.getZ() - origin.getZ());
+	}
+
+	private Location parseLocation(World world, double x, double y, double z, double originX, double originY, double originZ) {
+		switch (locationType) {
+			case ABSOLUTE:
+				return new Location(world, x, y, z);
+			case RELATIVE:
+				return new Location(world, originX + x, originY + y, originZ + z);
+			default:
+				throw new IllegalArgumentException("Unknown location type " + locationType);
+		}
 	}
 
 	public void send(Object a) {
