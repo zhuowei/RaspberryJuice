@@ -515,13 +515,22 @@ public class RemoteSession {
 	}
 	
 	public String blockLocationToRelative(Location loc) {
-		return (loc.getBlockX() - origin.getBlockX()) + "," + (loc.getBlockY() - origin.getBlockY()) + "," +
-			(loc.getBlockZ() - origin.getBlockZ());
+		return parseLocation(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
 	}
 
 	public String locationToRelative(Location loc) {
-		return (loc.getX() - origin.getX()) + "," + (loc.getY() - origin.getY()) + "," +
-			(loc.getZ() - origin.getZ());
+		return parseLocation(loc.getX(), loc.getY(), loc.getZ(), origin.getX(), origin.getY(), origin.getZ());
+	}
+
+	private String parseLocation(double x, double y, double z, double originX, double originY, double originZ) {
+		switch (locationType) {
+			case ABSOLUTE:
+				return x + "," + y + "," + z;
+			case RELATIVE:
+				return (x - originX) + "," + (y - originY) + "," + (z - originZ);
+			default:
+				throw new IllegalArgumentException("Unknown location type " + locationType);
+		}
 	}
 
 	private Location parseLocation(World world, double x, double y, double z, double originX, double originY, double originZ) {
