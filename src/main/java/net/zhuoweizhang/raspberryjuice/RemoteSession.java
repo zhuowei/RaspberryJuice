@@ -252,6 +252,30 @@ public class RemoteSession {
 				Location loc = currentPlayer.getLocation();
 				currentPlayer.teleport(parseRelativeBlockLocation(x, y, z, loc.getPitch(), loc.getYaw()));
 				
+			// player.getAbsPos
+			} else if (c.equals("player.getAbsPos")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(currentPlayer.getLocation());
+				
+			// player.setAbsPos
+			} else if (c.equals("player.setAbsPos")) {
+				String name = null, x = args[0], y = args[1], z = args[2];
+				if (args.length > 3) {
+					name = args[0]; x = args[1]; y = args[2]; z = args[3];
+				}
+				
+				Player currentPlayer = getCurrentPlayer(name);
+				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
+				Location loc = currentPlayer.getLocation();
+				loc.setX(Double.parseDouble(x));
+				loc.setY(Double.parseDouble(y));
+				loc.setZ(Double.parseDouble(z));
+				currentPlayer.teleport(loc);
+
 			// player.getPos
 			} else if (c.equals("player.getPos")) {
 				String name = null;
@@ -260,14 +284,14 @@ public class RemoteSession {
 				}
 				Player currentPlayer = getCurrentPlayer(name);
 				send(locationToRelative(currentPlayer.getLocation()));
-				
+
 			// player.setPos
 			} else if (c.equals("player.setPos")) {
 				String name = null, x = args[0], y = args[1], z = args[2];
 				if (args.length > 3) {
 					name = args[0]; x = args[1]; y = args[2]; z = args[3];
 				}
-				
+
 				Player currentPlayer = getCurrentPlayer(name);
 				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
 				Location loc = currentPlayer.getLocation();
