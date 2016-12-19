@@ -65,8 +65,8 @@ public class SessionStepDefs {
 		locationAsString = remoteSession.locationToRelative(requestedPosition);
 	}
 
-	@Then("^the location should have co-ordinates (.*), (.*), (.*)$")
-	public void theLocationShouldHaveCoOrdinates(String x, String y, String z) throws Throwable {
+	@Then("^the relative location should have co-ordinates (.*), (.*), (.*)$")
+	public void theRelativeLocationShouldHaveCoOrdinates(String x, String y, String z) throws Throwable {
 		String[] split = locationAsString.split(",");
 		Assert.assertEquals(split[0], x);
 		Assert.assertEquals(split[1], y);
@@ -83,5 +83,17 @@ public class SessionStepDefs {
 		Assert.assertEquals(location.getBlockX(), x);
 		Assert.assertEquals(location.getBlockY(), y);
 		Assert.assertEquals(location.getBlockZ(), z);
+	}
+
+	@When("^a request for a relative location is made at (.*), (.*), (.*)$")
+	public void aRequestForARelativeLocationIsMade(String x, String y, String z) throws Throwable {
+		location = remoteSession.parseRelativeLocation(x, y, z);
+	}
+
+	@Then("^the location should have co-ordinates (.*), (.*), (.*)$")
+	public void theLocationShouldHaveCoOrdinates(double x, double y, double z) throws Throwable {
+		Assert.assertEquals(location.getX(), x);
+		Assert.assertEquals(location.getY(), y);
+		Assert.assertEquals(location.getZ(), z);
 	}
 }
