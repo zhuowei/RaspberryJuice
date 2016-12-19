@@ -22,6 +22,7 @@ public class SessionStepDefs {
 	private LocationType locationType;
 	private Location requestedPosition;
 	private String locationAsString;
+	private Location location;
 
 
 	@Given("^The location type (.*)$")
@@ -70,5 +71,17 @@ public class SessionStepDefs {
 		Assert.assertEquals(split[0], x);
 		Assert.assertEquals(split[1], y);
 		Assert.assertEquals(split[2], z);
+	}
+
+	@When("^a request for a relative block location is made at (.*), (.*), (.*)$")
+	public void aRequestForARelativeBlockLocationIsMade(String x, String y, String z) throws Throwable {
+		location = remoteSession.parseRelativeBlockLocation(x, y, z);
+	}
+
+	@Then("^the block location should have co-ordinates (.*), (.*), (.*)$")
+	public void theBlockLocationShouldHaveCoOrdinates(int x, int y, int z) throws Throwable {
+		Assert.assertEquals(location.getBlockX(), x);
+		Assert.assertEquals(location.getBlockY(), y);
+		Assert.assertEquals(location.getBlockZ(), z);
 	}
 }
