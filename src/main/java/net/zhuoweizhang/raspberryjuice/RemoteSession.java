@@ -568,6 +568,28 @@ public class RemoteSession {
 		}
 	}
 
+	private String parseLocation(int x, int y, int z, int originX, int originY, int originZ) {
+		switch (locationType) {
+			case ABSOLUTE:
+				return x + "," + y + "," + z;
+			case RELATIVE:
+				return (x - originX) + "," + (y - originY) + "," + (z - originZ);
+			default:
+				throw new IllegalArgumentException("Unknown location type " + locationType);
+		}
+	}
+
+	private Location parseLocation(World world, int x, int y, int z, int originX, int originY, int originZ) {
+		switch (locationType) {
+			case ABSOLUTE:
+				return new Location(world, x, y, z);
+			case RELATIVE:
+				return new Location(world, originX + x, originY + y, originZ + z);
+			default:
+				throw new IllegalArgumentException("Unknown location type " + locationType);
+		}
+	}
+
 	public void send(Object a) {
 		send(a.toString());
 	}
