@@ -4,6 +4,7 @@ import java.net.*;
 import java.util.*;
 
 import org.bukkit.*;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.EventHandler;
@@ -155,6 +156,91 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 					s.tick();
 				}
 			}
+		}
+	}
+	
+	public EntityType entityTypeFromId (int id) {
+		EntityType[] entities= {
+				EntityType.ARMOR_STAND, //EntityType.AREA_EFFECT_CLOUD,
+				EntityType.ARMOR_STAND,
+				EntityType.ARROW,
+				EntityType.BAT,
+				EntityType.BLAZE,
+				EntityType.BOAT,
+				EntityType.CAVE_SPIDER,
+				EntityType.CHICKEN,
+				EntityType.COMPLEX_PART,
+				EntityType.COW,
+				EntityType.CREEPER,
+				EntityType.CREEPER,  // EntityType.DRAGON_FIREBALL
+				EntityType.DROPPED_ITEM,
+				EntityType.EGG,
+				EntityType.ENDER_CRYSTAL,
+				EntityType.ENDER_DRAGON,
+				EntityType.ENDER_PEARL,
+				EntityType.ENDER_SIGNAL,
+				EntityType.ENDERMAN,
+				EntityType.ENDERMITE,
+				EntityType.EXPERIENCE_ORB,
+				EntityType.FALLING_BLOCK,
+				EntityType.FIREBALL,
+				EntityType.FIREWORK,
+				EntityType.FISHING_HOOK,
+				EntityType.GHAST,
+				EntityType.GIANT,
+				EntityType.GUARDIAN,
+				EntityType.HORSE,
+				EntityType.IRON_GOLEM,
+				EntityType.ITEM_FRAME,
+				EntityType.LEASH_HITCH,
+				EntityType.LIGHTNING,
+				EntityType.MAGMA_CUBE, //.LINGERING_POTION,
+				EntityType.MAGMA_CUBE,
+				EntityType.MINECART,
+				EntityType.MINECART_CHEST,
+				EntityType.MINECART_COMMAND,
+				EntityType.MINECART_FURNACE,
+				EntityType.MINECART_HOPPER,
+				EntityType.MINECART_MOB_SPAWNER,
+				EntityType.MINECART_TNT,
+				EntityType.MUSHROOM_COW,
+				EntityType.OCELOT,
+				EntityType.PAINTING,
+				EntityType.PIG,
+				EntityType.PIG_ZOMBIE,
+				EntityType.PLAYER,
+				EntityType.PRIMED_TNT, //.POLAR_BEAR,
+				EntityType.PRIMED_TNT,
+				EntityType.RABBIT,
+				EntityType.SHEEP,
+				EntityType.SHEEP, //.SHULKER,
+				EntityType.SHEEP, //.SHULKER_BULLET,
+				EntityType.SILVERFISH,
+				EntityType.SKELETON,
+				EntityType.SLIME,
+				EntityType.SMALL_FIREBALL,
+				EntityType.SNOWBALL,
+				EntityType.SNOWMAN,
+				EntityType.SNOWMAN, //.SPECTRAL_ARROW,
+				EntityType.SPIDER,
+				EntityType.SPLASH_POTION,
+				EntityType.SQUID,
+				EntityType.THROWN_EXP_BOTTLE,
+				EntityType.THROWN_EXP_BOTTLE, //.TIPPED_ARROW,
+				EntityType.UNKNOWN,
+				EntityType.VILLAGER,
+				EntityType.WEATHER,
+				EntityType.WITCH,
+				EntityType.WITHER,
+				EntityType.WITHER_SKULL,
+				EntityType.WOLF,
+				EntityType.ZOMBIE
+					};
+		
+		if (id < entities.length) {
+			return entities[id];
+		} else {
+			return EntityType.CREEPER; // you were a bad boy
 		}
 	}
 }

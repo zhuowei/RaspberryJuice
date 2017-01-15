@@ -76,9 +76,9 @@ class CmdPositioner:
         """Send a warning"""
         self.conn.send("pello.warning", msg)
     
-    def setMob(self, *args):
-        """Set mob (x,y,z,id,[data])"""
-        self.conn.send("world.setMob", intFloor(args))
+    def setEntity(self, *args):
+        """Set entity (x,y,z,id,[data])"""
+        self.conn.send("world.setEntity", intFloor(args))
 
 class CmdEntity(CmdPositioner):
     """Methods for entities"""
