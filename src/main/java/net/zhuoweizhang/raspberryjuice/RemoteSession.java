@@ -178,13 +178,13 @@ public class RemoteSession {
 					send("Fail");
 				}
 
-				// world.setMob
-			} else if (c.equals("world.setMob")) {
+				// world.setEntity
+			} else if (c.equals("world.setEntity")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				//updateBlock(world, loc, Integer.parseInt(args[3]),
 					//	(args.length > 4 ? Byte.parseByte(args[4]) : (byte) 0));
-				world.spawnEntity(loc, EntityType.WOLF);
-				
+				world.spawnEntity(loc, EntityType.fromId(Integer.parseInt(args[3])));
+				System.out.println("Spawned requested entity: " + args[3]);
 				// chat.post
 			} else if (c.equals("chat.post")) {
 				// create chat message from args as it was split by ,
