@@ -49,6 +49,13 @@ class CmdPositioner:
         """Set a player setting (setting, status). keys: autojump"""
         self.conn.send(self.pkg + ".setting", setting, 1 if bool(status) else 0)
 
+    def showWarning(self, msg):
+        """Send a warning"""
+        self.conn.send("pello.warning", msg)
+    
+    def setEntity(self, *args):
+        """Set entity (x,y,z,id,[data])"""
+        self.conn.send("world.setEntity", intFloor(args))
 
 class CmdEntity(CmdPositioner):
     """Methods for entities"""

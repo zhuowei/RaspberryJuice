@@ -1,7 +1,7 @@
-author: Zhuowei
+author: Zhuowei - forked by pxai
 database: false
 description: Implementation of the Minecraft PI modding API
 main: net.zhuoweizhang.raspberryjuice.RaspberryJuicePlugin
-name: RaspberryJuice
+name: RaspberryJuiceMonsters
 startup: postworld
 version: '1.7'
