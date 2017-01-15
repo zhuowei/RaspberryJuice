@@ -1,5 +1,7 @@
 RaspberryJuice - A Bukkit plugin which implements the Minecraft Pi Socket API.
 
+# ADD entities to Minecraft using python!!
+
 Feature added to the Bukkit plugin
  - world.showWarning : simple log for server
  - world.setEntity : adds a new entity in given coordinates
@@ -21,6 +23,8 @@ mc.showWarning("Howly crap, creating entities")
 for i in range(0,20):
     mc.setEntity(pos.x, pos.y, pos.z, Entity.SHEEP)
 ```
+
+Check Entity.py in mcpi in resources to learn about available entities list
 
 Features currently supported:
  - world.get/setBlock
