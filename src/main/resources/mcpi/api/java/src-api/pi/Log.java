@@ -19,4 +19,8 @@ class Log {
     static void error(String s) {
         System.err.println(s);
     }
+    
+    static void warning(String s) {
+        System.err.println("[Warning]> " + s);
+    }
 }

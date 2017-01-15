@@ -392,6 +392,14 @@ public class RemoteSession {
 					}
 						
 			// not a command which is supported
+			// entity.getPitch
+			} 	else if (c.equals("pello.warning")) {
+				String msg = "";
+				if (args.length > 0) {
+					msg = args[0];
+				}
+				System.out.println(msg);
+				//send(currentPlayer.getLocation().getPitch());
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");
 				send("Fail");
