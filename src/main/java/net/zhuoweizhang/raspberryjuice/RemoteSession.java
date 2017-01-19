@@ -95,7 +95,18 @@ public class RemoteSession {
 
 	/** called from the server main thread */
 	public void tick() {
-		if (origin == null) this.origin = plugin.getServer().getWorlds().get(0).getSpawnLocation();
+		if (origin == null) {
+			switch (locationType) {
+				case ABSOLUTE:
+					this.origin = new Location(plugin.getServer().getWorlds().get(0), 0, 0, 0);
+					break;
+				case RELATIVE:
+					this.origin = plugin.getServer().getWorlds().get(0).getSpawnLocation();
+					break;
+				default:
+					throw new IllegalArgumentException("Unknown location type " + locationType);
+			}
+		}
 		int processedCount = 0;
 		String message;
 		while ((message = inQueue.poll()) != null) {
@@ -547,47 +558,19 @@ public class RemoteSession {
 	}
 
 	private String parseLocation(double x, double y, double z, double originX, double originY, double originZ) {
-		switch (locationType) {
-			case ABSOLUTE:
-				return x + "," + y + "," + z;
-			case RELATIVE:
-				return (x - originX) + "," + (y - originY) + "," + (z - originZ);
-			default:
-				throw new IllegalArgumentException("Unknown location type " + locationType);
-		}
+		return (x - originX) + "," + (y - originY) + "," + (z - originZ);
 	}
 
 	private Location parseLocation(World world, double x, double y, double z, double originX, double originY, double originZ) {
-		switch (locationType) {
-			case ABSOLUTE:
-				return new Location(world, x, y, z);
-			case RELATIVE:
-				return new Location(world, originX + x, originY + y, originZ + z);
-			default:
-				throw new IllegalArgumentException("Unknown location type " + locationType);
-		}
+		return new Location(world, originX + x, originY + y, originZ + z);
 	}
 
 	private String parseLocation(int x, int y, int z, int originX, int originY, int originZ) {
-		switch (locationType) {
-			case ABSOLUTE:
-				return x + "," + y + "," + z;
-			case RELATIVE:
-				return (x - originX) + "," + (y - originY) + "," + (z - originZ);
-			default:
-				throw new IllegalArgumentException("Unknown location type " + locationType);
-		}
+		return (x - originX) + "," + (y - originY) + "," + (z - originZ);
 	}
 
 	private Location parseLocation(World world, int x, int y, int z, int originX, int originY, int originZ) {
-		switch (locationType) {
-			case ABSOLUTE:
-				return new Location(world, x, y, z);
-			case RELATIVE:
-				return new Location(world, originX + x, originY + y, originZ + z);
-			default:
-				throw new IllegalArgumentException("Unknown location type " + locationType);
-		}
+		return new Location(world, originX + x, originY + y, originZ + z);
 	}
 
 	public void send(Object a) {

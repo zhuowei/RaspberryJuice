@@ -39,9 +39,12 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
         this.saveDefaultConfig();
         //get port from config.yml
 		int port = this.getConfig().getInt("port");
-
+		getLogger().info("Using port " + Integer.toString(port));
+		
+		//get location type (ABSOLUTE or RELATIVE) from config.yml
 		String location = this.getConfig().getString("location").toUpperCase();
 		locationType = LocationType.valueOf(location);
+		getLogger().info("Using " + locationType.name() + " locations");
 
 		//setup session array
 		sessions = new ArrayList<RemoteSession>();
