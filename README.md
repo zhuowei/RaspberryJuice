@@ -31,7 +31,10 @@ Extra features(**):
    - name added as an option parameter to player calls
    - modded minecraft.py in python api library so player "name" can be passed on Minecraft.create(ip, port, name)
    - this change does not stop standard python api library being used
- - the default tcp port can be changed in config.yml
+ 
+Config (in config.yml):
+ - port: 4711 - the default tcp port can be changed in config.yml
+ - location: RELATIVE - determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
 
 ** to use the extra features an modded version of the java and python libraries that were originally supplied by Mojang with the Pi is required, https://github.com/zhuowei/RaspberryJuice/tree/master/src/main/resources/mcpi.  You only need the modded libraries to use the extra features, the original libraries still work, you just wont be able to use the extra features
 
@@ -49,4 +52,4 @@ Version history:
  - 1.6 - added getPlayerId(playerName), getDirection, getRotation, getPitch
  - 1.7 - added pollChatPosts() & block update performance improvements
  - 1.8 - minecraft version 1.9.2 compatibility
- 
+ - 1.9 - relative and absolute positions added to config.yml

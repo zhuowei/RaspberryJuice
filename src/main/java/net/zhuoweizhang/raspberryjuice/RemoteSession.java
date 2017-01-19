@@ -12,6 +12,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class RemoteSession {
 
+	private final LocationType locationType;
+
 	private Location origin;
 
 	private Socket socket;
@@ -47,6 +49,7 @@ public class RemoteSession {
 	public RemoteSession(RaspberryJuicePlugin plugin, Socket socket) throws IOException {
 		this.socket = socket;
 		this.plugin = plugin;
+		this.locationType = plugin.getLocationType();
 		init();
 	}
 
@@ -92,7 +95,18 @@ public class RemoteSession {
 
 	/** called from the server main thread */
 	public void tick() {
-		if (origin == null) this.origin = plugin.getServer().getWorlds().get(0).getSpawnLocation();
+		if (origin == null) {
+			switch (locationType) {
+				case ABSOLUTE:
+					this.origin = new Location(plugin.getServer().getWorlds().get(0), 0, 0, 0);
+					break;
+				case RELATIVE:
+					this.origin = plugin.getServer().getWorlds().get(0).getSpawnLocation();
+					break;
+				default:
+					throw new IllegalArgumentException("Unknown location type " + locationType);
+			}
+		}
 		int processedCount = 0;
 		String message;
 		while ((message = inQueue.poll()) != null) {
@@ -249,6 +263,30 @@ public class RemoteSession {
 				Location loc = currentPlayer.getLocation();
 				currentPlayer.teleport(parseRelativeBlockLocation(x, y, z, loc.getPitch(), loc.getYaw()));
 				
+			// player.getAbsPos
+			} else if (c.equals("player.getAbsPos")) {
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				send(currentPlayer.getLocation());
+				
+			// player.setAbsPos
+			} else if (c.equals("player.setAbsPos")) {
+				String name = null, x = args[0], y = args[1], z = args[2];
+				if (args.length > 3) {
+					name = args[0]; x = args[1]; y = args[2]; z = args[3];
+				}
+				
+				Player currentPlayer = getCurrentPlayer(name);
+				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
+				Location loc = currentPlayer.getLocation();
+				loc.setX(Double.parseDouble(x));
+				loc.setY(Double.parseDouble(y));
+				loc.setZ(Double.parseDouble(z));
+				currentPlayer.teleport(loc);
+
 			// player.getPos
 			} else if (c.equals("player.getPos")) {
 				String name = null;
@@ -257,14 +295,14 @@ public class RemoteSession {
 				}
 				Player currentPlayer = getCurrentPlayer(name);
 				send(locationToRelative(currentPlayer.getLocation()));
-				
+
 			// player.setPos
 			} else if (c.equals("player.setPos")) {
 				String name = null, x = args[0], y = args[1], z = args[2];
 				if (args.length > 3) {
 					name = args[0]; x = args[1]; y = args[2]; z = args[3];
 				}
-				
+
 				Player currentPlayer = getCurrentPlayer(name);
 				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
 				Location loc = currentPlayer.getLocation();
@@ -487,14 +525,14 @@ public class RemoteSession {
 		int x = (int) Double.parseDouble(xstr);
 		int y = (int) Double.parseDouble(ystr);
 		int z = (int) Double.parseDouble(zstr);
-		return new Location(origin.getWorld(), origin.getBlockX() + x, origin.getBlockY() + y, origin.getBlockZ() + z);
+		return parseLocation(origin.getWorld(), x, y, z, origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
 	}
 
 	public Location parseRelativeLocation(String xstr, String ystr, String zstr) {
 		double x = Double.parseDouble(xstr);
 		double y = Double.parseDouble(ystr);
 		double z = Double.parseDouble(zstr);
-		return new Location(origin.getWorld(), origin.getX() + x, origin.getY() + y, origin.getZ() + z);
+		return parseLocation(origin.getWorld(), x, y, z, origin.getX(), origin.getY(), origin.getZ());
 	}
 
 	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr, float pitch, float yaw) {
@@ -512,13 +550,27 @@ public class RemoteSession {
 	}
 	
 	public String blockLocationToRelative(Location loc) {
-		return (loc.getBlockX() - origin.getBlockX()) + "," + (loc.getBlockY() - origin.getBlockY()) + "," +
-			(loc.getBlockZ() - origin.getBlockZ());
+		return parseLocation(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
 	}
 
 	public String locationToRelative(Location loc) {
-		return (loc.getX() - origin.getX()) + "," + (loc.getY() - origin.getY()) + "," +
-			(loc.getZ() - origin.getZ());
+		return parseLocation(loc.getX(), loc.getY(), loc.getZ(), origin.getX(), origin.getY(), origin.getZ());
+	}
+
+	private String parseLocation(double x, double y, double z, double originX, double originY, double originZ) {
+		return (x - originX) + "," + (y - originY) + "," + (z - originZ);
+	}
+
+	private Location parseLocation(World world, double x, double y, double z, double originX, double originY, double originZ) {
+		return new Location(world, originX + x, originY + y, originZ + z);
+	}
+
+	private String parseLocation(int x, int y, int z, int originX, int originY, int originZ) {
+		return (x - originX) + "," + (y - originY) + "," + (z - originZ);
+	}
+
+	private Location parseLocation(World world, int x, int y, int z, int originX, int originY, int originZ) {
+		return new Location(world, originX + x, originY + y, originZ + z);
 	}
 
 	public void send(Object a) {

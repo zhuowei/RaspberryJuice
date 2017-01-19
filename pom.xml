@@ -2,23 +2,33 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.zhuoweizhang</groupId>
     <artifactId>raspberryjuice</artifactId>
-    <version>1.8</version>
+    <version>1.9</version>
     <name>RaspberryJuice</name>
     <repositories>
         <repository>
-            <id>bukkit-repo</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
+            <id>elmakers-repo</id>
+            <url>http://maven.elmakers.com/repository/</url>
         </repository>
     </repositories>
     <build>
+        <!--Exclude files that aren't actually resources-->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <exclude>mcpi/**/**</exclude>
+                    <exclude>test/**/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.0.2</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -26,10 +36,30 @@
     <dependencies>
         <dependency>
             <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>craftbukkit-1.9.2-R0.1-SNAPSHOT.jar</version>
+            <artifactId>craftbukkit</artifactId>
+            <version>1.9.2-R0.1-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
+        </dependency>
+
+        <!--Test Dependencies-->
+        <dependency>
+            <groupId>info.cukes</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>1.2.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>info.cukes</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>1.2.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jmockit</groupId>
+            <artifactId>jmockit</artifactId>
+            <version>1.23</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
