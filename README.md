@@ -32,7 +32,7 @@ Extra features(**):
    - modded minecraft.py in python api library so player "name" can be passed on Minecraft.create(ip, port, name)
    - this change does not stop standard python api library being used
  
- Config (in config.yml):
+Config (in config.yml):
  - port: 4711 - the default tcp port can be changed in config.yml
  - location: RELATIVE - determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
 
