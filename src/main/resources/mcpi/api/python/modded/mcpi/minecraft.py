@@ -1,9 +1,9 @@
-from connection import Connection
-from vec3 import Vec3
-from event import BlockEvent, ChatEvent
-from block import Block
+from .connection import Connection
+from .vec3 import Vec3
+from .event import BlockEvent, ChatEvent
+from .block import Block
 import math
-from util import flatten
+from .util import flatten
 
 """ Minecraft PI low level api v0.1_1
 
@@ -16,7 +16,7 @@ from util import flatten
      entityId, by injecting [] that flattens to nothing)
 
     @author: Aron Nieminen, Mojang AB
-    
+
     Updated to included additional functionality provided by RaspberryJuice:
     - getBlocks() : implemented
     - .create() : can now accept "name" (player name) for use in multiplayer
@@ -167,7 +167,7 @@ class Minecraft:
     def getBlocks(self, *args):
         """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
         s = self.conn.sendReceive("world.getBlocks", intFloor(args))
-        return map(int, s.split(","))
+        return list(map(int, s.split(",")))
 
     def setBlock(self, *args):
         """Set block (x,y,z,id,[data])"""
@@ -184,7 +184,7 @@ class Minecraft:
     def getPlayerEntityIds(self):
         """Get the entity ids of the connected players => [id:int]"""
         ids = self.conn.sendReceive("world.getPlayerIds")
-        return map(int, ids.split("|"))
+        return list(map(int, ids.split("|")))
 
     def getPlayerEntityId(self, name):
         """Get the entity id of the named player => [id:int]"""
