@@ -50,3 +50,6 @@ tmp/
 
 # Locally stored "Eclipse launch configurations"
 *.launch
+
+# Python
+*.pyc
