@@ -27,10 +27,6 @@ Extra features(**):
  - getDirection, getRotation, getPitch functions - get the 'direction' players and entities are facing
  - getPlayerId(playerName) - get the entity of a player by name
  - pollChatPosts() - get events back for posts to the chat
- - multiplayer support
-   - name added as an option parameter to player calls
-   - modded minecraft.py in python api library so player "name" can be passed on Minecraft.create(ip, port, name)
-   - this change does not stop standard python api library being used
  
 Config (in config.yml):
  - port: 4711 - the default tcp port can be changed in config.yml
