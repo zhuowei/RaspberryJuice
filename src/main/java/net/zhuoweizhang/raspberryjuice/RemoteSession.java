@@ -633,10 +633,14 @@ public class RemoteSession {
 				} catch (Exception e) {
 					// if its running raise an error
 					if (running) {
-						e.printStackTrace();
+						if (e.getMessage().equals("Connection reset")) {
+							plugin.getLogger().info("Connection reset");
+						} else {
+							e.printStackTrace();
+						}
 						running = false;
 					}
-				}
+				} 
 			}
 			//close in buffer
 			try {
