@@ -8,7 +8,8 @@ import mockit.Mock;
 import mockit.MockUp;
 import mockit.Mocked;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
+import org.bukkit.World;
+//import org.bukkit.craftbukkit.v1_9_R1.CraftWorld;
 import org.testng.Assert;
 
 import java.net.Socket;
@@ -16,7 +17,7 @@ import java.net.Socket;
 public class SessionStepDefs {
 
 	@Mocked
-	private CraftWorld world;
+	private World world;
 
 	private RemoteSession remoteSession;
 	private LocationType locationType;
