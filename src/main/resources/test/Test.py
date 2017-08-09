@@ -110,7 +110,7 @@ runTests(mc)
 time.sleep(3)
 
 #Modded Library Tests
-mc = minecraftmodded.Minecraft.create(name="martinohanlon")
+mc = minecraftmodded.Minecraft.create()
 mc.postToChat("Modded library")
 runTests(mc, True)
 

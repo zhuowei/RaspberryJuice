@@ -30,8 +30,12 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	private LocationType locationType;
 
+	private HitClickType hitClickType;
 	public LocationType getLocationType() {
 		return locationType;
+	}
+	public HitClickType getHitClickType() {
+		return hitClickType;
 	}
 
 	public void onEnable() {
@@ -43,8 +47,23 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		
 		//get location type (ABSOLUTE or RELATIVE) from config.yml
 		String location = this.getConfig().getString("location").toUpperCase();
-		locationType = LocationType.valueOf(location);
+		try {
+			locationType = LocationType.valueOf(location);
+		} catch(IllegalArgumentException e) {
+			getLogger().warning("warning - location value in config.yml should be ABSOLUTE or RELATIVE - '" + location + "' found");
+			locationType = LocationType.valueOf("RELATIVE");
+		}
 		getLogger().info("Using " + locationType.name() + " locations");
+
+		//get hit click type (LEFT, RIGHT or BOTH) from config.yml
+		String hitClick = this.getConfig().getString("hitclick").toUpperCase();
+		try {
+			hitClickType = HitClickType.valueOf(hitClick);
+		} catch(IllegalArgumentException e) {
+			getLogger().warning("warning - hitclick value in config.yml should be LEFT, RIGHT or BOTH - '" + hitClick + "' found");
+			hitClickType = HitClickType.valueOf("RIGHT");
+		}
+		getLogger().info("Using " + hitClickType.name() + " clicks for hits");
 
 		//setup session array
 		sessions = new ArrayList<RemoteSession>();
@@ -67,8 +86,19 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	@EventHandler(ignoreCancelled=true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
-		ItemStack currentTool = event.getPlayer().getItemInHand();
+		// only react to events which are of the correct type
+		switch(hitClickType) {
+			case BOTH:
+				if ((event.getAction() != Action.RIGHT_CLICK_BLOCK) && (event.getAction() != Action.LEFT_CLICK_BLOCK)) return;
+				break;
+			case LEFT:
+				if (event.getAction() != Action.LEFT_CLICK_BLOCK) return;
+				break;
+			case RIGHT:
+				if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+				break;
+		}
+		ItemStack currentTool = event.getItem();
 		if (currentTool == null || !blockBreakDetectionTools.contains(currentTool.getType())) {
 			return;
 		}

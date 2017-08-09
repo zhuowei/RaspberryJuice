@@ -53,3 +53,9 @@ tmp/
 
 # Python
 *.pyc
+
+# Editor detritus
+*.vim
+*.swp
+tags
+.vscode

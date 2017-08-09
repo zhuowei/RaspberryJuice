@@ -62,6 +62,7 @@ mvn package
 
 ## Version history
 
+ - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
  - 1.9.1 - minor change to improve connection reset
  - 1.9 - relative and absolute positions added to config.yml
  - 1.8 - minecraft version 1.9.2 compatibility
