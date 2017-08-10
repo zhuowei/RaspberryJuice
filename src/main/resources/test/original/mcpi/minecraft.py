@@ -1,9 +1,9 @@
-from connection import Connection
-from vec3 import Vec3
-from event import BlockEvent
-from block import Block
+from .connection import Connection
+from .vec3 import Vec3
+from .event import BlockEvent
+from .block import Block
 import math
-from util import flatten
+from .util import flatten
 
 """ Minecraft PI low level api v0.1_1
 
@@ -29,37 +29,37 @@ class CmdPositioner:
 
     def getPos(self, id):
         """Get entity position (entityId:int) => Vec3"""
-        s = self.conn.sendReceive(self.pkg + ".getPos", id)
-        return Vec3(*map(float, s.split(",")))
+        s = self.conn.sendReceive(self.pkg + b".getPos", id)
+        return Vec3(*list(map(float, s.split(","))))
 
     def setPos(self, id, *args):
         """Set entity position (entityId:int, x,y,z)"""
-        self.conn.send(self.pkg + ".setPos", id, args)
+        self.conn.send(self.pkg + b".setPos", id, args)
 
     def getTilePos(self, id):
         """Get entity tile position (entityId:int) => Vec3"""
-        s = self.conn.sendReceive(self.pkg + ".getTile", id)
-        return Vec3(*map(int, s.split(",")))
+        s = self.conn.sendReceive(self.pkg + b".getTile", id)
+        return Vec3(*list(map(int, s.split(","))))
 
     def setTilePos(self, id, *args):
         """Set entity tile position (entityId:int) => Vec3"""
-        self.conn.send(self.pkg + ".setTile", id, intFloor(*args))
+        self.conn.send(self.pkg + b".setTile", id, intFloor(*args))
 
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
-        self.conn.send(self.pkg + ".setting", setting, 1 if bool(status) else 0)
+        self.conn.send(self.pkg + b".setting", setting, 1 if bool(status) else 0)
 
 
 class CmdEntity(CmdPositioner):
     """Methods for entities"""
     def __init__(self, connection):
-        CmdPositioner.__init__(self, connection, "entity")
+        CmdPositioner.__init__(self, connection, b"entity")
 
 
 class CmdPlayer(CmdPositioner):
     """Methods for the host (Raspberry Pi) player"""
     def __init__(self, connection):
-        CmdPositioner.__init__(self, connection, "player")
+        CmdPositioner.__init__(self, connection, b"player")
         self.conn = connection
 
     def getPos(self):
@@ -77,19 +77,19 @@ class CmdCamera:
 
     def setNormal(self, *args):
         """Set camera mode to normal Minecraft view ([entityId])"""
-        self.conn.send("camera.mode.setNormal", args)
+        self.conn.send(b"camera.mode.setNormal", args)
 
     def setFixed(self):
         """Set camera mode to fixed view"""
-        self.conn.send("camera.mode.setFixed")
+        self.conn.send(b"camera.mode.setFixed")
 
     def setFollow(self, *args):
         """Set camera mode to follow an entity ([entityId])"""
-        self.conn.send("camera.mode.setFollow", args)
+        self.conn.send(b"camera.mode.setFollow", args)
 
     def setPos(self, *args):
         """Set camera entity position (x,y,z)"""
-        self.conn.send("camera.setPos", args)
+        self.conn.send(b"camera.setPos", args)
 
 
 class CmdEvents:
@@ -99,13 +99,13 @@ class CmdEvents:
 
     def clearAll(self):
         """Clear all old events"""
-        self.conn.send("events.clear")
+        self.conn.send(b"events.clear")
 
     def pollBlockHits(self):
         """Only triggered by sword => [BlockEvent]"""
-        s = self.conn.sendReceive("events.block.hits")
+        s = self.conn.sendReceive(b"events.block.hits")
         events = [e for e in s.split("|") if e]
-        return [BlockEvent.Hit(*map(int, e.split(","))) for e in events]
+        return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
 
 
 class Minecraft:
@@ -120,51 +120,51 @@ class Minecraft:
 
     def getBlock(self, *args):
         """Get block (x,y,z) => id:int"""
-        return int(self.conn.sendReceive("world.getBlock", intFloor(args)))
+        return int(self.conn.sendReceive(b"world.getBlock", intFloor(args)))
 
     def getBlockWithData(self, *args):
         """Get block with data (x,y,z) => Block"""
-        ans = self.conn.sendReceive("world.getBlockWithData", intFloor(args))
-        return Block(*map(int, ans.split(",")))
+        ans = self.conn.sendReceive(b"world.getBlockWithData", intFloor(args))
+        return Block(*list(map(int, ans.split(","))))
     """
         @TODO
     """
     def getBlocks(self, *args):
         """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
-        return int(self.conn.sendReceive("world.getBlocks", intFloor(args)))
+        return int(self.conn.sendReceive(b"world.getBlocks", intFloor(args)))
 
     def setBlock(self, *args):
         """Set block (x,y,z,id,[data])"""
-        self.conn.send("world.setBlock", intFloor(args))
+        self.conn.send(b"world.setBlock", intFloor(args))
 
     def setBlocks(self, *args):
         """Set a cuboid of blocks (x0,y0,z0,x1,y1,z1,id,[data])"""
-        self.conn.send("world.setBlocks", intFloor(args))
+        self.conn.send(b"world.setBlocks", intFloor(args))
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
-        return int(self.conn.sendReceive("world.getHeight", intFloor(args)))
+        return int(self.conn.sendReceive(b"world.getHeight", intFloor(args)))
 
     def getPlayerEntityIds(self):
         """Get the entity ids of the connected players => [id:int]"""
-        ids = self.conn.sendReceive("world.getPlayerIds")
-        return map(int, ids.split("|"))
+        ids = self.conn.sendReceive(b"world.getPlayerIds")
+        return list(map(int, ids.split("|")))
 
     def saveCheckpoint(self):
         """Save a checkpoint that can be used for restoring the world"""
-        self.conn.send("world.checkpoint.save")
+        self.conn.send(b"world.checkpoint.save")
 
     def restoreCheckpoint(self):
         """Restore the world state to the checkpoint"""
-        self.conn.send("world.checkpoint.restore")
+        self.conn.send(b"world.checkpoint.restore")
 
     def postToChat(self, msg):
         """Post a message to the game chat"""
-        self.conn.send("chat.post", msg)
+        self.conn.send(b"chat.post", msg)
 
     def setting(self, setting, status):
         """Set a world setting (setting, status). keys: world_immutable, nametags_visible"""
-        self.conn.send("world.setting", setting, 1 if bool(status) else 0)
+        self.conn.send(b"world.setting", setting, 1 if bool(status) else 0)
 
     @staticmethod
     def create(address = "localhost", port = 4711):

@@ -43,6 +43,7 @@ Modify config.yml:
 
  - port: 4711 - the default tcp port can be changed in config.yml
  - location: RELATIVE - determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
+ - hitclick: RIGHT - determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH 
 
 ## Libraries
 
@@ -62,6 +63,7 @@ mvn package
 
 ## Version history
 
+ - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
  - 1.9.1 - minor change to improve connection reset
  - 1.9 - relative and absolute positions added to config.yml
  - 1.8 - minecraft version 1.9.2 compatibility
