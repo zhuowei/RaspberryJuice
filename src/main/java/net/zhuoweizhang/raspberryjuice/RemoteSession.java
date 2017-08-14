@@ -428,6 +428,27 @@ public class RemoteSession {
 						plugin.getLogger().info("Entity [" + args[0] + "] not found.");
 						send("Fail");
 					}
+	        
+	        // world.setSign  
+	        } else if (c.equals("world.setSign")) {
+	          Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+	          Block thisBlock = world.getBlockAt(loc);
+	          //blockType should be 68 for wall sign or 63 for standing sign
+	          int blockType = Integer.parseInt(args[3]);  
+	          //facing direction for wall sign : 2=north, 3=south, 4=west, 5=east
+	          //rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
+	          byte blockData = Byte.parseByte(args[4]); 
+	          if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
+	            thisBlock.setTypeIdAndData(blockType, blockData, true);
+	          }
+	          //plugin.getLogger().info("Creating sign at " + loc + ", class=" + thisBlock.getState().getClass().getCanonicalName());
+	          if ( thisBlock.getState() instanceof Sign ) {
+	            Sign sign = (Sign) thisBlock.getState();
+	            for ( int i = 5; i-5 < 4 && i < args.length; i++) {
+	              sign.setLine(i-5, args[i]);
+	            }
+	            sign.update();
+	          }
 						
 			// not a command which is supported
 			} else {

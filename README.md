@@ -34,6 +34,9 @@ A Bukkit plugin which implements the Minecraft Pi Socket API.
  - getDirection, getRotation, getPitch functions - get the 'direction' players and entities are facing
  - getPlayerId(playerName) - get the entity of a player by name
  - pollChatPosts() - get events back for posts to the chat
+ - setSign(x,y,z,block type id,data,line1,line2,line3,line4)
+   - Wall signs (id=68 or block.SIGN_WALL.id) require data for facing direction 2=north, 3=south, 4=west, 5=east
+   - Standing signs (id=63 or block.SIGN_STANDING.id) require data for facing rotation (0-15) 0=south, 4=west, 8=north, 12=east
 
 Note - extra features are NOT guaranteed to be maintained in future releases, particularly if updates are made to the original Pi API which replace the functionality
 
