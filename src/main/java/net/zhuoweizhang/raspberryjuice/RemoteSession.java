@@ -429,7 +429,7 @@ public class RemoteSession {
 						send("Fail");
 					}
 	        
-	        // world.setSign  
+	        // world.setSign      Author: Tim Cummings https://www.triptera.com.au/wordpress/
 	        } else if (c.equals("world.setSign")) {
 	          Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 	          Block thisBlock = world.getBlockAt(loc);

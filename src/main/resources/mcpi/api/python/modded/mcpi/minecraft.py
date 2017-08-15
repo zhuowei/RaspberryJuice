@@ -3,7 +3,7 @@ from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
 from .block import Block
 import math
-from .util import flatten
+from .util import flatten, flatten_parameters_to_bytestring, _misc_to_bytes
 
 """ Minecraft PI low level api v0.1_1
 
@@ -176,7 +176,8 @@ class Minecraft:
         """Set a sign (x,y,z,id,data,[line1,line2,line3,line4])
         
         Wall signs (id=68) require data for facing direction 2=north, 3=south, 4=west, 5=east
-        Standing signs (id=63) require data for facing rotation (0-15) 0=south, 4=west, 8=north, 12=east"""
+        Standing signs (id=63) require data for facing rotation (0-15) 0=south, 4=west, 8=north, 12=east
+        Author: Tim Cummings https://www.triptera.com.au/wordpress/"""
         lines = []
         for i in range(5,len(args)):
             lines.append(_misc_to_bytes(args[i].replace(",",";").replace(")","]").replace("(","[")))
