@@ -176,11 +176,15 @@ class Minecraft:
         """Set a sign (x,y,z,id,data,[line1,line2,line3,line4])
         
         Wall signs (id=68) require data for facing direction 2=north, 3=south, 4=west, 5=east
-        Standing signs (id=63) require data for facing rotation (0-15) 0=south, 4=west, 8=north, 12=east"""
+        Standing signs (id=63) require data for facing rotation (0-15) 0=south, 4=west, 8=north, 12=east
+        @author: Tim Cummings https://www.triptera.com.au/wordpress/"""
         lines = []
-        for i in range(5,len(args)):
-            lines.append(_misc_to_bytes(args[i].replace(",",";").replace(")","]").replace("(","[")))
-        self.conn._send(b"".join([b"world.setSign(",flatten_parameters_to_bytestring(intFloor(args[0:5])),b",",b",".join(lines),b")\n"]))
+        flatargs = []
+        for arg in flatten(args):
+            flatargs.append(arg)
+        for i in range(5,len(flatargs)):
+            lines.append(_misc_to_bytes(flatargs[i].replace(",",";").replace(")","]").replace("(","[")))
+        self.conn._send(b"".join([b"world.setSign(",flatten_parameters_to_bytestring(intFloor(flatargs[0:5])),b",",b",".join(lines),b")\n"]))
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
