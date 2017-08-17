@@ -17,22 +17,22 @@ def runBlockTests(mc):
     - MUSHROOM_RED not creating correctly - may be a Minecraft constraint
     - MUSHROOM_RED not creating correctly - may be a Minecraft constraint
     - id for NETHER_REACTOR_CORE wrong
-    - some LEAVES missing but probably because they decay by the time user sees them
+    - some LEAVES missing but because they decay by the time user sees them
     - this test doesn't try activation of TNT
     
     Author: Tim Cummings https://www.triptera.com.au/wordpress/
     """
 
-    solids=["STONE","DIRT","COBBLESTONE","BEDROCK","SAND","GRAVEL","GOLD_ORE","IRON_ORE","COAL_ORE","GLASS","LAPIS_LAZULI_ORE",
+    solids=["STONE","GRASS","DIRT","COBBLESTONE","BEDROCK","SAND","GRAVEL","GOLD_ORE","IRON_ORE","COAL_ORE","GLASS","LAPIS_LAZULI_ORE",
             "LAPIS_LAZULI_BLOCK","COBWEB","GOLD_BLOCK","IRON_BLOCK","BRICK_BLOCK","TNT","BOOKSHELF","MOSS_STONE","OBSIDIAN",
-            "DIAMOND_ORE","DIAMOND_BLOCK","CRAFTING_TABLE","FARMLAND","REDSTONE_ORE","CLAY","PUMPKIN","NETHERRACK","SOUL_SAND",
+            "DIAMOND_ORE","DIAMOND_BLOCK","CRAFTING_TABLE","FARMLAND","REDSTONE_ORE","CLAY","PUMPKIN","MELON","NETHERRACK","SOUL_SAND",
             "GLOWSTONE_BLOCK","LIT_PUMPKIN","STAINED_GLASS","GLASS_PANE","END_STONE","EMERALD_ORE","GLOWING_OBSIDIAN","ICE",
             "SNOW_BLOCK","MYCELIUM","NETHER_BRICK","NETHER_REACTOR_CORE"]
     fences=["FENCE","FENCE_NETHER_BRICK","FENCE_SPRUCE","FENCE_BIRCH","FENCE_JUNGLE","FENCE_DARK_OAK","FENCE_ACACIA"]
     woods=["WOOD_PLANKS"]
     trees=["WOOD","LEAVES"]
     trees2=["LEAVES2"] #options are acacia and dark oak
-    plants=["GRASS","DEAD_BUSH","FLOWER_CYAN","FLOWER_YELLOW","MUSHROOM_BROWN","MUSHROOM_RED","CACTUS","SUGAR_CANE","MELON"]
+    plants=["DEAD_BUSH","FLOWER_CYAN","FLOWER_YELLOW","SUGAR_CANE"]
     liquids=["WATER","LAVA"]
     beds=["BED"]
     wools=["WOOL"]
@@ -50,6 +50,8 @@ def runBlockTests(mc):
     stonebricks=["STONE_BRICK"]
     snowblocks=["SNOW"]
     sandstones=["SANDSTONE"]
+    cacti=["CACTUS"]
+    mushrooms=["MUSHROOM_BROWN","MUSHROOM_RED"]
     
     # location for platform showing all block types
     xtest = 0
@@ -152,6 +154,23 @@ def runBlockTests(mc):
         mc.setBlock(x,y-1,z,blockmodded.DIRT)
         mc.setBlock(x+1,y-2,z,blockmodded.DIRT)
         mc.setBlock(x+1,y-1,z,blockmodded.WATER)
+        mc.setBlock(x,y,z,b)
+        untested.discard(b.id)
+    for key in cacti:
+        b = getattr(blockmodded,key)
+        z += 1
+        mc.setBlock(x-1,y,z,signmount)
+        mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
+        # cactus has to be on sand and away from other blocks
+        mc.setBlock(x+1,y-1,z,blockmodded.SAND)
+        mc.setBlock(x+1,y,z,b)
+        untested.discard(b.id)
+    for key in mushrooms:
+        b = getattr(blockmodded,key)
+        z += 1
+        mc.setBlock(x-1,y,z,signmount)
+        mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
+        mc.setBlocks(x-3,y+3,z-3,x+3,y+3,z+3,blockmodded.STONE)
         mc.setBlock(x,y,z,b)
         untested.discard(b.id)
     
