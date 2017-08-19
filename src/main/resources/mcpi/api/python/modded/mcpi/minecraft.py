@@ -70,6 +70,9 @@ class CmdPositioner:
         """Set a player setting (setting, status). keys: autojump"""
         self.conn.send(self.pkg + b".setting", setting, 1 if bool(status) else 0)
 
+    def setEntity(self, *args):
+        """Set entity (x,y,z,id,[data])"""
+        self.conn.send("world.setEntity", intFloor(args))
 
 class CmdEntity(CmdPositioner):
     """Methods for entities"""

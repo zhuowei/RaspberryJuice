@@ -449,7 +449,11 @@ public class RemoteSession {
 	            }
 	            sign.update();
 	          }
-						
+	          // world.setEntity
+          } else if (c.equals("world.setEntity")) {
+              Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+              world.spawnEntity(loc, plugin.entityType.FromId(Integer.parseInt(args[3])));
+              plugin.getLogger().info("Spawned requested entity: " + args[3]);						
 			// not a command which is supported
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");
