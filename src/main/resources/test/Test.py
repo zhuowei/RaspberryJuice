@@ -13,10 +13,7 @@ def runBlockTests(mc):
     
     A sign is placed next to the created block so user can view in Minecraft whether block created correctly or not
     Known issues:
-    - CACTUS not creating correctly - may be a Minecraft constraint
-    - MUSHROOM_RED not creating correctly - may be a Minecraft constraint
-    - MUSHROOM_RED not creating correctly - may be a Minecraft constraint
-    - id for NETHER_REACTOR_CORE wrong
+    - id for NETHER_REACTOR_CORE and GLOWING_OBSIDIAN wrong
     - some LEAVES missing but because they decay by the time user sees them
     - this test doesn't try activation of TNT
     
