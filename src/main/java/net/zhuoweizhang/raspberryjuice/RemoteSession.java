@@ -455,6 +455,11 @@ public class RemoteSession {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				world.spawnEntity(loc, EntityType.fromId(Integer.parseInt(args[3])));
 				//plugin.getLogger().info("Spawned requested entity: " + args[3]);						
+			// generatePythonModules
+			} else if (c.equals("generatePythonModules")) {
+				plugin.getLogger().info("generatePythonModules");
+				String s = PythonModuleGenerator.pyEntity();
+				plugin.getLogger().info(s);
 			// not a command which is supported
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");
