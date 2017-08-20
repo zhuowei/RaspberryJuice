@@ -365,7 +365,7 @@ public class RemoteSession {
 					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
 					send("Fail");
 				}
-	        
+
 			// entity.getPos
 			} else if (c.equals("entity.getPos")) {
 				//get entity based on id
@@ -405,56 +405,50 @@ public class RemoteSession {
 					send("Fail");
 				}
 				
-				// entity.getRotation
-				} else if (c.equals("entity.getRotation")) {
-					//get entity based on id
-					//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
-					Player entity = plugin.getEntity(Integer.parseInt(args[0]));
-					if (entity != null) {
-						send(entity.getLocation().getYaw());
-					} else {
-						plugin.getLogger().info("Entity [" + args[0] + "] not found.");
-						send("Fail");
+			// entity.getRotation
+			} else if (c.equals("entity.getRotation")) {
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					send(entity.getLocation().getYaw());
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+				
+			// entity.getPitch
+			} else if (c.equals("entity.getPitch")) {
+				//get entity based on id
+				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
+				Player entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					send(entity.getLocation().getPitch());
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+					send("Fail");
+				}
+				
+			// world.setSign      Author: Tim Cummings https://www.triptera.com.au/wordpress/
+			} else if (c.equals("world.setSign")) {
+				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				Block thisBlock = world.getBlockAt(loc);
+				//blockType should be 68 for wall sign or 63 for standing sign
+				int blockType = Integer.parseInt(args[3]);  
+				//facing direction for wall sign : 2=north, 3=south, 4=west, 5=east
+				//rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
+				byte blockData = Byte.parseByte(args[4]); 
+				if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
+					thisBlock.setTypeIdAndData(blockType, blockData, true);
+				}
+				//plugin.getLogger().info("Creating sign at " + loc + ", class=" + thisBlock.getState().getClass().getCanonicalName());
+				if ( thisBlock.getState() instanceof Sign ) {
+					Sign sign = (Sign) thisBlock.getState();
+					for ( int i = 5; i-5 < 4 && i < args.length; i++) {
+						sign.setLine(i-5, args[i]);
 					}
-					
-				// entity.getPitch
-				} else if (c.equals("entity.getPitch")) {
-					//get entity based on id
-					//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
-					Player entity = plugin.getEntity(Integer.parseInt(args[0]));
-					if (entity != null) {
-						send(entity.getLocation().getPitch());
-					} else {
-						plugin.getLogger().info("Entity [" + args[0] + "] not found.");
-						send("Fail");
-					}
-	        
-	        // world.setSign      Author: Tim Cummings https://www.triptera.com.au/wordpress/
-	        } else if (c.equals("world.setSign")) {
-	          Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-	          Block thisBlock = world.getBlockAt(loc);
-	          //blockType should be 68 for wall sign or 63 for standing sign
-	          int blockType = Integer.parseInt(args[3]);  
-	          //facing direction for wall sign : 2=north, 3=south, 4=west, 5=east
-	          //rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
-	          byte blockData = Byte.parseByte(args[4]); 
-	          if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
-	            thisBlock.setTypeIdAndData(blockType, blockData, true);
-	          }
-	          //plugin.getLogger().info("Creating sign at " + loc + ", class=" + thisBlock.getState().getClass().getCanonicalName());
-	          if ( thisBlock.getState() instanceof Sign ) {
-	            Sign sign = (Sign) thisBlock.getState();
-	            for ( int i = 5; i-5 < 4 && i < args.length; i++) {
-	              sign.setLine(i-5, args[i]);
-	            }
-	            sign.update();
-	          }
-	          // world.setEntity
-          } else if (c.equals("world.setEntity")) {
-              Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-              world.spawnEntity(loc, plugin.entityType.FromId(Integer.parseInt(args[3])));
-              plugin.getLogger().info("Spawned requested entity: " + args[3]);						
-			// not a command which is supported
+					sign.update();
+				}
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");
 				send("Fail");
