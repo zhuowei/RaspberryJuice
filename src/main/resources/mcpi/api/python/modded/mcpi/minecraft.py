@@ -3,7 +3,7 @@ from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
 from .block import Block
 import math
-from .util import flatten, flatten_parameters_to_bytestring, _misc_to_bytes
+from .util import flatten
 
 """ Minecraft PI low level api v0.1_1
 
@@ -185,9 +185,9 @@ class Minecraft:
         flatargs = []
         for arg in flatten(args):
             flatargs.append(arg)
-        for i in range(5,len(flatargs)):
-            lines.append(_misc_to_bytes(flatargs[i].replace(",",";").replace(")","]").replace("(","[")))
-        self.conn._send(b"".join([b"world.setSign(",flatten_parameters_to_bytestring(intFloor(flatargs[0:5])),b",",b",".join(lines),b")\n"]))
+        for flatarg in flatargs[5:]:
+            lines.append(flatarg.replace(",",";").replace(")","]").replace("(","["))
+        self.conn.send(b"world.setSign",intFloor(flatargs[0:5]) + lines)
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
