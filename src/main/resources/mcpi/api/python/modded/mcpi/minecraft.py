@@ -24,7 +24,8 @@ from .util import flatten, flatten_parameters_to_bytestring, _misc_to_bytes
 - getRotation()
 - getPlayerEntityId()
 - pollChatPosts()
-- setSign()  """
+- setSign()
+- spawnEntity()"""
 
 def intFloor(*args):
     return [int(math.floor(x)) for x in flatten(args)]
@@ -69,10 +70,6 @@ class CmdPositioner:
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
         self.conn.send(self.pkg + b".setting", setting, 1 if bool(status) else 0)
-
-    def setEntity(self, *args):
-        """Set entity (x,y,z,id,[data])"""
-        self.conn.send("world.setEntity", intFloor(args))
 
 class CmdEntity(CmdPositioner):
     """Methods for entities"""
@@ -189,6 +186,10 @@ class Minecraft:
             lines.append(_misc_to_bytes(flatargs[i].replace(",",";").replace(")","]").replace("(","[")))
         self.conn._send(b"".join([b"world.setSign(",flatten_parameters_to_bytestring(intFloor(flatargs[0:5])),b",",b",".join(lines),b")\n"]))
 
+    def spawnEntity(self, *args):
+        """Spawn entity (x,y,z,id,[data])"""
+        self.conn.send(b"world.spawnEntity", intFloor(args))
+
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
         return int(self.conn.sendReceive(b"world.getHeight", intFloor(args)))
@@ -217,6 +218,14 @@ class Minecraft:
     def setting(self, setting, status):
         """Set a world setting (setting, status). keys: world_immutable, nametags_visible"""
         self.conn.send(b"world.setting", setting, 1 if bool(status) else 0)
+        
+    def generatePythonModules(self):
+        """Display the file Entity.py python log using all entity ids from spigot
+        
+        This text should be used to create the file src/main/resources/mcpi/api/python/modded/mcpi/entity.py"""
+        ans = self.conn.sendReceive(b"generatePythonModules")
+        print(ans)
+
 
     @staticmethod
     def create(address = "localhost", port = 4711):
