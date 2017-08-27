@@ -41,7 +41,7 @@ def runBlockTests(mc):
     signs=["SIGN_STANDING","SIGN_WALL"]
     doors=["DOOR_WOOD","DOOR_IRON","DOOR_SPRUCE","DOOR_BIRCH","DOOR_JUNGLE","DOOR_ACACIA","DOOR_DARK_OAK"]
     gates=["FENCE_GATE"]
-    wallmounts=["LADDER","CHEST","FURNACE_INACTIVE","FURNACE_ACTIVE"]
+    wallmounts=["SIGN_WALL","LADDER","CHEST","FURNACE_INACTIVE","FURNACE_ACTIVE"]
     saplings=["SAPLING"]
     tallgrasses=["GRASS_TALL"]
     stonebricks=["STONE_BRICK"]
@@ -284,7 +284,7 @@ def runBlockTests(mc):
         mc.setSign(x+1,y+1,z,wallsignid,5,key,"id=" + str(b.id),"data=5","east")
         y+=2
         untested.discard(b.id)
-        untested.discard(wallsignid)
+        #untested.discard(wallsignid)
         
     time.sleep(0.1)
     x=xtest+60
