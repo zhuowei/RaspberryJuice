@@ -23,7 +23,7 @@ def runBlockTests(mc):
     solids=["STONE","GRASS","DIRT","COBBLESTONE","BEDROCK","SAND","GRAVEL","GOLD_ORE","IRON_ORE","COAL_ORE","GLASS","LAPIS_LAZULI_ORE",
             "LAPIS_LAZULI_BLOCK","COBWEB","GOLD_BLOCK","IRON_BLOCK","BRICK_BLOCK","TNT","BOOKSHELF","MOSS_STONE","OBSIDIAN",
             "DIAMOND_ORE","DIAMOND_BLOCK","CRAFTING_TABLE","FARMLAND","REDSTONE_ORE","CLAY","PUMPKIN","MELON","NETHERRACK","SOUL_SAND",
-            "GLOWSTONE_BLOCK","LIT_PUMPKIN","STAINED_GLASS","GLASS_PANE","END_STONE","EMERALD_ORE","GLOWING_OBSIDIAN","ICE",
+            "GLOWSTONE_BLOCK","GLASS_PANE","LIT_PUMPKIN","END_STONE","EMERALD_ORE","GLOWING_OBSIDIAN","ICE",
             "SNOW_BLOCK","MYCELIUM","NETHER_BRICK","NETHER_REACTOR_CORE"]
     fences=["FENCE","FENCE_NETHER_BRICK","FENCE_SPRUCE","FENCE_BIRCH","FENCE_JUNGLE","FENCE_DARK_OAK","FENCE_ACACIA"]
     woods=["WOOD_PLANKS"]
@@ -32,7 +32,7 @@ def runBlockTests(mc):
     plants=["DEAD_BUSH","FLOWER_CYAN","FLOWER_YELLOW","SUGAR_CANE"]
     liquids=["WATER","LAVA"]
     beds=["BED"]
-    wools=["WOOL"]
+    coloureds=["WOOL","STAINED_GLASS"]
     flats=["RAIL","RAIL_POWERED","RAIL_DETECTOR","RAIL_ACTIVATOR","TRAPDOOR","TRAPDOOR_IRON"]
     slabs=["STONE_SLAB","STONE_SLAB_DOUBLE","WOODEN_SLAB"]
     torches=["TORCH","TORCH_REDSTONE"]
@@ -174,7 +174,7 @@ def runBlockTests(mc):
     time.sleep(0.1)
     x=xtest+30
     z=ztest+10
-    for key in wools:
+    for key in coloureds:
         for data in range(16):
             b = getattr(blockmodded,key).withData(data)
             z += 1
@@ -486,9 +486,11 @@ def runTests(mc, library="Standard library", extended=False):
     #getPlayerEntityIds
     playerids = mc.getPlayerEntityIds()
     mc.postToChat("playerIds()=" + str(playerids))
-    if extended:
-        playerid = mc.getPlayerEntityId("martinohanlon")
-        mc.postToChat("playerId(martinohanlon)="+str(playerid))
+    if extended and len(playerids) > 0:
+        playername = mc.entity.getEntityName(playerids[0])
+        mc.postToChat("player with id " + str(playerids[0]) + " has name " + playername)
+        playerid = mc.getPlayerEntityId(playername)
+        mc.postToChat("player with name " + playername + " has id " + str(playerid))
 
     #entity commands
     pos = mc.entity.getPos(playerids[0])

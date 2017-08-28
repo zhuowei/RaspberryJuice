@@ -24,7 +24,8 @@ from .util import flatten
 - getRotation()
 - getPlayerEntityId()
 - pollChatPosts()
-- setSign()  """
+- setSign()
+- spawnEntity()"""
 
 def intFloor(*args):
     return [int(math.floor(x)) for x in flatten(args)]
@@ -70,11 +71,16 @@ class CmdPositioner:
         """Set a player setting (setting, status). keys: autojump"""
         self.conn.send(self.pkg + b".setting", setting, 1 if bool(status) else 0)
 
-
 class CmdEntity(CmdPositioner):
     """Methods for entities"""
     def __init__(self, connection):
         CmdPositioner.__init__(self, connection, b"entity")
+    
+    def getName(self, id):
+        """Get the list name of the player with entity id => [name:str]
+        
+        Also can be used to find name of entity if entity is not a player."""
+        return self.conn.sendReceive(b"entity.getName", id)
 
 
 class CmdPlayer(CmdPositioner):
@@ -186,6 +192,10 @@ class Minecraft:
             lines.append(flatarg.replace(",",";").replace(")","]").replace("(","["))
         self.conn.send(b"world.setSign",intFloor(flatargs[0:5]) + lines)
 
+    def spawnEntity(self, *args):
+        """Spawn entity (x,y,z,id,[data])"""
+        return int(self.conn.sendReceive(b"world.spawnEntity", intFloor(args)))
+
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
         return int(self.conn.sendReceive(b"world.getHeight", intFloor(args)))
@@ -214,6 +224,14 @@ class Minecraft:
     def setting(self, setting, status):
         """Set a world setting (setting, status). keys: world_immutable, nametags_visible"""
         self.conn.send(b"world.setting", setting, 1 if bool(status) else 0)
+        
+    def generatePythonModules(self):
+        """Display the file Entity.py python log using all entity ids from spigot
+        
+        This text should be used to create the file src/main/resources/mcpi/api/python/modded/mcpi/entity.py"""
+        ans = self.conn.sendReceive(b"generatePythonModules")
+        print(ans)
+
 
     @staticmethod
     def create(address = "localhost", port = 4711):

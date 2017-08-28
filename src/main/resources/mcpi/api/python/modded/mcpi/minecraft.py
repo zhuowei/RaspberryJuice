@@ -75,6 +75,12 @@ class CmdEntity(CmdPositioner):
     """Methods for entities"""
     def __init__(self, connection):
         CmdPositioner.__init__(self, connection, b"entity")
+    
+    def getName(self, id):
+        """Get the list name of the player with entity id => [name:str]
+        
+        Also can be used to find name of entity if entity is not a player."""
+        return self.conn.sendReceive(b"entity.getName", id)
 
 
 class CmdPlayer(CmdPositioner):
@@ -188,7 +194,7 @@ class Minecraft:
 
     def spawnEntity(self, *args):
         """Spawn entity (x,y,z,id,[data])"""
-        self.conn.send(b"world.spawnEntity", intFloor(args))
+        return int(self.conn.sendReceive(b"world.spawnEntity", intFloor(args)))
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
