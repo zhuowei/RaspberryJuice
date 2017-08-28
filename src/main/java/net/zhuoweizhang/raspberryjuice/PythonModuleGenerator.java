@@ -13,31 +13,27 @@ public class PythonModuleGenerator {
 		sb.append("    mc.generatePythonModules()\n");
 		sb.append("    and use output in server log to populate file src/main/resources/mcpi/api/python/modded/mcpi/entity.py\n");
 		sb.append("    Code changes need to be made to net.zhouweizhang.raspberryjuice.PythonModuleGenerator'''\n\n");
-		sb.append("    def __init__(self, id, data=0):\n");
+		sb.append("    def __init__(self, id):\n");
 		sb.append("        self.id = id\n");
-		sb.append("        self.data = data\n");
 		sb.append("\n");
 		sb.append("    def __cmp__(self, rhs):\n");
 		sb.append("        return hash(self) - hash(rhs)\n");
 		sb.append("\n");
 		sb.append("    def __eq__(self, rhs):\n");
-		sb.append("        return self.id == rhs.id and self.data == rhs.data\n");
+		sb.append("        return self.id == rhs.id\n");
 		sb.append("\n");
 		sb.append("    def __hash__(self):\n");
-		sb.append("        return (self.id << 8) + self.data\n");
-		sb.append("\n");
-		sb.append("    def withData(self, data):\n");
-		sb.append("        return Entity(self.id, data)\n");
+		sb.append("        return self.id\n");
 		sb.append("\n");
 		sb.append("    def __iter__(self):\n");
-		sb.append("        '''Allows an Entity to be sent whenever id [and data] is needed'''\n");
-		sb.append("        return iter((self.id, self.data))\n");
+		sb.append("        '''Allows an Entity to be sent whenever id is needed'''\n");
+		sb.append("        return iter((self.id))\n");
 		sb.append("\n");
 		sb.append("    def __repr__(self):\n");
-		sb.append("        return 'Entity(%d, %d)'%(self.id, self.data)\n");
+		sb.append("        return 'Entity(%d)'%(self.id)\n");
 		sb.append("\n");
 		for (EntityType entityType : EntityType.values()) {
-			if ( entityType.getTypeId() >= 0 ) {
+			if ( entityType.isSpawnable() && entityType.getTypeId() >= 0 ) {
 				sb.append(entityType.toString());
 				sb.append("=Entity(");
 				sb.append(entityType.getTypeId());

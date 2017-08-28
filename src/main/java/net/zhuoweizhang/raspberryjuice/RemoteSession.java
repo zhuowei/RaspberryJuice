@@ -470,6 +470,9 @@ public class RemoteSession {
 				send(entity.getEntityId());
 				//plugin.getLogger().info("Spawned requested entity: " + args[3]);						
 			// generatePythonModules	Author: Tim Cummings
+			// automatically generates python code to be used by RaspberryJuice python libraries
+			// to ensure RaspberryJuice python and java is in sync with Spigot/Bukkit
+			// Currently just generates entity.py
 			} else if (c.equals("generatePythonModules")) {
 				plugin.getLogger().info("generatePythonModules");
 				String s = PythonModuleGenerator.pyEntity();

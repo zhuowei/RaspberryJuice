@@ -6,30 +6,25 @@ class Entity:
     and use output in server log to populate file src/main/resources/mcpi/api/python/modded/mcpi/entity.py
     Code changes need to be made to net.zhouweizhang.raspberryjuice.PythonModuleGenerator'''
 
-    def __init__(self, id, data=0):
+    def __init__(self, id):
         self.id = id
-        self.data = data
 
     def __cmp__(self, rhs):
         return hash(self) - hash(rhs)
 
     def __eq__(self, rhs):
-        return self.id == rhs.id and self.data == rhs.data
+        return self.id == rhs.id
 
     def __hash__(self):
-        return (self.id << 8) + self.data
-
-    def withData(self, data):
-        return Entity(self.id, data)
+        return self.id
 
     def __iter__(self):
-        '''Allows an Entity to be sent whenever id [and data] is needed'''
-        return iter((self.id, self.data))
+        '''Allows an Entity to be sent whenever id is needed'''
+        return iter((self.id))
 
     def __repr__(self):
-        return 'Entity(%d, %d)'%(self.id, self.data)
+        return 'Entity(%d)'%(self.id)
 
-DROPPED_ITEM=Entity(1)
 EXPERIENCE_ORB=Entity(2)
 AREA_EFFECT_CLOUD=Entity(3)
 ELDER_GUARDIAN=Entity(4)
@@ -44,13 +39,10 @@ FIREBALL=Entity(12)
 SMALL_FIREBALL=Entity(13)
 ENDER_PEARL=Entity(14)
 ENDER_SIGNAL=Entity(15)
-SPLASH_POTION=Entity(16)
 THROWN_EXP_BOTTLE=Entity(17)
 ITEM_FRAME=Entity(18)
 WITHER_SKULL=Entity(19)
 PRIMED_TNT=Entity(20)
-FALLING_BLOCK=Entity(21)
-FIREWORK=Entity(22)
 HUSK=Entity(23)
 SPECTRAL_ARROW=Entity(24)
 SHULKER_BULLET=Entity(25)
