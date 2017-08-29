@@ -20,7 +20,7 @@ class Entity:
 
     def __iter__(self):
         '''Allows an Entity to be sent whenever id is needed'''
-        return iter((self.id))
+        return iter((self.id,))
 
     def __repr__(self):
         return 'Entity(%d)'%(self.id)

@@ -27,7 +27,7 @@ public class PythonModuleGenerator {
 		sb.append("\n");
 		sb.append("    def __iter__(self):\n");
 		sb.append("        '''Allows an Entity to be sent whenever id is needed'''\n");
-		sb.append("        return iter((self.id))\n");
+		sb.append("        return iter((self.id,))\n");
 		sb.append("\n");
 		sb.append("    def __repr__(self):\n");
 		sb.append("        return 'Entity(%d)'%(self.id)\n");
