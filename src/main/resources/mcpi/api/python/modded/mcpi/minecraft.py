@@ -3,7 +3,7 @@ from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
 from .block import Block
 import math
-from .util import flatten
+from .util import flatten, escape
 
 """ Minecraft PI low level api v0.1_1
 
@@ -189,8 +189,21 @@ class Minecraft:
         for arg in flatten(args):
             flatargs.append(arg)
         for flatarg in flatargs[5:]:
-            lines.append(flatarg.replace(",",";").replace(")","]").replace("(","["))
+            lines.append(escape(flatarg))
         self.conn.send(b"world.setSign",intFloor(flatargs[0:5]) + lines)
+    
+    def addBookToChest(self, *args):
+        """Add a book to a chest (x,y,z,title,author,pages[])
+        
+        The location x,y,z must contain a chest or other Inventory Holder
+        @author: Tim Cummings https://www.triptera.com.au/wordpress/"""
+        bookmeta = []
+        flatargs = []
+        for arg in flatten(args):
+            flatargs.append(arg)
+        for flatarg in flatargs[3:]:
+            bookmeta.append(escape(flatarg))
+        self.conn.send(b"world.addBookToChest",intFloor(flatargs[0:3]) + bookmeta)
 
     def spawnEntity(self, *args):
         """Spawn entity (x,y,z,id,[data])"""

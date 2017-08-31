@@ -1,6 +1,9 @@
 package net.zhuoweizhang.raspberryjuice;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.util.*;
 
@@ -8,7 +11,10 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class RemoteSession {
@@ -442,7 +448,7 @@ public class RemoteSession {
 					send("Fail");
 				}
 				
-			// world.setSign		Author: Tim Cummings https://www.triptera.com.au/wordpress/
+				// world.setSign		Author: Tim Cummings https://www.triptera.com.au/wordpress/
 			} else if (c.equals("world.setSign")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Block thisBlock = world.getBlockAt(loc);
@@ -458,9 +464,99 @@ public class RemoteSession {
 				if ( thisBlock.getState() instanceof Sign ) {
 					Sign sign = (Sign) thisBlock.getState();
 					for ( int i = 5; i-5 < 4 && i < args.length; i++) {
-						sign.setLine(i-5, args[i]);
+						sign.setLine(i-5, unescape(args[i]));
 					}
 					sign.update();
+				}
+			
+			// world.addBookToChest		Author: Tim Cummings https://www.triptera.com.au/wordpress/
+			} else if (c.equals("world.addBookToChest")) {
+				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				Block thisBlock = world.getBlockAt(loc);
+				BlockState thisBlockState = thisBlock.getState();
+				if ( thisBlockState instanceof InventoryHolder) {
+					InventoryHolder chest = (InventoryHolder) thisBlockState;
+					BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+					meta.setTitle(args[3]);
+					meta.setAuthor(args[4]);
+					//Borrowed code from https://github.com/upperlevel/spigot-book-api/blob/master/src/main/java/xyz/upperlevel/spigot/book/NmsBookHelper.java
+					//Required if json sent from python 
+					String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+					Class<?> craftMetaBookClass = null;
+					Field craftMetaBookField = null;
+					try {
+						craftMetaBookClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftMetaBook");
+					} catch (ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+					if (craftMetaBookClass != null ) {
+						try {
+							craftMetaBookField = craftMetaBookClass.getDeclaredField("pages");
+							craftMetaBookField.setAccessible(true);							
+						} catch (NoSuchFieldException e) {
+							e.printStackTrace();
+						} catch (SecurityException se) {
+							se.printStackTrace();
+						}
+					}
+					Class<?> chatSerializer = null;
+					try {
+						chatSerializer = Class.forName("net.minecraft.server." + version + ".IChatBaseComponent$ChatSerializer");
+					} catch(ClassNotFoundException e) {
+						e.printStackTrace();
+					}
+					if ( chatSerializer == null ) {
+						try {
+							chatSerializer = Class.forName("net.minecraft.server." + version + ".ChatSerializer");
+						} catch(ClassNotFoundException e) {
+							e.printStackTrace();
+						}
+					}
+					Method chatSerializerA = null;
+					if ( chatSerializer != null ) {
+						try {
+							chatSerializerA = chatSerializer.getDeclaredMethod("a", String.class);
+						} catch (NoSuchMethodException e) {
+							e.printStackTrace();
+						} catch (SecurityException se) {
+							se.printStackTrace();
+						}
+					}
+					List<Object> pages = null;
+					//get the pages if required for json formatting
+					if (craftMetaBookField != null ) {
+						try {
+							@SuppressWarnings("unchecked")
+							List<Object> lo = (List<Object>) craftMetaBookField.get(meta);
+							pages = lo;
+						} catch (ReflectiveOperationException ex) {
+							ex.printStackTrace();
+						}
+					}
+					//end of borrowed code from https://github.com/upperlevel/spigot-book-api
+
+					for (int i = 5; i < args.length; i++) {
+						String page = unescape(args[i]);
+						if (chatSerializerA != null && pages != null && (page.startsWith("[") || page.startsWith("{"))) {
+							try {
+								pages.add(chatSerializerA.invoke(null, page));
+							} catch (IllegalAccessException e) {
+								e.printStackTrace();
+							} catch (IllegalArgumentException e) {
+								e.printStackTrace();
+							} catch (InvocationTargetException e) {
+								e.printStackTrace();
+							}
+						} else {
+							meta.addPage(page);
+						}
+					}
+					ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+					book.setItemMeta(meta);
+					chest.getInventory().addItem(book);
+				} else {
+					plugin.getLogger().info("addBook needs location of chest or other InventoryHolder");
+					send("Fail");
 				}
 			
 			// world.spawnEntity		Author: pxai (edited by Tim Cummings)
@@ -489,6 +585,17 @@ public class RemoteSession {
 			send("Fail");
 		
 		}
+	}
+	
+	public String unescape(String s) {
+		if ( s == null ) return null;
+		s = s.replace("&#10;", "\n");
+		s = s.replace("&#40;", "(");
+		s = s.replace("&#41;", ")");
+		s = s.replace("&#44;", ",");
+		s = s.replace("&sect;", "§");
+		s = s.replace("&amp;", "&");
+		return s;
 	}
 
 	// create a cuboid of lots of blocks 
