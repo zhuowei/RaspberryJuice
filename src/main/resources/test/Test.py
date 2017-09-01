@@ -7,6 +7,7 @@ import modded.mcpi.minecraft as minecraftmodded
 import original.mcpi.block as block
 import modded.mcpi.block as blockmodded
 import modded.mcpi.entity as entitymodded
+import modded.mcpi.book as bookmodded
 import time
 import math
 
@@ -459,7 +460,7 @@ def runEntityTests(mc):
     giants=["ELDER_GUARDIAN","GUARDIAN","GIANT","ENDER_DRAGON","GHAST"]
     cavers=["MAGMA_CUBE","BAT","PARROT","CHICKEN","STRAY","SKELETON","SPIDER","ZOMBIE","SLIME","CAVE_SPIDER","PIG_ZOMBIE","ENDERMAN","SNOWMAN","SILVERFISH","ILLUSIONER"]
     bosses=["WITHER"]
-    # location for platform showing all block types
+    # location for platform showing all entities
     xtest = 50
     ytest = 100
     ztest = 50
@@ -475,8 +476,8 @@ def runEntityTests(mc):
     rail=blockmodded.RAIL
     wallsignid=blockmodded.SIGN_WALL.id
     mc.postToChat("runEntityTests(): Creating test entities at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
-    mc.setBlocks(xtest,ytest-1,ztest,xtest+100,ytest+50,ztest+100,air)
-    mc.setBlocks(xtest,ytest-1,ztest,xtest+100,ytest-1,ztest+50,floor)
+    mc.setBlocks(xtest,ytest,ztest,xtest+70,ytest+50,ztest+50,air)
+    mc.setBlocks(xtest,ytest-1,ztest,xtest+70,ytest-1,ztest+50,floor)
     
     mc.postToChat("Dancing villager")
     r = 10
@@ -607,10 +608,10 @@ def runEntityTests(mc):
     time.sleep(0.1)
     for key in giants:
         e = getattr(entitymodded,key)
-        mc.setBlocks(x,y,z,x+20,y+20,z+20,wall)
-        mc.setBlocks(x,y+21,z,x+20,y+21,z+20,roof)
+        mc.setBlocks(x,y,z,x+20,y+10,z+20,wall)
+        mc.setBlocks(x,y+11,z,x+20,y+11,z+20,roof)
         mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,floor)
-        mc.setBlocks(x+1,y,z+1,x+19,y+20,z+19,air)
+        mc.setBlocks(x+1,y,z+1,x+19,y+10,z+19,air)
         mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
         mc.spawnEntity(x+10,y+5,z+10,e)
         untested.discard(e.id)
@@ -621,15 +622,15 @@ def runEntityTests(mc):
     time.sleep(0.1)
     for key in bosses:
         e = getattr(entitymodded,key)
-        mc.setBlocks(x,y,z,x+20,y+20,z+20,blockmodded.BEDROCK)
-        mc.setBlocks(x,y+21,z,x+20,y+21,z+20,blockmodded.BEDROCK)
+        mc.setBlocks(x,y,z,x+20,y+10,z+20,blockmodded.BEDROCK)
+        mc.setBlocks(x,y+11,z,x+20,y+11,z+20,blockmodded.BEDROCK)
         mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,blockmodded.BEDROCK)
-        mc.setBlocks(x+1,y,z+1,x+19,y+20,z+19,air)
+        mc.setBlocks(x+1,y,z+1,x+19,y+10,z+19,air)
         mc.setBlocks(x+1,y,z+8,x+19,y,z+12,torch)
-        mc.setBlocks(x+1,y+10,z+2,x+1,y+15,z+18,torch.id,1)
-        mc.setBlocks(x+19,y+10,z+2,x+19,y+15,z+18,torch.id,2)
-        mc.setBlocks(x+1,y+10,z+19,x+19,y+15,z+19,torch.id,4)
-        mc.setBlocks(x+1,y+10,z+1,x+19,y+15,z+1,torch.id,3)
+        mc.setBlocks(x+1,y+7,z+2,x+1,y+10,z+18,torch.id,1)
+        mc.setBlocks(x+19,y+7,z+2,x+19,y+10,z+18,torch.id,2)
+        mc.setBlocks(x+1,y+7,z+19,x+19,y+10,z+19,torch.id,4)
+        mc.setBlocks(x+1,y+7,z+1,x+19,y+10,z+1,torch.id,3)
         mc.setBlocks(x,y,z+9,x+3,y+3,z+11,blockmodded.BEDROCK)
         mc.setBlocks(x+4,y,z+9,x+19,y+3,z+11,wall)
         mc.setBlocks(x,y,z+10,x+19,y+2,z+10,air)
@@ -643,12 +644,12 @@ def runEntityTests(mc):
     time.sleep(0.1)
     for key in sinks:
         e = getattr(entitymodded,key)
-        mc.setBlocks(x,y,z,x+20,y+20,z+20,wall)
-        mc.setBlocks(x,y+21,z,x+20,y+21,z+20,roof)
+        mc.setBlocks(x,y,z,x+20,y+10,z+20,wall)
+        mc.setBlocks(x,y+11,z,x+20,y+11,z+20,roof)
         mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,floor)
-        mc.setBlocks(x+1,y,z+1,x+19,y+20,z+19,blockmodded.WATER_STATIONARY)
+        mc.setBlocks(x+1,y,z+1,x+19,y+10,z+19,blockmodded.WATER_STATIONARY)
         mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
-        mc.spawnEntity(x+10,y,z+10,e)
+        mc.spawnEntity(x+10,y+5,z+10,e)
         untested.discard(e.id)
         z += 20
         if z > 80:
@@ -665,6 +666,49 @@ def runEntityTests(mc):
     mc.postToChat("/kill @e[type=!player]")
     mc.postToChat("to remove test entities")
 
+def runBookTests(mc):
+    """runBookTests - tests creation of book in a chest
+    
+    Author: Tim Cummings https://www.triptera.com.au/wordpress/
+    """
+    # location for chest containing book
+    xtest = 48
+    ytest = 100
+    ztest = 48
+    mc.postToChat("runBookTests(): Creating chest with book at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
+    b = bookmodded.Book({"title":"RaspberryJuice Test", "author":"Tim Cummings"})
+    b.addPageOfText('This page should be unformatted text. '
+        'Please turn to page 2 to see formatted interactive text.\n\n'
+        'Test escapes\n'
+        'Comma ,\n'
+        'Parentheses ()\n'
+        'Double quotes " "\n'
+        "Single quotes ' '\n"
+        'Section §\n'
+        'Ampersand &')
+    page = [
+        {"text":'This text is black ', "color":"reset"},
+        {"text":"and this text is red and bold. ", "color":"red", "bold":True},
+        {"text":"Hover or click the following:\n"},
+        {"text":"\nRunning a command\n", "underlined":True, "color":"blue",
+            "hoverEvent":{"action":"show_text","value":"runs command to set daytime"},
+            "clickEvent":{"action":"run_command", "value":"/time set day"}},
+        {"text":"\nOpening a URL\n", "underlined":True, "color":"blue", 
+            "hoverEvent":{"action":"show_text","value":"opens url to RaspberryJuice"},
+            "clickEvent":{"action":"open_url","value":"https://github.com/zhuowei/RaspberryJuice"}},
+        {"text":"\nGoing to a page\n", "underlined":True, "color":"blue",
+            "hoverEvent":{"action":"show_text","value":"goes to page 1"},
+            "clickEvent":{"action":"change_page","value":1}},
+        {"text":"\nCleanup\n", "underlined":True, "color":"blue",
+            "hoverEvent":{"action":"show_text","value":"kills all non player entities after entity test"},
+            "clickEvent":{"action":"run_command", "value":"/kill @e[type=!player]"}}
+        ]
+    b.addPage(page)
+    b.setDisplay({"Name":"Test book", "Lore":["First line of lore","Second line of lore"]})
+    mc.setBlock(xtest,ytest,ztest,blockmodded.CHEST)
+    mc.addBookToChest(xtest,ytest,ztest,b)
+
+    
 
 def runTests(mc, library="Standard library", extended=False):
 
@@ -763,6 +807,7 @@ def runTests(mc, library="Standard library", extended=False):
     if extended:
         runBlockTests(mc)
         runEntityTests(mc)
+        runBookTests(mc)
     
     mc.postToChat("Tests complete for " + library)
 

@@ -193,9 +193,10 @@ class Minecraft:
         self.conn.send(b"world.setSign",intFloor(flatargs[0:5]) + lines)
     
     def addBookToChest(self, *args):
-        """Add a book to a chest (x,y,z,title,author,pages[])
+        """Add a book to a chest (x,y,z,book)
         
         The location x,y,z must contain a chest or other Inventory Holder
+        book is a JSON string or mcpi.book.Book object describing the book
         @author: Tim Cummings https://www.triptera.com.au/wordpress/"""
         bookmeta = []
         flatargs = []

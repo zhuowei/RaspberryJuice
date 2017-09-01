@@ -14,6 +14,11 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.BookMeta.Generation;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
@@ -476,83 +481,7 @@ public class RemoteSession {
 				BlockState thisBlockState = thisBlock.getState();
 				if ( thisBlockState instanceof InventoryHolder) {
 					InventoryHolder chest = (InventoryHolder) thisBlockState;
-					BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
-					meta.setTitle(args[3]);
-					meta.setAuthor(args[4]);
-					//Borrowed code from https://github.com/upperlevel/spigot-book-api/blob/master/src/main/java/xyz/upperlevel/spigot/book/NmsBookHelper.java
-					//Required if json sent from python 
-					String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-					Class<?> craftMetaBookClass = null;
-					Field craftMetaBookField = null;
-					try {
-						craftMetaBookClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftMetaBook");
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-					if (craftMetaBookClass != null ) {
-						try {
-							craftMetaBookField = craftMetaBookClass.getDeclaredField("pages");
-							craftMetaBookField.setAccessible(true);							
-						} catch (NoSuchFieldException e) {
-							e.printStackTrace();
-						} catch (SecurityException se) {
-							se.printStackTrace();
-						}
-					}
-					Class<?> chatSerializer = null;
-					try {
-						chatSerializer = Class.forName("net.minecraft.server." + version + ".IChatBaseComponent$ChatSerializer");
-					} catch(ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-					if ( chatSerializer == null ) {
-						try {
-							chatSerializer = Class.forName("net.minecraft.server." + version + ".ChatSerializer");
-						} catch(ClassNotFoundException e) {
-							e.printStackTrace();
-						}
-					}
-					Method chatSerializerA = null;
-					if ( chatSerializer != null ) {
-						try {
-							chatSerializerA = chatSerializer.getDeclaredMethod("a", String.class);
-						} catch (NoSuchMethodException e) {
-							e.printStackTrace();
-						} catch (SecurityException se) {
-							se.printStackTrace();
-						}
-					}
-					List<Object> pages = null;
-					//get the pages if required for json formatting
-					if (craftMetaBookField != null ) {
-						try {
-							@SuppressWarnings("unchecked")
-							List<Object> lo = (List<Object>) craftMetaBookField.get(meta);
-							pages = lo;
-						} catch (ReflectiveOperationException ex) {
-							ex.printStackTrace();
-						}
-					}
-					//end of borrowed code from https://github.com/upperlevel/spigot-book-api
-
-					for (int i = 5; i < args.length; i++) {
-						String page = unescape(args[i]);
-						if (chatSerializerA != null && pages != null && (page.startsWith("[") || page.startsWith("{"))) {
-							try {
-								pages.add(chatSerializerA.invoke(null, page));
-							} catch (IllegalAccessException e) {
-								e.printStackTrace();
-							} catch (IllegalArgumentException e) {
-								e.printStackTrace();
-							} catch (InvocationTargetException e) {
-								e.printStackTrace();
-							}
-						} else {
-							meta.addPage(page);
-						}
-					}
-					ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
-					book.setItemMeta(meta);
+					ItemStack book = createBookFromJson(unescape(args[3]));
 					chest.getInventory().addItem(book);
 				} else {
 					plugin.getLogger().info("addBook needs location of chest or other InventoryHolder");
@@ -856,6 +785,171 @@ public class RemoteSession {
 		default:
 			return 7; // Good as anything here, but technically invalid
 		}
+	}
+	
+	/**
+	 * Creates a WRITTEN_BOOK from JSON string including interactivity such as clicks and hovers.
+	 * JSON format same as used by "/give" command without need to escape double quotes
+	 * 
+	 * Inspired by https://github.com/upperlevel/spigot-book-api/blob/master/src/main/java/xyz/upperlevel/spigot/book/NmsBookHelper.java
+	 * 
+	 * @author Tim Cummings
+	 * @param json - JSON string used to define a book
+	 * @return the book as an ItemStack
+	 */
+	public ItemStack createBookFromJson(String json) {
+		BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+		JsonObject pyBook = new JsonParser().parse(json).getAsJsonObject();
+		JsonElement pyTitle = pyBook.get("title");
+		JsonElement pyAuthor = pyBook.get("author");
+		JsonElement pyPages = pyBook.get("pages");
+		JsonElement pyDisplay = pyBook.get("display");
+		JsonElement pyGeneration = pyBook.get("generation");
+		if (pyTitle != null) {
+			try {
+				meta.setTitle(pyTitle.getAsString());
+			} catch (ClassCastException e) {
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			}
+		}
+		if (pyAuthor != null) {
+			try {
+				meta.setAuthor(pyAuthor.getAsString());
+			} catch (ClassCastException e) {
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			}
+		}
+		if (pyDisplay != null) {
+			JsonElement pyDisplayName = null;
+			JsonElement pyDisplayLore = null;
+			if ( pyDisplay.isJsonObject() ) {
+				pyDisplayName = pyDisplay.getAsJsonObject().get("Name");
+				pyDisplayLore = pyDisplay.getAsJsonObject().get("Lore");
+			}
+			if (pyDisplayName != null) {
+				try {
+					meta.setDisplayName(pyDisplayName.getAsString());
+				} catch (ClassCastException e) {
+					e.printStackTrace();
+				} catch (IllegalStateException e) {
+					e.printStackTrace();
+				}
+			}
+			if (pyDisplayLore != null) {
+				List<String> listLore = new ArrayList<String>();
+				if (pyDisplayLore.isJsonArray()) {
+					for (JsonElement je : pyDisplayLore.getAsJsonArray()) {
+						try {
+							listLore.add(je.getAsString());
+						} catch (ClassCastException e) {
+							e.printStackTrace();
+						} catch (IllegalStateException e) {
+							e.printStackTrace();
+						}
+					}
+				} else {
+					try {
+						listLore.add(pyDisplayLore.getAsString());
+					} catch (ClassCastException e) {
+						e.printStackTrace();
+					} catch (IllegalStateException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		if (pyGeneration != null) {
+			try {
+				int g = pyGeneration.getAsInt();
+				Generation[] ga = Generation.values();
+				if ( g >= 0 && g < ga.length ) {
+					meta.setGeneration(ga[g]);
+				}
+			} catch (ClassCastException e) {
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				e.printStackTrace();
+			}
+		}
+		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+		Class<?> craftMetaBookClass = null;
+		Field craftMetaBookField = null;
+		try {
+			craftMetaBookClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftMetaBook");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		if (craftMetaBookClass != null ) {
+			try {
+				craftMetaBookField = craftMetaBookClass.getDeclaredField("pages");
+				craftMetaBookField.setAccessible(true);							
+			} catch (NoSuchFieldException e) {
+				e.printStackTrace();
+			} catch (SecurityException se) {
+				se.printStackTrace();
+			}
+		}
+		Class<?> chatSerializer = null;
+		try {
+			chatSerializer = Class.forName("net.minecraft.server." + version + ".IChatBaseComponent$ChatSerializer");
+		} catch(ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		if ( chatSerializer == null ) {
+			try {
+				chatSerializer = Class.forName("net.minecraft.server." + version + ".ChatSerializer");
+			} catch(ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		Method chatSerializerA = null;
+		if ( chatSerializer != null ) {
+			try {
+				chatSerializerA = chatSerializer.getDeclaredMethod("a", String.class);
+			} catch (NoSuchMethodException e) {
+				e.printStackTrace();
+			} catch (SecurityException se) {
+				se.printStackTrace();
+			}
+		}
+		List<Object> pages = null;
+		//get the pages if required for json formatting
+		if (craftMetaBookField != null ) {
+			try {
+				@SuppressWarnings("unchecked")
+				List<Object> lo = (List<Object>) craftMetaBookField.get(meta);
+				pages = lo;
+			} catch (ReflectiveOperationException ex) {
+				ex.printStackTrace();
+			}
+		}
+		if (pyPages.isJsonArray()) {
+			for (JsonElement jePage : pyPages.getAsJsonArray()) {
+				String page = jePage.toString();
+				//plugin.getLogger().info(page);
+				if (chatSerializerA != null && pages != null) {
+					try {
+						pages.add(chatSerializerA.invoke(null, page));
+					} catch (IllegalAccessException e) {
+						e.printStackTrace();
+					} catch (IllegalArgumentException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
+					}
+				} else {
+					//something wrong with reflection methods so just add raw text to book
+					meta.addPage(page);
+				}
+			}
+		}
+		ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+		book.setItemMeta(meta);
+		return book;
 	}
 
 }
