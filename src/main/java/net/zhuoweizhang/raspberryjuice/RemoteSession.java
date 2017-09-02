@@ -809,8 +809,10 @@ public class RemoteSession {
 			try {
 				meta.setTitle(pyTitle.getAsString());
 			} catch (ClassCastException e) {
+				plugin.getLogger().info("Book title can't be got as string because it is not JsonPrimitive. Its JSON is " + pyTitle.toString());
 				e.printStackTrace();
 			} catch (IllegalStateException e) {
+				plugin.getLogger().info("Book title can't be got as string because it is a multiple element array. Its JSON is " + pyTitle.toString());
 				e.printStackTrace();
 			}
 		}
@@ -818,8 +820,10 @@ public class RemoteSession {
 			try {
 				meta.setAuthor(pyAuthor.getAsString());
 			} catch (ClassCastException e) {
+				plugin.getLogger().info("Book author can't be got as string because it is not JsonPrimitive. Its JSON is " + pyAuthor.toString());
 				e.printStackTrace();
 			} catch (IllegalStateException e) {
+				plugin.getLogger().info("Book author can't be got as string because it is a multiple element array. Its JSON is " + pyAuthor.toString());
 				e.printStackTrace();
 			}
 		}
@@ -834,8 +838,10 @@ public class RemoteSession {
 				try {
 					meta.setDisplayName(pyDisplayName.getAsString());
 				} catch (ClassCastException e) {
+					plugin.getLogger().info("Book display name can't be got as string because it is not JsonPrimitive. Its JSON is " + pyDisplayName.toString());
 					e.printStackTrace();
 				} catch (IllegalStateException e) {
+					plugin.getLogger().info("Book display name can't be got as string because it is a multiple element array. Its JSON is " + pyDisplayName.toString());
 					e.printStackTrace();
 				}
 			}
@@ -846,8 +852,10 @@ public class RemoteSession {
 						try {
 							listLore.add(je.getAsString());
 						} catch (ClassCastException e) {
+							plugin.getLogger().info("Book display lore item can't be got as string because it is not JsonPrimitive. Its JSON is " + je.toString());
 							e.printStackTrace();
 						} catch (IllegalStateException e) {
+							plugin.getLogger().info("Book display lore item can't be got as string because it is a multiple element array. Its JSON is " + je.toString());
 							e.printStackTrace();
 						}
 					}
@@ -855,8 +863,10 @@ public class RemoteSession {
 					try {
 						listLore.add(pyDisplayLore.getAsString());
 					} catch (ClassCastException e) {
+						plugin.getLogger().info("Book display lore can't be got as string because it is not JsonPrimitive. Really it should be JsonArray but if not we try this. Its JSON is " + pyDisplayLore.toString());
 						e.printStackTrace();
 					} catch (IllegalStateException e) {
+						plugin.getLogger().info("Book display lore can't be got as string because it is a multiple element array. This should never happen because we have already checked it is not a JsonArray. Its JSON is " + pyDisplayLore.toString());
 						e.printStackTrace();
 					}
 				}
@@ -870,17 +880,21 @@ public class RemoteSession {
 					meta.setGeneration(ga[g]);
 				}
 			} catch (ClassCastException e) {
+				plugin.getLogger().info("Book generation item can't be got as int because it is not JsonPrimitive of int. Its JSON is " + pyGeneration.toString());
 				e.printStackTrace();
 			} catch (IllegalStateException e) {
+				plugin.getLogger().info("Book generation item can't be got as int because it is a multiple element array rather than an int. Its JSON is " + pyGeneration.toString());
 				e.printStackTrace();
 			}
 		}
 		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 		Class<?> craftMetaBookClass = null;
 		Field craftMetaBookField = null;
+		String strCraftMetaBook = "org.bukkit.craftbukkit." + version + ".inventory.CraftMetaBook";
 		try {
-			craftMetaBookClass = Class.forName("org.bukkit.craftbukkit." + version + ".inventory.CraftMetaBook");
+			craftMetaBookClass = Class.forName(strCraftMetaBook);
 		} catch (ClassNotFoundException e) {
+			plugin.getLogger().warning("Can't get class " + strCraftMetaBook + " required to get pages of book that we want to modify");
 			e.printStackTrace();
 		}
 		if (craftMetaBookClass != null ) {
@@ -888,21 +902,30 @@ public class RemoteSession {
 				craftMetaBookField = craftMetaBookClass.getDeclaredField("pages");
 				craftMetaBookField.setAccessible(true);							
 			} catch (NoSuchFieldException e) {
+				plugin.getLogger().info("Field 'pages' missing from class " + strCraftMetaBook + " required to get pages of book we want to modify");
 				e.printStackTrace();
 			} catch (SecurityException se) {
+				plugin.getLogger().warning("Security exception getting field 'pages' from class " + strCraftMetaBook + " required to get pages of book we want to modify");
 				se.printStackTrace();
 			}
 		}
 		Class<?> chatSerializer = null;
+		String strChatSerializer1 = "net.minecraft.server." + version + ".IChatBaseComponent$ChatSerializer";
+		String strChatSerializer2 = "net.minecraft.server." + version + ".ChatSerializer";
+		String strChatSerializer = null;
 		try {
-			chatSerializer = Class.forName("net.minecraft.server." + version + ".IChatBaseComponent$ChatSerializer");
+			chatSerializer = Class.forName(strChatSerializer1);
+			strChatSerializer = strChatSerializer1;
 		} catch(ClassNotFoundException e) {
+			plugin.getLogger().info("Can't find class " + strChatSerializer1 + ". Will try " + strChatSerializer2);
 			e.printStackTrace();
 		}
 		if ( chatSerializer == null ) {
 			try {
-				chatSerializer = Class.forName("net.minecraft.server." + version + ".ChatSerializer");
+				chatSerializer = Class.forName(strChatSerializer2);
+				strChatSerializer = strChatSerializer2;
 			} catch(ClassNotFoundException e) {
+				plugin.getLogger().warning("Can't find classes " + strChatSerializer1 + " or " + strChatSerializer2 + " needed to convert JSON to formatted interactive text in books");
 				e.printStackTrace();
 			}
 		}
@@ -911,8 +934,10 @@ public class RemoteSession {
 			try {
 				chatSerializerA = chatSerializer.getDeclaredMethod("a", String.class);
 			} catch (NoSuchMethodException e) {
+				plugin.getLogger().warning("Class " + strChatSerializer + " does not have method a() required to convert JSON to formatted interactive text in books");
 				e.printStackTrace();
 			} catch (SecurityException se) {
+				plugin.getLogger().warning("Security exception getting declared method a() from " + strChatSerializer);
 				se.printStackTrace();
 			}
 		}
@@ -924,6 +949,7 @@ public class RemoteSession {
 				List<Object> lo = (List<Object>) craftMetaBookField.get(meta);
 				pages = lo;
 			} catch (ReflectiveOperationException ex) {
+				plugin.getLogger().warning("Reflection exception getting pages from book using " + strCraftMetaBook + ".pages");
 				ex.printStackTrace();
 			}
 		}
@@ -935,10 +961,13 @@ public class RemoteSession {
 					try {
 						pages.add(chatSerializerA.invoke(null, page));
 					} catch (IllegalAccessException e) {
+						plugin.getLogger().warning("IllegalAccessException invoking method " + strChatSerializer + ".a() using reflection");
 						e.printStackTrace();
 					} catch (IllegalArgumentException e) {
+						plugin.getLogger().warning("IllegalArgumentException invoking method " + strChatSerializer + ".a() using reflection");
 						e.printStackTrace();
 					} catch (InvocationTargetException e) {
+						plugin.getLogger().warning("InvocationTargetException invoking method " + strChatSerializer + ".a() using reflection");
 						e.printStackTrace();
 					}
 				} else {
