@@ -63,6 +63,7 @@ mvn package
 
 ## Version history
 
+ - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
  - 1.9.1 - minor change to improve connection reset
  - 1.9 - relative and absolute positions added to config.yml
