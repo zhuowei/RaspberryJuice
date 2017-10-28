@@ -23,7 +23,8 @@ from .util import flatten
 - getPitch()
 - getRotation()
 - getPlayerEntityId()
-- pollChatPosts() """
+- pollChatPosts()
+- setSign()  """
 
 def intFloor(*args):
     return [int(math.floor(x)) for x in flatten(args)]
@@ -170,6 +171,20 @@ class Minecraft:
     def setBlocks(self, *args):
         """Set a cuboid of blocks (x0,y0,z0,x1,y1,z1,id,[data])"""
         self.conn.send(b"world.setBlocks", intFloor(args))
+
+    def setSign(self, *args):
+        """Set a sign (x,y,z,id,data,[line1,line2,line3,line4])
+        
+        Wall signs (id=68) require data for facing direction 2=north, 3=south, 4=west, 5=east
+        Standing signs (id=63) require data for facing rotation (0-15) 0=south, 4=west, 8=north, 12=east
+        @author: Tim Cummings https://www.triptera.com.au/wordpress/"""
+        lines = []
+        flatargs = []
+        for arg in flatten(args):
+            flatargs.append(arg)
+        for flatarg in flatargs[5:]:
+            lines.append(flatarg.replace(",",";").replace(")","]").replace("(","["))
+        self.conn.send(b"world.setSign",intFloor(flatargs[0:5]) + lines)
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
