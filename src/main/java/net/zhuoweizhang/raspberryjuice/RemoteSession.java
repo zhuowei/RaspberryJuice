@@ -174,12 +174,17 @@ public class RemoteSession {
 			// world.getPlayerIds
 			} else if (c.equals("world.getPlayerIds")) {
 				StringBuilder bdr = new StringBuilder();
-				for (Player p: Bukkit.getOnlinePlayers()) {
-					bdr.append(p.getEntityId());
-					bdr.append("|");
+				Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+				if (players.size() > 0) {
+					for (Player p: players) {
+						bdr.append(p.getEntityId());
+						bdr.append("|");
+					}
+					bdr.deleteCharAt(bdr.length()-1);
+					send(bdr.toString());
+				} else {
+					send("Fail");
 				}
-				bdr.deleteCharAt(bdr.length()-1);
-				send(bdr.toString());
 				
 			// world.getPlayerId
 			} else if (c.equals("world.getPlayerId")) {
@@ -324,7 +329,10 @@ public class RemoteSession {
 					name = args[0];
 				}
 				Player currentPlayer = getCurrentPlayer(name);
-				send(currentPlayer.getLocation().getYaw());
+				float yaw = currentPlayer.getLocation().getYaw();
+				// turn bukkit's 0 - -360 to positive numbers 
+				if (yaw < 0) yaw = yaw * -1;
+				send(yaw);
 				
 			// player.getPitch
 			} else if (c.equals("player.getPitch")) {
