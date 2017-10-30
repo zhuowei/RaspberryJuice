@@ -8,7 +8,6 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 public class RemoteSession {
@@ -259,41 +258,26 @@ public class RemoteSession {
 				
 			// player.getTile
 			} else if (c.equals("player.getTile")) {
-				String name = null;
-				if (args.length > 0) {
-					name = args[0];
-				}
-				Player currentPlayer = getCurrentPlayer(name);
+				Player currentPlayer = getCurrentPlayer();
 				send(blockLocationToRelative(currentPlayer.getLocation()));
 				
 			// player.setTile
 			} else if (c.equals("player.setTile")) {
-				String name = null, x = args[0], y = args[1], z = args[2];
-				if (args.length > 3) {
-					name = args[0]; x = args[1]; y = args[2]; z = args[3];
-				}
-				Player currentPlayer = getCurrentPlayer(name);
+				String x = args[0], y = args[1], z = args[2];
+				Player currentPlayer = getCurrentPlayer();
 				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
 				Location loc = currentPlayer.getLocation();
 				currentPlayer.teleport(parseRelativeBlockLocation(x, y, z, loc.getPitch(), loc.getYaw()));
 				
 			// player.getAbsPos
 			} else if (c.equals("player.getAbsPos")) {
-				String name = null;
-				if (args.length > 0) {
-					name = args[0];
-				}
-				Player currentPlayer = getCurrentPlayer(name);
+				Player currentPlayer = getCurrentPlayer();
 				send(currentPlayer.getLocation());
 				
 			// player.setAbsPos
 			} else if (c.equals("player.setAbsPos")) {
-				String name = null, x = args[0], y = args[1], z = args[2];
-				if (args.length > 3) {
-					name = args[0]; x = args[1]; y = args[2]; z = args[3];
-				}
-				
-				Player currentPlayer = getCurrentPlayer(name);
+				String x = args[0], y = args[1], z = args[2];
+				Player currentPlayer = getCurrentPlayer();
 				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
 				Location loc = currentPlayer.getLocation();
 				loc.setX(Double.parseDouble(x));
@@ -303,41 +287,25 @@ public class RemoteSession {
 
 			// player.getPos
 			} else if (c.equals("player.getPos")) {
-				String name = null;
-				if (args.length > 0) {
-					name = args[0];
-				}
-				Player currentPlayer = getCurrentPlayer(name);
+				Player currentPlayer = getCurrentPlayer();
 				send(locationToRelative(currentPlayer.getLocation()));
 
 			// player.setPos
 			} else if (c.equals("player.setPos")) {
-				String name = null, x = args[0], y = args[1], z = args[2];
-				if (args.length > 3) {
-					name = args[0]; x = args[1]; y = args[2]; z = args[3];
-				}
-
-				Player currentPlayer = getCurrentPlayer(name);
+				String x = args[0], y = args[1], z = args[2];
+				Player currentPlayer = getCurrentPlayer();
 				//get players current location, so when they are moved we will use the same pitch and yaw (rotation)
 				Location loc = currentPlayer.getLocation();
 				currentPlayer.teleport(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getYaw()));
 
 			// player.getDirection
 			} else if (c.equals("player.getDirection")) {
-				String name = null;
-				if (args.length > 0) {
-					name = args[0];
-				}
-				Player currentPlayer = getCurrentPlayer(name);
+				Player currentPlayer = getCurrentPlayer();
 				send(currentPlayer.getLocation().getDirection().toString());
 
 			// player.getRotation
 			} else if (c.equals("player.getRotation")) {
-				String name = null;
-				if (args.length > 0) {
-					name = args[0];
-				}
-				Player currentPlayer = getCurrentPlayer(name);
+				Player currentPlayer = getCurrentPlayer();
 				float yaw = currentPlayer.getLocation().getYaw();
 				// turn bukkit's 0 - -360 to positive numbers 
 				if (yaw < 0) yaw = yaw * -1;
@@ -345,11 +313,7 @@ public class RemoteSession {
 				
 			// player.getPitch
 			} else if (c.equals("player.getPitch")) {
-				String name = null;
-				if (args.length > 0) {
-					name = args[0];
-				}
-				Player currentPlayer = getCurrentPlayer(name);
+				Player currentPlayer = getCurrentPlayer();
 				send(currentPlayer.getLocation().getPitch());
 				
 				// world.getHeight
@@ -556,17 +520,12 @@ public class RemoteSession {
 	}
 	
 	// gets the current player
-	public Player getCurrentPlayer(String name) {
-		// if a named player is returned use that
-		Player player = plugin.getNamedPlayer(name);
-		// otherwise if there is an attached player for this session use that
+	public Player getCurrentPlayer() {
+		Player player = attachedPlayer;
+		// if the player hasnt already been retreived for this session, go and get it.
 		if (player == null) {
-			player = attachedPlayer;
-			// otherwise go and get the host player and make that the attached player
-			if (player == null) {
-				player = plugin.getHostPlayer();
-				attachedPlayer = player;
-			}
+			player = plugin.getHostPlayer();
+			attachedPlayer = player;
 		}
 		return player;
 	}
