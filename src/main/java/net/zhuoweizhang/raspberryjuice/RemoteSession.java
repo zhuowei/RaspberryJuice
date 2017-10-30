@@ -241,8 +241,6 @@ public class RemoteSession {
 						b.append("|");
 					}
 				}
-				//DEBUG
-				//System.out.println(b.toString());
 				send(b.toString());
 			
 			// events.chat.posts
@@ -257,8 +255,6 @@ public class RemoteSession {
 						b.append("|");
 					}
 				}
-				//DEBUG
-				//System.out.println(b.toString());
 				send(b.toString());
 				
 			// player.getTile
@@ -363,7 +359,6 @@ public class RemoteSession {
 			// entity.getTile
 			} else if (c.equals("entity.getTile")) {
 				//get entity based on id
-				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
 				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
 				if (entity != null) {
 					send(blockLocationToRelative(entity.getLocation()));
@@ -376,7 +371,6 @@ public class RemoteSession {
 			} else if (c.equals("entity.setTile")) {
 				String x = args[1], y = args[2], z = args[3];
 				//get entity based on id
-				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
 				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
 				if (entity != null) {
 					//get entity's current location, so when they are moved we will use the same pitch and yaw (rotation)
@@ -403,7 +397,6 @@ public class RemoteSession {
 			} else if (c.equals("entity.setPos")) {
 				String x = args[1], y = args[2], z = args[3];
 				//get entity based on id
-				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
 				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
 				if (entity != null) {
 					//get entity's current location, so when they are moved we will use the same pitch and yaw (rotation)
@@ -417,7 +410,6 @@ public class RemoteSession {
 			// entity.getDirection
 			} else if (c.equals("entity.getDirection")) {
 				//get entity based on id
-				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
 				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
 				if (entity != null) {
 					send(entity.getLocation().getDirection().toString());
@@ -429,7 +421,6 @@ public class RemoteSession {
 			// entity.getRotation
 			} else if (c.equals("entity.getRotation")) {
 				//get entity based on id
-				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
 				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
 				if (entity != null) {
 					send(entity.getLocation().getYaw());
@@ -441,7 +432,6 @@ public class RemoteSession {
 			// entity.getPitch
 			} else if (c.equals("entity.getPitch")) {
 				//get entity based on id
-				//EntityLiving entity = plugin.getEntityLiving(Integer.parseInt(args[0]));
 				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
 				if (entity != null) {
 					send(entity.getLocation().getPitch());
@@ -450,7 +440,7 @@ public class RemoteSession {
 					send("Fail");
 				}
 				
-			// world.setSign		Author: Tim Cummings https://www.triptera.com.au/wordpress/
+			// world.setSign
 			} else if (c.equals("world.setSign")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Block thisBlock = world.getBlockAt(loc);
@@ -471,20 +461,24 @@ public class RemoteSession {
 					sign.update();
 				}
 			
-			// world.spawnEntity		Author: pxai (edited by Tim Cummings)
+			// world.spawnEntity
 			} else if (c.equals("world.spawnEntity")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Entity entity = world.spawnEntity(loc, EntityType.fromId(Integer.parseInt(args[3])));
 				send(entity.getEntityId());
-				//plugin.getLogger().info("Spawned requested entity: " + args[3]);						
-			// generatePythonModules	Author: Tim Cummings
-			// automatically generates python code to be used by RaspberryJuice python libraries
-			// to ensure RaspberryJuice python and java is in sync with Spigot/Bukkit
-			// Currently just generates entity.py
-			} else if (c.equals("generatePythonModules")) {
-				plugin.getLogger().info("generatePythonModules");
-				String s = PythonModuleGenerator.pyEntity();
-				plugin.getLogger().info(s);
+
+			} else if (c.equals("world.getEntityTypes")) {
+				StringBuilder bdr = new StringBuilder();				
+				for (EntityType entityType : EntityType.values()) {
+					if ( entityType.isSpawnable() && entityType.getTypeId() >= 0 ) {
+						bdr.append(entityType.getTypeId());
+						bdr.append(",");
+						bdr.append(entityType.toString());
+						bdr.append("|");
+					}
+				}
+				send(bdr.toString());
+
 			// not a command which is supported
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");

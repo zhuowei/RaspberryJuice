@@ -2,6 +2,7 @@ from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
 from .block import Block
+from .entity import Entity
 import math
 from .util import flatten
 
@@ -224,13 +225,12 @@ class Minecraft:
     def setting(self, setting, status):
         """Set a world setting (setting, status). keys: world_immutable, nametags_visible"""
         self.conn.send(b"world.setting", setting, 1 if bool(status) else 0)
-        
-    def generatePythonModules(self):
-        """Display the file Entity.py python log using all entity ids from spigot
-        
-        This text should be used to create the file src/main/resources/mcpi/api/python/modded/mcpi/entity.py"""
-        ans = self.conn.sendReceive(b"generatePythonModules")
-        print(ans)
+
+    def getEntityTypes(self):
+        """Return a list of Entity objects representing all the entity types in Minecraft"""  
+        s = self.conn.sendReceive(b"world.getEntityTypes")
+        types = [t for t in s.split("|") if t]
+        return [Entity(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in types]
 
 
     @staticmethod

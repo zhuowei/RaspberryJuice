@@ -68,6 +68,7 @@ mvn package
 
 ## Version history
 
+ - 1.11 - changes!
  - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
  - 1.9.1 - minor change to improve connection reset
@@ -82,3 +83,12 @@ mvn package
  - 1.2 - added world.getBlockWithData
  - 1.1.1 - block hit events
  - 1.1 - Initial release
+
+## Contributors
+
+ - [zhuowei](https://github.com/zhuowei)
+ - [martinohanlon](https://github.com/martinohanlon)
+ - [jclaggett](https://github.com/jclaggett)
+ - [opticyclic]((https://github.com/opticyclic)
+ - [timcu](https://www.triptera.com.au/wordpress/)
+ - [pxai](https://github.com/pxai)
