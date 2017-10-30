@@ -87,9 +87,13 @@ def runBlockTests(mc):
     z=ztest
     mc.setBlocks(x,y,z,x+100,y,z+100,blockmodded.STONE)
     time.sleep(1)
-    mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
+    #clear the area in segments, otherwise it breaks the server
+    #clearing area
+    for y_inc in range(0, 50):
+        mc.setBlocks(xtest,ytest-1,ztest,xtest+100,ytest+y_inc,ztest+100,blockmodded.AIR)
+        time.sleep(2)
 
-    time.sleep(1)    
+    time.sleep(1)
     x=xtest+10
     y=ytest
     z=ztest+10
@@ -478,7 +482,6 @@ def runEntityTests(mc):
     #mc.setBlocks(xtest,ytest-1,ztest,xtest+100,ytest+50,ztest+100,air)
     
     #clear the area in segments, otherwise it breaks the server
-
     #clearing area
     for y_inc in range(0, 50):
         mc.setBlocks(xtest,ytest-1,ztest,xtest+100,ytest+y_inc,ztest+100,air)
@@ -759,10 +762,11 @@ def runTests(mc, library="Standard library", extended=False):
             mc.postToChat("You hit block - x:" + str(blockEvent.pos.x) + " y:" + str(blockEvent.pos.y) + " z:" + str(blockEvent.pos.z))
             blockHit = True
 
-
     if extended:
         entity_types = mc.getEntityTypes()
         mc.postToChat("The last found was entity: id=" + str(entity_types[-1].id) + " name=" + entity_types[-1].name)
+        mc.spawnEntity(tilePos.x + 2, tilePos.y + 2, tilePos.x + 2, entitymodded.CREEPER)
+        mc.postToChat("Creeper spawned")
 
         mc.postToChat("Post To Chat - Run full block and entity test Y/N?")
         chatPosted = False
