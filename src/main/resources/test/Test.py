@@ -166,6 +166,7 @@ def runBlockTests(mc):
         mc.setBlock(x-1,y,z,signmount)
         mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
         # cactus has to be on sand and away from other blocks
+        mc.setBlock(x+1,y-2,z,blockmodded.DIRT)
         mc.setBlock(x+1,y-1,z,blockmodded.SAND)
         mc.setBlock(x+1,y,z,b)
         untested.discard(b.id)
