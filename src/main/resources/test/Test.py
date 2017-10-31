@@ -92,7 +92,7 @@ def runBlockTests(mc):
     #mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
     for y_inc in range(1, 50):
         mc.setBlocks(x,y+y_inc,z,x+50,y+y_inc,z+50,blockmodded.AIR)
-        time.sleep(2)
+        time.sleep(0.1)
 
     time.sleep(1)
     x=xtest+10
@@ -486,10 +486,10 @@ def runEntityTests(mc):
     #clear the area in segments, otherwise it breaks the server
     #clearing area
     for y_inc in range(0, 50):
-        mc.setBlocks(xtest,ytest-1,ztest,xtest+50,ytest+y_inc,ztest+50,air)
-        time.sleep(2)
+        mc.setBlocks(xtest,ytest+y_inc,ztest-1,xtest+100,ytest+y_inc,ztest+50,air)
+        time.sleep(0.1)
 
-    mc.setBlocks(xtest,ytest-1,ztest,xtest+50,ytest-1,ztest+50,floor)
+    mc.setBlocks(xtest,ytest-1,ztest-1,xtest+100,ytest-1,ztest+50,floor)
     mc.player.setTilePos(xtest, ytest, ztest)
 
     mc.postToChat("Dancing villager")
@@ -500,7 +500,7 @@ def runEntityTests(mc):
     id=mc.spawnEntity(x,y,z,entitymodded.VILLAGER)
     theta = 0
     while theta <= 2 * math.pi:
-        time.sleep(1)
+        time.sleep(0.1)
         theta += 0.1
         x = xtest + math.sin(theta) * r
         z = ztest + math.cos(theta) * r
