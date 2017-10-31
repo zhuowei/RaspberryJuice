@@ -458,6 +458,7 @@ public class RemoteSession {
 				Entity entity = world.spawnEntity(loc, EntityType.fromId(Integer.parseInt(args[3])));
 				send(entity.getEntityId());
 
+			// world.getEntityTypes
 			} else if (c.equals("world.getEntityTypes")) {
 				StringBuilder bdr = new StringBuilder();				
 				for (EntityType entityType : EntityType.values()) {

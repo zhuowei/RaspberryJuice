@@ -32,6 +32,7 @@ A Bukkit plugin which implements the Minecraft Pi Socket API.
 
  - getBlocks(x1,y1,z1,x2,y2,z2) has been implemented
  - getDirection, getRotation, getPitch functions - get the 'direction' players and entities are facing
+ - setDirection, setRotation, setPitch functions - set the 'direction' players and entities are facing
  - getPlayerId(playerName) - get the entity of a player by name
  - pollChatPosts() - get events back for posts to the chat
  - setSign(x,y,z,block type id,data,line1,line2,line3,line4)
@@ -68,7 +69,7 @@ mvn package
 
 ## Version history
 
- - 1.11 - spawnEntity, setDirection, setRotation, setPitch, code tidy up
+ - 1.11 - spawnEntity, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
  - 1.9.1 - minor change to improve connection reset
