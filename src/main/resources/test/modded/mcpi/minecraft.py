@@ -55,14 +55,26 @@ class CmdPositioner:
         """Set entity tile position (entityId:int) => Vec3"""
         self.conn.send(self.pkg + b".setTile", id, intFloor(*args))
 
+    def setDirection(self, id, *args):
+        """Set entity direction (entityId:int, x,y,z)"""
+        self.conn.send(self.pkg + b".setDirection", id, args)
+
     def getDirection(self, id):
         """Get entity direction (entityId:int) => Vec3"""
         s = self.conn.sendReceive(self.pkg + b".getDirection", id)
         return Vec3(*map(float, s.split(",")))
 
+    def setRotation(self, id, yaw):
+        """Set entity rotation (entityId:int, yaw)"""
+        self.conn.send(self.pkg + b".setRotation", id, yaw)
+
     def getRotation(self, id):
         """get entity rotation (entityId:int) => float"""
         return float(self.conn.sendReceive(self.pkg + b".getRotation", id))
+
+    def setPitch(self, id, pitch):
+        """Set entity pitch (entityId:int, pitch)"""
+        self.conn.send(self.pkg + b".setPitch", id, pitch)
 
     def getPitch(self, id):
         """get entity pitch (entityId:int) => float"""
@@ -98,10 +110,16 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.getTilePos(self, [])
     def setTilePos(self, *args):
         return CmdPositioner.setTilePos(self, [], args)
+    def setDirection(self, *args):
+        return CmdPositioner.setDirection(self, [], args)
     def getDirection(self):
         return CmdPositioner.getDirection(self, [])
+    def setRotation(self, yaw):
+        return CmdPositioner.setRotation(self, [], yaw)
     def getRotation(self):
         return CmdPositioner.getRotation(self, [])
+    def setPitch(self, pitch):
+        return CmdPositioner.setPitch(self, [], pitch)
     def getPitch(self):
         return CmdPositioner.getPitch(self, [])
 

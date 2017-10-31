@@ -92,7 +92,7 @@ def runBlockTests(mc):
     #mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
     for y_inc in range(1, 50):
         mc.setBlocks(x,y+y_inc,z,x+50,y+y_inc,z+50,blockmodded.AIR)
-        time.sleep(2)
+        time.sleep(1)
 
     time.sleep(1)
     x=xtest+10
@@ -166,6 +166,7 @@ def runBlockTests(mc):
         mc.setBlock(x-1,y,z,signmount)
         mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
         # cactus has to be on sand and away from other blocks
+        mc.setBlock(x+1,y-2,z,blockmodded.DIRT)
         mc.setBlock(x+1,y-1,z,blockmodded.SAND)
         mc.setBlock(x+1,y,z,b)
         untested.discard(b.id)
@@ -485,10 +486,10 @@ def runEntityTests(mc):
     #clear the area in segments, otherwise it breaks the server
     #clearing area
     for y_inc in range(0, 50):
-        mc.setBlocks(xtest,ytest-1,ztest,xtest+50,ytest+y_inc,ztest+50,air)
-        time.sleep(2)
+        mc.setBlocks(xtest,ytest+y_inc,ztest,xtest+100,ytest+y_inc,ztest+50,air)
+        time.sleep(1)
 
-    mc.setBlocks(xtest,ytest-1,ztest,xtest+50,ytest-1,ztest+50,floor)
+    mc.setBlocks(xtest,ytest-1,ztest-1,xtest+100,ytest-1,ztest+50,floor)
     mc.player.setTilePos(xtest, ytest, ztest)
 
     mc.postToChat("Dancing villager")
@@ -697,11 +698,19 @@ def runTests(mc, library="Standard library", extended=False):
 
     if extended:
         direction = mc.player.getDirection()
-        mc.postToChat(direction)
+        mc.postToChat("player.getDirection()=" + str(direction))
+        time.sleep(5)
+        mc.player.setDirection(direction.x + 0.5, direction.y, direction.z)
+        time.sleep(5)
+        direction = mc.player.getDirection()
+        mc.postToChat("player.getDirection()=" + str(direction))
         rotation = mc.player.getRotation()
         mc.postToChat("player.getRotation()=" + str(rotation))
         pitch = mc.player.getPitch()
         mc.postToChat("player.getPitch()=" + str(pitch))
+        mc.player.setDirection(0,0,1)
+        mc.player.setRotation(180)
+        mc.player.setPitch(-45)
 
     #getBlock
     below = mc.getBlock(pos.x,pos.y-1,pos.z)
@@ -752,6 +761,9 @@ def runTests(mc, library="Standard library", extended=False):
         mc.postToChat("entity.getRotation()=" + str(rotation))
         pitch = mc.entity.getPitch(playerids[0])
         mc.postToChat("entity.getPitch()=" + str(pitch))
+        mc.entity.setDirection(playerids[0],0,0,1)
+        mc.entity.setRotation(playerids[0],180)
+        mc.entity.setPitch(playerids[0],-45)
 
     #block hit events
     mc.postToChat("hit a block with sword")

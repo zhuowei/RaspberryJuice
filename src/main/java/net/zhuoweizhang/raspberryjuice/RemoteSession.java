@@ -9,6 +9,7 @@ import org.bukkit.entity.*;
 import org.bukkit.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.util.Vector;
 
 public class RemoteSession {
 
@@ -298,10 +299,28 @@ public class RemoteSession {
 				Location loc = currentPlayer.getLocation();
 				currentPlayer.teleport(parseRelativeLocation(x, y, z, loc.getPitch(), loc.getYaw()));
 
+			// player.setDirection
+			} else if (c.equals("player.setDirection")) {
+				Double x = Double.parseDouble(args[0]);
+				Double y = Double.parseDouble(args[1]); 
+				Double z = Double.parseDouble(args[2]);
+				Player currentPlayer = getCurrentPlayer();
+				Location loc = currentPlayer.getLocation();
+				loc.setDirection(new Vector(x, y, z));
+				currentPlayer.teleport(loc);
+
 			// player.getDirection
 			} else if (c.equals("player.getDirection")) {
+			Player currentPlayer = getCurrentPlayer();
+			send(currentPlayer.getLocation().getDirection().toString());
+
+			// player.setRotation
+			} else if (c.equals("player.setRotation")) {
+				Float yaw = Float.parseFloat(args[0]);
 				Player currentPlayer = getCurrentPlayer();
-				send(currentPlayer.getLocation().getDirection().toString());
+				Location loc = currentPlayer.getLocation();
+				loc.setYaw(yaw);
+				currentPlayer.teleport(loc);
 
 			// player.getRotation
 			} else if (c.equals("player.getRotation")) {
@@ -310,6 +329,14 @@ public class RemoteSession {
 				// turn bukkit's 0 - -360 to positive numbers 
 				if (yaw < 0) yaw = yaw * -1;
 				send(yaw);
+
+			// player.setPitch
+			} else if (c.equals("player.setPitch")) {
+				Float pitch = Float.parseFloat(args[0]);
+				Player currentPlayer = getCurrentPlayer();
+				Location loc = currentPlayer.getLocation();
+				loc.setPitch(pitch);
+				currentPlayer.teleport(loc);
 				
 			// player.getPitch
 			} else if (c.equals("player.getPitch")) {
