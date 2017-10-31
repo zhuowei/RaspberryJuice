@@ -92,7 +92,7 @@ def runBlockTests(mc):
     #mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
     for y_inc in range(1, 50):
         mc.setBlocks(x,y+y_inc,z,x+50,y+y_inc,z+50,blockmodded.AIR)
-        time.sleep(1)
+        time.sleep(2)
 
     time.sleep(1)
     x=xtest+10
@@ -486,8 +486,8 @@ def runEntityTests(mc):
     #clear the area in segments, otherwise it breaks the server
     #clearing area
     for y_inc in range(0, 50):
-        mc.setBlocks(xtest,ytest+y_inc,ztest,xtest+100,ytest+y_inc,ztest+50,air)
-        time.sleep(1)
+        mc.setBlocks(xtest,ytest+y_inc,ztest,xtest+50,ytest+y_inc,ztest+50,air)
+        time.sleep(2)
 
     mc.setBlocks(xtest,ytest-1,ztest-1,xtest+100,ytest-1,ztest+50,floor)
     mc.player.setTilePos(xtest, ytest, ztest)
@@ -697,11 +697,6 @@ def runTests(mc, library="Standard library", extended=False):
     mc.player.setTilePos(tilePos.x, tilePos.y, tilePos.z)
 
     if extended:
-        direction = mc.player.getDirection()
-        mc.postToChat("player.getDirection()=" + str(direction))
-        time.sleep(5)
-        mc.player.setDirection(direction.x + 0.5, direction.y, direction.z)
-        time.sleep(5)
         direction = mc.player.getDirection()
         mc.postToChat("player.getDirection()=" + str(direction))
         rotation = mc.player.getRotation()
