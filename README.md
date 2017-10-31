@@ -91,6 +91,6 @@ mvn package
  - [zhuowei](https://github.com/zhuowei)
  - [martinohanlon](https://github.com/martinohanlon)
  - [jclaggett](https://github.com/jclaggett)
- - [opticyclic]((https://github.com/opticyclic)
+ - [opticyclic](https://github.com/opticyclic)
  - [timcu](https://www.triptera.com.au/wordpress/)
  - [pxai](https://github.com/pxai)
