@@ -1,6 +1,7 @@
 from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
+from .entity import Entity
 from .block import Block
 import math
 from .util import flatten
@@ -23,7 +24,9 @@ from .util import flatten
 - getPitch()
 - getRotation()
 - getPlayerEntityId()
-- pollChatPosts() """
+- pollChatPosts()
+- setSign()
+- spawnEntity()"""
 
 def intFloor(*args):
     return [int(math.floor(x)) for x in flatten(args)]
@@ -52,14 +55,26 @@ class CmdPositioner:
         """Set entity tile position (entityId:int) => Vec3"""
         self.conn.send(self.pkg + b".setTile", id, intFloor(*args))
 
+    def setDirection(self, id, *args):
+        """Set entity direction (entityId:int, x,y,z)"""
+        self.conn.send(self.pkg + b".setDirection", id, args)
+
     def getDirection(self, id):
         """Get entity direction (entityId:int) => Vec3"""
         s = self.conn.sendReceive(self.pkg + b".getDirection", id)
         return Vec3(*map(float, s.split(",")))
 
+    def setRotation(self, id, yaw):
+        """Set entity rotation (entityId:int, yaw)"""
+        self.conn.send(self.pkg + b".setRotation", id, yaw)
+
     def getRotation(self, id):
         """get entity rotation (entityId:int) => float"""
         return float(self.conn.sendReceive(self.pkg + b".getRotation", id))
+
+    def setPitch(self, id, pitch):
+        """Set entity pitch (entityId:int, pitch)"""
+        self.conn.send(self.pkg + b".setPitch", id, pitch)
 
     def getPitch(self, id):
         """get entity pitch (entityId:int) => float"""
@@ -69,11 +84,16 @@ class CmdPositioner:
         """Set a player setting (setting, status). keys: autojump"""
         self.conn.send(self.pkg + b".setting", setting, 1 if bool(status) else 0)
 
-
 class CmdEntity(CmdPositioner):
     """Methods for entities"""
     def __init__(self, connection):
         CmdPositioner.__init__(self, connection, b"entity")
+    
+    def getName(self, id):
+        """Get the list name of the player with entity id => [name:str]
+        
+        Also can be used to find name of entity if entity is not a player."""
+        return self.conn.sendReceive(b"entity.getName", id)
 
 
 class CmdPlayer(CmdPositioner):
@@ -90,10 +110,16 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.getTilePos(self, [])
     def setTilePos(self, *args):
         return CmdPositioner.setTilePos(self, [], args)
+    def setDirection(self, *args):
+        return CmdPositioner.setDirection(self, [], args)
     def getDirection(self):
         return CmdPositioner.getDirection(self, [])
+    def setRotation(self, yaw):
+        return CmdPositioner.setRotation(self, [], yaw)
     def getRotation(self):
         return CmdPositioner.getRotation(self, [])
+    def setPitch(self, pitch):
+        return CmdPositioner.setPitch(self, [], pitch)
     def getPitch(self):
         return CmdPositioner.getPitch(self, [])
 
@@ -171,6 +197,24 @@ class Minecraft:
         """Set a cuboid of blocks (x0,y0,z0,x1,y1,z1,id,[data])"""
         self.conn.send(b"world.setBlocks", intFloor(args))
 
+    def setSign(self, *args):
+        """Set a sign (x,y,z,id,data,[line1,line2,line3,line4])
+        
+        Wall signs (id=68) require data for facing direction 2=north, 3=south, 4=west, 5=east
+        Standing signs (id=63) require data for facing rotation (0-15) 0=south, 4=west, 8=north, 12=east
+        @author: Tim Cummings https://www.triptera.com.au/wordpress/"""
+        lines = []
+        flatargs = []
+        for arg in flatten(args):
+            flatargs.append(arg)
+        for flatarg in flatargs[5:]:
+            lines.append(flatarg.replace(",",";").replace(")","]").replace("(","["))
+        self.conn.send(b"world.setSign",intFloor(flatargs[0:5]) + lines)
+
+    def spawnEntity(self, *args):
+        """Spawn entity (x,y,z,id,[data])"""
+        return int(self.conn.sendReceive(b"world.spawnEntity", intFloor(args)))
+
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
         return int(self.conn.sendReceive(b"world.getHeight", intFloor(args)))
@@ -199,6 +243,13 @@ class Minecraft:
     def setting(self, setting, status):
         """Set a world setting (setting, status). keys: world_immutable, nametags_visible"""
         self.conn.send(b"world.setting", setting, 1 if bool(status) else 0)
+
+    def getEntityTypes(self):
+        """Return a list of Entity objects representing all the entity types in Minecraft"""  
+        s = self.conn.sendReceive(b"world.getEntityTypes")
+        types = [t for t in s.split("|") if t]
+        return [Entity(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in types]
+
 
     @staticmethod
     def create(address = "localhost", port = 4711):

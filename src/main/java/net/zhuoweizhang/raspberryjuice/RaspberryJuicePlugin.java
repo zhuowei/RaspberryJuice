@@ -4,6 +4,7 @@ import java.net.*;
 import java.util.*;
 
 import org.bukkit.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.EventHandler;
@@ -146,13 +147,21 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		return null;
 	}
 
-	//get entity by id - TODO to be compatible with the pi it should be changed to return an entity not a player...
-	public Player getEntity(int id) {
+	//get entity by id - DONE to be compatible with the pi it should be changed to return an entity not a player...
+	public Entity getEntity(int id) {
 		for (Player p: getServer().getOnlinePlayers()) {
-            if (p.getEntityId() == id) {
-                return p;
-            }
-        }
+			if (p.getEntityId() == id) {
+				return p;
+			}
+		}
+		//check all entities in host player's world
+		Player player = getHostPlayer();
+		World w = player.getWorld();
+		for (Entity e : w.getEntities()) {
+			if (e.getEntityId() == id) {
+				return e;
+			}
+		}
 		return null;
 	}
 
