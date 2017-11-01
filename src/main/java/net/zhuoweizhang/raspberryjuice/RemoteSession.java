@@ -398,6 +398,20 @@ public class RemoteSession {
 					send("Fail");
 				}
 
+			// entity.setDirection
+			} else if (c.equals("entity.setDirection")) {
+				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					Double x = Double.parseDouble(args[1]);
+					Double y = Double.parseDouble(args[2]); 
+					Double z = Double.parseDouble(args[3]);
+					Location loc = entity.getLocation();
+					loc.setDirection(new Vector(x, y, z));
+					entity.teleport(loc);
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+				}
+				
 			// entity.getDirection
 			} else if (c.equals("entity.getDirection")) {
 				//get entity based on id
@@ -408,7 +422,19 @@ public class RemoteSession {
 					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
 					send("Fail");
 				}
-				
+
+			// entity.setRotation
+			} else if (c.equals("entity.setRotation")) {
+				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					Float yaw = Float.parseFloat(args[1]);
+					Location loc = entity.getLocation();
+					loc.setYaw(yaw);
+					entity.teleport(loc);
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+				}
+
 			// entity.getRotation
 			} else if (c.equals("entity.getRotation")) {
 				//get entity based on id
@@ -419,7 +445,19 @@ public class RemoteSession {
 					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
 					send("Fail");
 				}
-				
+			
+			// entity.setPitch
+			} else if (c.equals("entity.setPitch")) {
+				Entity entity = plugin.getEntity(Integer.parseInt(args[0]));
+				if (entity != null) {
+					Float pitch = Float.parseFloat(args[1]);
+					Location loc = entity.getLocation();
+					loc.setPitch(pitch);
+					entity.teleport(loc);
+				} else {
+					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
+				}
+
 			// entity.getPitch
 			} else if (c.equals("entity.getPitch")) {
 				//get entity based on id

@@ -54,10 +54,9 @@ def runBlockTests(mc):
     
     # location for platform showing all block types
     xtest = 0
-    ytest = 100
+    ytest = 50
     ztest = 0
     mc.postToChat("runBlockTests(): Creating test blocks at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
-    mc.player.setTilePos(xtest, ytest, ztest)
     # create set of all block ids to ensure they all get tested
     # note some blocks have different names but same ids so they only have to be tested once per id
     # create a map of ids to names so can see which ones haven't been tested by name
@@ -85,15 +84,15 @@ def runBlockTests(mc):
     x=xtest
     y=ytest-1
     z=ztest
-    mc.setBlocks(x,y,z,x+50,y,z+50,blockmodded.STONE)
+    mc.setBlocks(x,y,z,x+100,y,z+100,blockmodded.STONE)
     time.sleep(1)
     #clear the area in segments, otherwise it breaks the server
     #clearing area
     #mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
-    for y_inc in range(1, 50):
-        mc.setBlocks(x,y+y_inc,z,x+50,y+y_inc,z+50,blockmodded.AIR)
+    for y_inc in range(1, 10):
+        mc.setBlocks(x,y+y_inc,z,x+100,y+y_inc,z+100,blockmodded.AIR)
         time.sleep(2)
-
+    mc.player.setTilePos(xtest, ytest, ztest)
     time.sleep(1)
     x=xtest+10
     y=ytest
@@ -467,7 +466,7 @@ def runEntityTests(mc):
     bosses=["WITHER"]
     # location for platform showing all block types
     xtest = 50
-    ytest = 100
+    ytest = 50
     ztest = 50
     air=blockmodded.AIR
     wall=blockmodded.GLASS
@@ -485,11 +484,11 @@ def runEntityTests(mc):
     
     #clear the area in segments, otherwise it breaks the server
     #clearing area
-    for y_inc in range(0, 50):
-        mc.setBlocks(xtest,ytest+y_inc,ztest,xtest+50,ytest+y_inc,ztest+50,air)
+    for y_inc in range(0, 10):
+        mc.setBlocks(xtest,ytest+y_inc,ztest,xtest+100,ytest+y_inc,ztest+100,air)
         time.sleep(2)
 
-    mc.setBlocks(xtest,ytest-1,ztest-1,xtest+100,ytest-1,ztest+50,floor)
+    mc.setBlocks(xtest,ytest-1,ztest-1,xtest+100,ytest-1,ztest+100,floor)
     mc.player.setTilePos(xtest, ytest, ztest)
 
     mc.postToChat("Dancing villager")
