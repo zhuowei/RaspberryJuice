@@ -1,6 +1,7 @@
 from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
+from .entity import Entity
 from .block import Block
 import math
 from .util import flatten, escape
@@ -54,14 +55,26 @@ class CmdPositioner:
         """Set entity tile position (entityId:int) => Vec3"""
         self.conn.send(self.pkg + b".setTile", id, intFloor(*args))
 
+    def setDirection(self, id, *args):
+        """Set entity direction (entityId:int, x,y,z)"""
+        self.conn.send(self.pkg + b".setDirection", id, args)
+
     def getDirection(self, id):
         """Get entity direction (entityId:int) => Vec3"""
         s = self.conn.sendReceive(self.pkg + b".getDirection", id)
         return Vec3(*map(float, s.split(",")))
 
+    def setRotation(self, id, yaw):
+        """Set entity rotation (entityId:int, yaw)"""
+        self.conn.send(self.pkg + b".setRotation", id, yaw)
+
     def getRotation(self, id):
         """get entity rotation (entityId:int) => float"""
         return float(self.conn.sendReceive(self.pkg + b".getRotation", id))
+
+    def setPitch(self, id, pitch):
+        """Set entity pitch (entityId:int, pitch)"""
+        self.conn.send(self.pkg + b".setPitch", id, pitch)
 
     def getPitch(self, id):
         """get entity pitch (entityId:int) => float"""
@@ -97,10 +110,16 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.getTilePos(self, [])
     def setTilePos(self, *args):
         return CmdPositioner.setTilePos(self, [], args)
+    def setDirection(self, *args):
+        return CmdPositioner.setDirection(self, [], args)
     def getDirection(self):
         return CmdPositioner.getDirection(self, [])
+    def setRotation(self, yaw):
+        return CmdPositioner.setRotation(self, [], yaw)
     def getRotation(self):
         return CmdPositioner.getRotation(self, [])
+    def setPitch(self, pitch):
+        return CmdPositioner.setPitch(self, [], pitch)
     def getPitch(self):
         return CmdPositioner.getPitch(self, [])
 
@@ -238,13 +257,12 @@ class Minecraft:
     def setting(self, setting, status):
         """Set a world setting (setting, status). keys: world_immutable, nametags_visible"""
         self.conn.send(b"world.setting", setting, 1 if bool(status) else 0)
-        
-    def generatePythonModules(self):
-        """Display the file Entity.py python log using all entity ids from spigot
-        
-        This text should be used to create the file src/main/resources/mcpi/api/python/modded/mcpi/entity.py"""
-        ans = self.conn.sendReceive(b"generatePythonModules")
-        print(ans)
+
+    def getEntityTypes(self):
+        """Return a list of Entity objects representing all the entity types in Minecraft"""  
+        s = self.conn.sendReceive(b"world.getEntityTypes")
+        types = [t for t in s.split("|") if t]
+        return [Entity(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in types]
 
 
     @staticmethod

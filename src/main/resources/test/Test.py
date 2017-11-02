@@ -55,10 +55,9 @@ def runBlockTests(mc):
     
     # location for platform showing all block types
     xtest = 0
-    ytest = 100
+    ytest = 50
     ztest = 0
     mc.postToChat("runBlockTests(): Creating test blocks at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
-
     # create set of all block ids to ensure they all get tested
     # note some blocks have different names but same ids so they only have to be tested once per id
     # create a map of ids to names so can see which ones haven't been tested by name
@@ -87,10 +86,15 @@ def runBlockTests(mc):
     y=ytest-1
     z=ztest
     mc.setBlocks(x,y,z,x+100,y,z+100,blockmodded.STONE)
-    time.sleep(0.1)
-    mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
-
-    time.sleep(0.1)    
+    time.sleep(1)
+    #clear the area in segments, otherwise it breaks the server
+    #clearing area
+    #mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
+    for y_inc in range(1, 10):
+        mc.setBlocks(x,y+y_inc,z,x+100,y+y_inc,z+100,blockmodded.AIR)
+        time.sleep(2)
+    mc.player.setTilePos(xtest, ytest, ztest)
+    time.sleep(1)
     x=xtest+10
     y=ytest
     z=ztest+10
@@ -102,7 +106,7 @@ def runBlockTests(mc):
         mc.setBlock(x,y,z,b)
         untested.discard(b.id)
     
-    time.sleep(0.1)
+    time.sleep(1)
     x=xtest+20
     z=ztest+10
     for key in trees:
@@ -162,6 +166,7 @@ def runBlockTests(mc):
         mc.setBlock(x-1,y,z,signmount)
         mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
         # cactus has to be on sand and away from other blocks
+        mc.setBlock(x+1,y-2,z,blockmodded.DIRT)
         mc.setBlock(x+1,y-1,z,blockmodded.SAND)
         mc.setBlock(x+1,y,z,b)
         untested.discard(b.id)
@@ -174,7 +179,7 @@ def runBlockTests(mc):
         mc.setBlock(x,y,z,b)
         untested.discard(b.id)
     
-    time.sleep(0.1)
+    time.sleep(1)
     x=xtest+30
     z=ztest+10
     for key in coloureds:
@@ -225,7 +230,7 @@ def runBlockTests(mc):
         mc.setSign (x  ,y,z-6,b.id, 0,"SIGN_STANDING","id=" + str(b.id),"data= 0","rotation")
         untested.discard(b.id)
     
-    time.sleep(0.1)
+    time.sleep(1)
     x=xtest+40
     z=ztest+10
     for key in liquids:
@@ -252,7 +257,7 @@ def runBlockTests(mc):
             mc.setBlock(x,y,z,b)
         untested.discard(b.id)
     
-    time.sleep(0.1)
+    time.sleep(1)
     x=xtest+50
     z=ztest+10
     for key in slabs:
@@ -264,7 +269,7 @@ def runBlockTests(mc):
             mc.setBlock(x,y,z,b)
         untested.discard(b.id)
     
-    time.sleep(0.1)
+    time.sleep(1)
     x=xtest+60
     y=ytest
     z=ztest+10
@@ -289,7 +294,7 @@ def runBlockTests(mc):
         untested.discard(b.id)
         #untested.discard(wallsignid)
         
-    time.sleep(0.1)
+    time.sleep(1)
     x=xtest+60
     y=ytest
     z=ztest+20
@@ -314,7 +319,7 @@ def runBlockTests(mc):
         z+=10
         untested.discard(b.id)
     
-    time.sleep(0.1)
+    time.sleep(1)
     x=xtest+70
     y=ytest
     z=ztest+10
@@ -382,7 +387,7 @@ def runBlockTests(mc):
         y+=3
         untested.discard(b.id)
         
-    time.sleep(0.1)
+    time.sleep(1)
     x=xtest+70
     y=ytest
     z=ztest+20
@@ -462,7 +467,7 @@ def runEntityTests(mc):
     bosses=["WITHER"]
     # location for platform showing all entities
     xtest = 50
-    ytest = 100
+    ytest = 50
     ztest = 50
     air=blockmodded.AIR
     wall=blockmodded.GLASS
@@ -476,9 +481,16 @@ def runEntityTests(mc):
     rail=blockmodded.RAIL
     wallsignid=blockmodded.SIGN_WALL.id
     mc.postToChat("runEntityTests(): Creating test entities at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
-    mc.setBlocks(xtest,ytest,ztest,xtest+70,ytest+50,ztest+50,air)
-    mc.setBlocks(xtest,ytest-1,ztest,xtest+70,ytest-1,ztest+50,floor)
     
+    #clear the area in segments, otherwise it breaks the server
+    #clearing area
+    for y_inc in range(0, 10):
+        mc.setBlocks(xtest,ytest+y_inc,ztest,xtest+100,ytest+y_inc,ztest+100,air)
+        time.sleep(2)
+
+    mc.setBlocks(xtest,ytest-1,ztest-1,xtest+100,ytest-1,ztest+100,floor)
+    mc.player.setTilePos(xtest, ytest, ztest)
+
     mc.postToChat("Dancing villager")
     r = 10
     x=xtest
@@ -487,7 +499,7 @@ def runEntityTests(mc):
     id=mc.spawnEntity(x,y,z,entitymodded.VILLAGER)
     theta = 0
     while theta <= 2 * math.pi:
-        time.sleep(0.1)
+        time.sleep(1)
         theta += 0.1
         x = xtest + math.sin(theta) * r
         z = ztest + math.cos(theta) * r
@@ -515,7 +527,7 @@ def runEntityTests(mc):
             pass
     
     
-    time.sleep(0.1)    
+    time.sleep(1)    
     x=xtest
     y=ytest
     z=ztest
@@ -541,7 +553,7 @@ def runEntityTests(mc):
         untested.discard(e.id)
     z = ztest - 4
     x += 10
-    time.sleep(0.1)
+    time.sleep(1)
     for key in livers:
         z += 4
         if z > 96:
@@ -556,7 +568,7 @@ def runEntityTests(mc):
         untested.discard(e.id)
     x+=10
     z=ztest - 3
-    time.sleep(0.1)
+    time.sleep(1)
     for key in minecarts:
         z += 3
         if z > 97:
@@ -569,7 +581,7 @@ def runEntityTests(mc):
         mc.setBlocks(x,y,z-1,x,y,z+1,rail)
         mc.spawnEntity(x,y,z,e)
         untested.discard(e.id)
-    time.sleep(0.1)
+    time.sleep(1)
     for key in floats:
         z += 5
         if z > 95:
@@ -586,7 +598,7 @@ def runEntityTests(mc):
             
     x+=10
     z=ztest - 4
-    time.sleep(0.1)
+    time.sleep(1)
     for key in cavers:
         z += 4
         if z > 96:
@@ -605,7 +617,7 @@ def runEntityTests(mc):
     x=xtest
     y=ytest+10
     z=ztest
-    time.sleep(0.1)
+    time.sleep(1)
     for key in giants:
         e = getattr(entitymodded,key)
         mc.setBlocks(x,y,z,x+20,y+10,z+20,wall)
@@ -619,7 +631,7 @@ def runEntityTests(mc):
         if z > 80:
             z = ztest
             x += 25
-    time.sleep(0.1)
+    time.sleep(1)
     for key in bosses:
         e = getattr(entitymodded,key)
         mc.setBlocks(x,y,z,x+20,y+10,z+20,blockmodded.BEDROCK)
@@ -641,7 +653,7 @@ def runEntityTests(mc):
         if z > 80:
             z = ztest
             x += 25
-    time.sleep(0.1)
+    time.sleep(1)
     for key in sinks:
         e = getattr(entitymodded,key)
         mc.setBlocks(x,y,z,x+20,y+10,z+20,wall)
@@ -728,11 +740,14 @@ def runTests(mc, library="Standard library", extended=False):
 
     if extended:
         direction = mc.player.getDirection()
-        mc.postToChat(direction)
+        mc.postToChat("player.getDirection()=" + str(direction))
         rotation = mc.player.getRotation()
         mc.postToChat("player.getRotation()=" + str(rotation))
         pitch = mc.player.getPitch()
         mc.postToChat("player.getPitch()=" + str(pitch))
+        mc.player.setDirection(0,0,1)
+        mc.player.setRotation(180)
+        mc.player.setPitch(-45)
 
     #getBlock
     below = mc.getBlock(pos.x,pos.y-1,pos.z)
@@ -783,31 +798,42 @@ def runTests(mc, library="Standard library", extended=False):
         mc.postToChat("entity.getRotation()=" + str(rotation))
         pitch = mc.entity.getPitch(playerids[0])
         mc.postToChat("entity.getPitch()=" + str(pitch))
+        mc.entity.setDirection(playerids[0],0,0,1)
+        mc.entity.setRotation(playerids[0],180)
+        mc.entity.setPitch(playerids[0],-45)
 
     #block hit events
     mc.postToChat("hit a block with sword")
     blockHit = False
     while not blockHit:
-        time.sleep(0.1)
+        time.sleep(1)
         blockEvents = mc.events.pollBlockHits()
         for blockEvent in blockEvents:
             mc.postToChat("You hit block - x:" + str(blockEvent.pos.x) + " y:" + str(blockEvent.pos.y) + " z:" + str(blockEvent.pos.z))
             blockHit = True
 
     if extended:
-        mc.postToChat("Post To Chat")
+        entity_types = mc.getEntityTypes()
+        mc.postToChat("The last found was entity: id=" + str(entity_types[-1].id) + " name=" + entity_types[-1].name)
+        mc.spawnEntity(tilePos.x + 2, tilePos.y + 2, tilePos.x + 2, entitymodded.CREEPER)
+        mc.postToChat("Creeper spawned")
+
+        mc.postToChat("Post To Chat - Run full block and entity test Y/N?")
         chatPosted = False
+        fullTests = False
         while not chatPosted:
-            time.sleep(0.1)
+            time.sleep(1)
             chatPosts = mc.events.pollChatPosts()
             for chatPost in chatPosts:
                 mc.postToChat("Echo " + chatPost.message)
                 chatPosted = True
-                
-    if extended:
-        runBlockTests(mc)
-        runEntityTests(mc)
-        runBookTests(mc)
+                if chatPost.message == "Y":
+                    fullTests = True
+
+        if fullTests:
+            runBlockTests(mc)
+            runEntityTests(mc)
+            runBookTests(mc)
     
     mc.postToChat("Tests complete for " + library)
 
