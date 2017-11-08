@@ -11,13 +11,21 @@ import modded.mcpi.book as bookmodded
 import time
 import math
 
-def runBlockTests(mc):
+def clearTestArea(mc, xtest=0, ytest=100, ztest=0):
+    "clear the area in segments, otherwise it breaks the server, glowstone shows progress if area already clear"
+    mc.setBlocks(xtest,ytest-1,ztest,xtest+150,ytest-1,ztest,blockmodded.GLOWSTONE_BLOCK)
+    for x_inc in range(151):
+        mc.setBlocks(xtest+x_inc,ytest-2,ztest,xtest+x_inc,ytest+25,ztest+100,blockmodded.AIR)
+        time.sleep(1)
+
+def runBlockTests(mc, xtest=0, ytest=100, ztest=0):
     """runBlockTests - tests creation of all blocks for all data values known to RaspberryJuice
     
     A sign is placed next to the created block so user can view in Minecraft whether block created correctly or not
+    xtest, ytest, ztest are coordinates where tests should start.
     Known issues:
     - id for NETHER_REACTOR_CORE and GLOWING_OBSIDIAN wrong
-    - some LEAVES missing but because they decay by the time user sees them
+    - some LEAVES missing because they decay by the time user sees them
     - this test doesn't try activation of TNT
     
     Author: Tim Cummings https://www.triptera.com.au/wordpress/
@@ -54,9 +62,6 @@ def runBlockTests(mc):
     mushrooms=["MUSHROOM_BROWN","MUSHROOM_RED"]
     
     # location for platform showing all block types
-    xtest = 0
-    ytest = 50
-    ztest = 0
     mc.postToChat("runBlockTests(): Creating test blocks at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
     # create set of all block ids to ensure they all get tested
     # note some blocks have different names but same ids so they only have to be tested once per id
@@ -82,22 +87,26 @@ def runBlockTests(mc):
     sign=blockmodded.SIGN_STANDING.withData(12)
     signid=sign.id
     
-    x=xtest
-    y=ytest-1
-    z=ztest
-    mc.setBlocks(x,y,z,x+100,y,z+100,blockmodded.STONE)
-    time.sleep(1)
-    #clear the area in segments, otherwise it breaks the server
-    #clearing area
-    #mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
-    for y_inc in range(1, 10):
-        mc.setBlocks(x,y+y_inc,z,x+100,y+y_inc,z+100,blockmodded.AIR)
-        time.sleep(2)
     mc.player.setTilePos(xtest, ytest, ztest)
+    mc.player.setRotation(-45)
+
+    #setup a stone area in segments as a platform for the block and book tests with moving glowstone to measure progress"
+    for x_inc in range(5):
+        mc.setBlocks(xtest+x_inc*10,ytest-1,ztest,xtest+(x_inc+1)*10,ytest-1,ztest+100,blockmodded.STONE)
+        mc.setBlock(xtest+x_inc*10,ytest,ztest,blockmodded.GLOWSTONE_BLOCK)
+        time.sleep(1)
+        mc.setBlock(xtest+x_inc*10,ytest,ztest,blockmodded.AIR)
+    for x_inc in range(5):
+        mc.setBlocks(xtest+50+x_inc*20,ytest-1,ztest,xtest+50+(x_inc+1)*20,ytest-1,ztest+50,blockmodded.STONE)
+        mc.setBlock(xtest+50+x_inc*20,ytest,ztest,blockmodded.GLOWSTONE_BLOCK)
+        time.sleep(1)
+        mc.setBlock(xtest+50+x_inc*20,ytest,ztest,blockmodded.AIR)
+
     time.sleep(1)
     x=xtest+10
     y=ytest
     z=ztest+10
+    mc.setBlock(xtest+10,ytest,ztest+5,blockmodded.GLOWSTONE_BLOCK)
     for key in solids + gases + flats + fences:
         b = getattr(blockmodded,key)
         z += 1
@@ -109,6 +118,8 @@ def runBlockTests(mc):
     time.sleep(1)
     x=xtest+20
     z=ztest+10
+    mc.setBlock(xtest+10,ytest,ztest+5,blockmodded.AIR)
+    mc.setBlock(xtest+20,ytest,ztest+5,blockmodded.GLOWSTONE_BLOCK)
     for key in trees:
         for data in range(16):
             b = getattr(blockmodded,key).withData(data)
@@ -182,6 +193,8 @@ def runBlockTests(mc):
     time.sleep(1)
     x=xtest+30
     z=ztest+10
+    mc.setBlock(xtest+20,ytest,ztest+5,blockmodded.AIR)
+    mc.setBlock(xtest+30,ytest,ztest+5,blockmodded.GLOWSTONE_BLOCK)
     for key in coloureds:
         for data in range(16):
             b = getattr(blockmodded,key).withData(data)
@@ -233,6 +246,8 @@ def runBlockTests(mc):
     time.sleep(1)
     x=xtest+40
     z=ztest+10
+    mc.setBlock(xtest+30,ytest,ztest+5,blockmodded.AIR)
+    mc.setBlock(xtest+40,ytest,ztest+5,blockmodded.GLOWSTONE_BLOCK)
     for key in liquids:
         z += 1
         mc.setBlocks(x-1,y,z,x+1,y,z+10,blockmodded.STONE)
@@ -260,6 +275,8 @@ def runBlockTests(mc):
     time.sleep(1)
     x=xtest+50
     z=ztest+10
+    mc.setBlock(xtest+40,ytest,ztest+5,blockmodded.AIR)
+    mc.setBlock(xtest+50,ytest,ztest+5,blockmodded.GLOWSTONE_BLOCK)
     for key in slabs:
         for data in range(8):
             b = getattr(blockmodded,key).withData(data)
@@ -273,6 +290,8 @@ def runBlockTests(mc):
     x=xtest+60
     y=ytest
     z=ztest+10
+    mc.setBlock(xtest+50,ytest,ztest+5,blockmodded.AIR)
+    mc.setBlock(xtest+60,ytest,ztest+5,blockmodded.GLOWSTONE_BLOCK)
     wallsignid=blockmodded.SIGN_WALL.id
     for key in wallmounts:
         b = getattr(blockmodded,key)
@@ -323,6 +342,8 @@ def runBlockTests(mc):
     x=xtest+70
     y=ytest
     z=ztest+10
+    mc.setBlock(xtest+60,ytest,ztest+5,blockmodded.AIR)
+    mc.setBlock(xtest+70,ytest,ztest+5,blockmodded.GLOWSTONE_BLOCK)
     for key in doors:
         b = getattr(blockmodded,key)
         mc.setBlocks(x,y,z,x+3,y+2,z+3,signmount)
@@ -388,12 +409,15 @@ def runBlockTests(mc):
         untested.discard(b.id)
         
     time.sleep(1)
-    x=xtest+70
+    x=xtest+80
     y=ytest
-    z=ztest+20
+    z=ztest+10
+    mc.setBlock(xtest+70,ytest,ztest+5,blockmodded.AIR)
+    mc.setBlock(xtest+80,ytest,ztest+5,blockmodded.GLOWSTONE_BLOCK)
     for key in stairs:
         b = getattr(blockmodded,key)
-        mc.setBlocks(x+1,y,z-1,x+3,y+11,z-3,signmount)
+        mc.setBlocks(x  ,y,z  ,x+4,y+15,z-4,blockmodded.AIR)
+        mc.setBlocks(x+1,y,z-1,x+3,y+15,z-3,signmount)
         mc.setBlock(x+1,y  ,z  ,b.id,0)
         mc.setBlock(x+2,y+1,z  ,b.id,0)
         mc.setBlock(x+3,y+2,z  ,b.id,0)
@@ -410,29 +434,39 @@ def runBlockTests(mc):
         mc.setBlock(x  ,y+10,z-2,b.id,2)
         mc.setBlock(x  ,y+11,z-1,b.id,2)
         mc.setBlock(x  ,y+11,z  ,signmount)
-        mc.setBlock(x+1,y-1,z  ,b.id,5)
-        mc.setBlock(x+2,y  ,z  ,b.id,5)
-        mc.setBlock(x+3,y+1,z  ,b.id,5)
-        mc.setBlock(x+4,y+2,z-1,b.id,6)
-        mc.setBlock(x+4,y+3,z-2,b.id,6)
-        mc.setBlock(x+4,y+4,z-3,b.id,6)
-        mc.setBlock(x+3,y+5,z-4,b.id,4)
-        mc.setBlock(x+2,y+6,z-4,b.id,4)
-        mc.setBlock(x+1,y+7,z-4,b.id,4)
-        mc.setBlock(x  ,y+8,z-3,b.id,7)
-        mc.setBlock(x  ,y+9,z-2,b.id,7)
-        mc.setBlock(x  ,y+10,z-1,b.id,7)
+        mc.setBlock(x+1,y+4,z  ,b.id,5)
+        mc.setBlock(x+2,y+5,z  ,b.id,5)
+        mc.setBlock(x+3,y+6,z  ,b.id,5)
+        mc.setBlock(x+4,y+7,z  ,signmount)
+        mc.setBlock(x+4,y+7,z-1,b.id,6)
+        mc.setBlock(x+4,y+8,z-2,b.id,6)
+        mc.setBlock(x+4,y+9,z-3,b.id,6)
+        mc.setBlock(x+4,y+9,z-4,signmount)
+        mc.setBlock(x+3,y+10,z-4,b.id,4)
+        mc.setBlock(x+2,y+11,z-4,b.id,4)
+        mc.setBlock(x+1,y+12,z-4,b.id,4)
+        mc.setBlock(x  ,y+12,z-4,signmount)
+        mc.setBlock(x  ,y+13,z-3,b.id,7)
+        mc.setBlock(x  ,y+14,z-2,b.id,7)
+        mc.setBlock(x  ,y+15,z-1,b.id,7)
+        mc.setBlock(x  ,y+15,z  ,signmount)
         mc.setSign (x+2,y+2 ,z  ,wallsignid,3,key,"id=" + str(b.id),"data=0")
-        mc.setSign (x+3,y   ,z  ,wallsignid,3,key,"id=" + str(b.id),"data=5")
+        mc.setSign (x+3,y+5 ,z  ,wallsignid,3,key,"id=" + str(b.id),"data=5")
         mc.setSign (x+4,y+5 ,z-2,wallsignid,5,key,"id=" + str(b.id),"data=3")
-        mc.setSign (x+4,y+3 ,z-3,wallsignid,5,key,"id=" + str(b.id),"data=6")
+        mc.setSign (x+4,y+8 ,z-3,wallsignid,5,key,"id=" + str(b.id),"data=6")
         mc.setSign (x+2,y+8 ,z-4,wallsignid,2,key,"id=" + str(b.id),"data=1")
-        mc.setSign (x+1,y+6 ,z-4,wallsignid,2,key,"id=" + str(b.id),"data=4")
+        mc.setSign (x+1,y+11,z-4,wallsignid,2,key,"id=" + str(b.id),"data=4")
         mc.setSign (x  ,y+11,z-2,wallsignid,4,key,"id=" + str(b.id),"data=2")
-        mc.setSign (x  ,y+9 ,z-1,wallsignid,4,key,"id=" + str(b.id),"data=7")
-        y+=12
+        mc.setSign (x  ,y+14,z-1,wallsignid,4,key,"id=" + str(b.id),"data=7")
+        time.sleep(0.1)
+        z+=8
+        if z > ztest+40:
+            z = ztest+10
+            x += 10
         untested.discard(b.id)
         
+    mc.setBlock(xtest+80,ytest,ztest+5,blockmodded.AIR)
+
     #Display list of all blocks which did not get tested
     for id in untested:
         untest="Untested block " + str(id)
@@ -441,7 +475,7 @@ def runBlockTests(mc):
         mc.postToChat(untest)
     mc.postToChat("runBlockTests() complete")
 
-def runEntityTests(mc):
+def runEntityTests(mc, xtest=50, ytest=100, ztest=50):
     """runEntityTests - tests creation of all entities known to RaspberryJuice
     
     A sign is placed next to the created entity so user can view in Minecraft whether block created correctly or not
@@ -466,9 +500,6 @@ def runEntityTests(mc):
     cavers=["MAGMA_CUBE","BAT","PARROT","CHICKEN","STRAY","SKELETON","SPIDER","ZOMBIE","SLIME","CAVE_SPIDER","PIG_ZOMBIE","ENDERMAN","SNOWMAN","SILVERFISH","ILLUSIONER"]
     bosses=["WITHER"]
     # location for platform showing all entities
-    xtest = 50
-    ytest = 50
-    ztest = 50
     air=blockmodded.AIR
     wall=blockmodded.GLASS
     roof=blockmodded.STONE
@@ -482,13 +513,11 @@ def runEntityTests(mc):
     wallsignid=blockmodded.SIGN_WALL.id
     mc.postToChat("runEntityTests(): Creating test entities at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
     
-    #clear the area in segments, otherwise it breaks the server
-    #clearing area
-    for y_inc in range(0, 10):
-        mc.setBlocks(xtest,ytest+y_inc,ztest,xtest+100,ytest+y_inc,ztest+100,air)
-        time.sleep(2)
-
-    mc.setBlocks(xtest,ytest-1,ztest-1,xtest+100,ytest-1,ztest+100,floor)
+    mc.setBlocks(xtest,ytest-1,ztest-1,xtest+100,ytest-1,ztest+50,floor)
+    # Only thing that really has to be cleared is mounting wall for hangers. 
+    # Test will crash if previous hangers still exist when trying to mount new ones
+    # Clear wall now before dancing villager so minecraft client has time to clear before making new one.
+    mc.setBlocks(xtest+2,ytest,ztest-1,xtest+2,ytest+2,ztest+1+len(hangers)*3,air)
     mc.player.setTilePos(xtest, ytest, ztest)
 
     mc.postToChat("Dancing villager")
@@ -499,7 +528,7 @@ def runEntityTests(mc):
     id=mc.spawnEntity(x,y,z,entitymodded.VILLAGER)
     theta = 0
     while theta <= 2 * math.pi:
-        time.sleep(1)
+        time.sleep(0.1)
         theta += 0.1
         x = xtest + math.sin(theta) * r
         z = ztest + math.cos(theta) * r
@@ -531,16 +560,6 @@ def runEntityTests(mc):
     x=xtest
     y=ytest
     z=ztest
-    for key in items:
-        z += 2
-        if z > 98:
-            z = ztest
-            x += 10
-        e = getattr(entitymodded,key)
-        mc.setBlock(x+2,y,z,signmount)
-        mc.setSign(x+2,y+1,z,sign,key,"id=" + str(e.id))
-        mc.spawnEntity(x,y,z,e)
-        untested.discard(e.id)
     for key in hangers:
         z += 3
         if z > 97:
@@ -550,6 +569,16 @@ def runEntityTests(mc):
         mc.setBlocks(x+2,y,z-1,x+2,y+2,z+1,signmount)
         mc.setSign(x+1,y,z,wallsignid,4,key,"id=" + str(e.id))
         mc.spawnEntity(x+1,y+2,z,e)
+        untested.discard(e.id)
+    for key in items:
+        z += 2
+        if z > 98:
+            z = ztest
+            x += 10
+        e = getattr(entitymodded,key)
+        mc.setBlock(x+2,y,z,signmount)
+        mc.setSign(x+2,y+1,z,sign,key,"id=" + str(e.id))
+        mc.spawnEntity(x,y,z,e)
         untested.discard(e.id)
     z = ztest - 4
     x += 10
@@ -613,17 +642,35 @@ def runEntityTests(mc):
         mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
         mc.spawnEntity(x+2,y,z+2,e)
         untested.discard(e.id)
+        
+    x+=10
+    z=ztest
+    wallheight=10
+    time.sleep(1)
+    for key in sinks:
+        e = getattr(entitymodded,key)
+        mc.setBlocks(x,y,z,x+10,y+wallheight,z+10,wall)
+        mc.setBlocks(x+1,y,z+1,x+9,y+wallheight,z+9,blockmodded.WATER_STATIONARY)
+        mc.setBlock(x-1,y,z+1,torch)
+        mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
+        mc.spawnEntity(x+5,y+5,z+5,e)
+        untested.discard(e.id)
+        z += 10
+        if z > 90:
+            z = ztest
+            x += 15
 
     x=xtest
     y=ytest+10
     z=ztest
+    wallheight=13
     time.sleep(1)
     for key in giants:
         e = getattr(entitymodded,key)
-        mc.setBlocks(x,y,z,x+20,y+10,z+20,wall)
-        mc.setBlocks(x,y+11,z,x+20,y+11,z+20,roof)
+        mc.setBlocks(x,y,z,x+20,y+wallheight,z+20,wall)
+        mc.setBlocks(x,y+wallheight+1,z,x+20,y+wallheight+1,z+20,roof)
         mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,floor)
-        mc.setBlocks(x+1,y,z+1,x+19,y+10,z+19,air)
+        mc.setBlocks(x+1,y,z+1,x+19,y+wallheight,z+19,air)
         mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
         mc.spawnEntity(x+10,y+5,z+10,e)
         untested.discard(e.id)
@@ -634,10 +681,10 @@ def runEntityTests(mc):
     time.sleep(1)
     for key in bosses:
         e = getattr(entitymodded,key)
-        mc.setBlocks(x,y,z,x+20,y+10,z+20,blockmodded.BEDROCK)
-        mc.setBlocks(x,y+11,z,x+20,y+11,z+20,blockmodded.BEDROCK)
+        mc.setBlocks(x,y,z,x+20,y+wallheight,z+20,blockmodded.BEDROCK)
+        mc.setBlocks(x,y+wallheight+1,z,x+20,y+wallheight+1,z+20,blockmodded.BEDROCK)
         mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,blockmodded.BEDROCK)
-        mc.setBlocks(x+1,y,z+1,x+19,y+10,z+19,air)
+        mc.setBlocks(x+1,y,z+1,x+19,y+wallheight,z+19,air)
         mc.setBlocks(x+1,y,z+8,x+19,y,z+12,torch)
         mc.setBlocks(x+1,y+7,z+2,x+1,y+10,z+18,torch.id,1)
         mc.setBlocks(x+19,y+7,z+2,x+19,y+10,z+18,torch.id,2)
@@ -646,20 +693,6 @@ def runEntityTests(mc):
         mc.setBlocks(x,y,z+9,x+3,y+3,z+11,blockmodded.BEDROCK)
         mc.setBlocks(x+4,y,z+9,x+19,y+3,z+11,wall)
         mc.setBlocks(x,y,z+10,x+19,y+2,z+10,air)
-        mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
-        mc.spawnEntity(x+10,y+5,z+10,e)
-        untested.discard(e.id)
-        z += 20
-        if z > 80:
-            z = ztest
-            x += 25
-    time.sleep(1)
-    for key in sinks:
-        e = getattr(entitymodded,key)
-        mc.setBlocks(x,y,z,x+20,y+10,z+20,wall)
-        mc.setBlocks(x,y+11,z,x+20,y+11,z+20,roof)
-        mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,floor)
-        mc.setBlocks(x+1,y,z+1,x+19,y+10,z+19,blockmodded.WATER_STATIONARY)
         mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
         mc.spawnEntity(x+10,y+5,z+10,e)
         untested.discard(e.id)
@@ -678,15 +711,12 @@ def runEntityTests(mc):
     mc.postToChat("/kill @e[type=!player]")
     mc.postToChat("to remove test entities")
 
-def runBookTests(mc):
+def runBookTests(mc, xtest=48, ytest=100, ztest=48):
     """runBookTests - tests creation of book in a chest
     
     Author: Tim Cummings https://www.triptera.com.au/wordpress/
     """
-    # location for chest containing book
-    xtest = 48
-    ytest = 100
-    ztest = 48
+    # location for chest containing book xtest, ytest, ztest
     mc.postToChat("runBookTests(): Creating chest with book at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
     b = bookmodded.Book({"title":"RaspberryJuice Test", "author":"Tim Cummings"})
     b.addPageOfText('This page should be unformatted text. '
@@ -771,8 +801,8 @@ def runTests(mc, library="Standard library", extended=False):
 
     #getBlocks
     if extended:
-        listOfBlocks = mc.getBlocks(pos.x,pos.y + 10,pos.z,
-                                    pos.x + 5, pos.y + 15, pos.z + 5)
+        listOfBlocks = list(mc.getBlocks(pos.x,pos.y + 10,pos.z,
+                                    pos.x + 5, pos.y + 15, pos.z + 5))
         print(listOfBlocks)
 
     #getPlayerEntityIds
@@ -818,22 +848,41 @@ def runTests(mc, library="Standard library", extended=False):
         mc.spawnEntity(tilePos.x + 2, tilePos.y + 2, tilePos.x + 2, entitymodded.CREEPER)
         mc.postToChat("Creeper spawned")
 
-        mc.postToChat("Post To Chat - Run full block and entity test Y/N?")
+        mc.postToChat("Post To Chat - a single letter to choose from following options")
+        mc.postToChat("  B=run full block and book tests")
+        mc.postToChat("  E=run full entity tests")
+        mc.postToChat("  A=run all block, book and entity tests")
+        mc.postToChat("  C=clear full test area")
+        mc.postToChat("  F=both clear area and run full tests")
+        mc.postToChat("  S=skip these tests")
         chatPosted = False
-        fullTests = False
+        blockTests = False
+        entityTests = False
+        clearArea = False
         while not chatPosted:
             time.sleep(1)
             chatPosts = mc.events.pollChatPosts()
             for chatPost in chatPosts:
                 mc.postToChat("Echo " + chatPost.message)
                 chatPosted = True
-                if chatPost.message == "Y":
-                    fullTests = True
+                chatLetter = chatPost.message.strip().upper()
+                if len(chatLetter) > 0: chatLetter = chatLetter[0]
+                if chatLetter in ('F','B','A'):
+                    blockTests = True
+                if chatLetter in ('F','E','A'):
+                    entityTests = True
+                if chatLetter in ('C','F'):
+                    clearArea = True
 
-        if fullTests:
+        if clearArea:
+            clearTestArea(mc)
+            
+        if blockTests:
             runBlockTests(mc)
-            runEntityTests(mc)
             runBookTests(mc)
+        
+        if entityTests:
+            runEntityTests(mc)
     
     mc.postToChat("Tests complete for " + library)
 
