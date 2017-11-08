@@ -70,7 +70,7 @@ mvn package
 
 ## Version history
 
- - 1.11 - spawnEntity, setDirection, setRotation, setPitch
+ - 1.11 - spawnEntity, setSign, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
  - 1.9.1 - minor change to improve connection reset

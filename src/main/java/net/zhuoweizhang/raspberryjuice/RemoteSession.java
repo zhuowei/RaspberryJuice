@@ -1,6 +1,9 @@
 package net.zhuoweizhang.raspberryjuice;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.*;
 import java.util.*;
 
@@ -8,6 +11,15 @@ import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.BookMeta.Generation;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.util.Vector;
 
@@ -485,9 +497,23 @@ public class RemoteSession {
 				if ( thisBlock.getState() instanceof Sign ) {
 					Sign sign = (Sign) thisBlock.getState();
 					for ( int i = 5; i-5 < 4 && i < args.length; i++) {
-						sign.setLine(i-5, args[i]);
+						sign.setLine(i-5, unescape(args[i]));
 					}
 					sign.update();
+				}
+			
+			// world.addBookToChest
+			} else if (c.equals("world.addBookToChest")) {
+				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				Block thisBlock = world.getBlockAt(loc);
+				BlockState thisBlockState = thisBlock.getState();
+				if ( thisBlockState instanceof InventoryHolder) {
+					InventoryHolder chest = (InventoryHolder) thisBlockState;
+					ItemStack book = createBookFromJson(unescape(args[3]));
+					chest.getInventory().addItem(book);
+				} else {
+					plugin.getLogger().info("addBook needs location of chest or other InventoryHolder");
+					send("Fail");
 				}
 			
 			// world.spawnEntity
@@ -521,6 +547,17 @@ public class RemoteSession {
 			send("Fail");
 		
 		}
+	}
+	
+	public String unescape(String s) {
+		if ( s == null ) return null;
+		s = s.replace("&#10;", "\n");
+		s = s.replace("&#40;", "(");
+		s = s.replace("&#41;", ")");
+		s = s.replace("&#44;", ",");
+		s = s.replace("&sect;", "§");
+		s = s.replace("&amp;", "&");
+		return s;
 	}
 
 	// create a cuboid of lots of blocks 
@@ -776,6 +813,200 @@ public class RemoteSession {
 		default:
 			return 7; // Good as anything here, but technically invalid
 		}
+	}
+	
+	/**
+	 * Creates a WRITTEN_BOOK from JSON string including interactivity such as clicks and hovers.
+	 * JSON format same as used by "/give" command without need to escape double quotes
+	 * 
+	 * Inspired by https://github.com/upperlevel/spigot-book-api/blob/master/src/main/java/xyz/upperlevel/spigot/book/NmsBookHelper.java
+	 * 
+	 * @author Tim Cummings
+	 * @param json - JSON string used to define a book
+	 * @return the book as an ItemStack
+	 */
+	public ItemStack createBookFromJson(String json) {
+		BookMeta meta = (BookMeta) Bukkit.getItemFactory().getItemMeta(Material.WRITTEN_BOOK);
+		JsonObject pyBook = new JsonParser().parse(json).getAsJsonObject();
+		JsonElement pyTitle = pyBook.get("title");
+		JsonElement pyAuthor = pyBook.get("author");
+		JsonElement pyPages = pyBook.get("pages");
+		JsonElement pyDisplay = pyBook.get("display");
+		JsonElement pyGeneration = pyBook.get("generation");
+		if (pyTitle != null) {
+			try {
+				meta.setTitle(pyTitle.getAsString());
+			} catch (ClassCastException e) {
+				plugin.getLogger().info("Book title can't be got as string because it is not JsonPrimitive. Its JSON is " + pyTitle.toString());
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				plugin.getLogger().info("Book title can't be got as string because it is a multiple element array. Its JSON is " + pyTitle.toString());
+				e.printStackTrace();
+			}
+		}
+		if (pyAuthor != null) {
+			try {
+				meta.setAuthor(pyAuthor.getAsString());
+			} catch (ClassCastException e) {
+				plugin.getLogger().info("Book author can't be got as string because it is not JsonPrimitive. Its JSON is " + pyAuthor.toString());
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				plugin.getLogger().info("Book author can't be got as string because it is a multiple element array. Its JSON is " + pyAuthor.toString());
+				e.printStackTrace();
+			}
+		}
+		if (pyDisplay != null) {
+			JsonElement pyDisplayName = null;
+			JsonElement pyDisplayLore = null;
+			if ( pyDisplay.isJsonObject() ) {
+				pyDisplayName = pyDisplay.getAsJsonObject().get("Name");
+				pyDisplayLore = pyDisplay.getAsJsonObject().get("Lore");
+			}
+			if (pyDisplayName != null) {
+				try {
+					meta.setDisplayName(pyDisplayName.getAsString());
+				} catch (ClassCastException e) {
+					plugin.getLogger().info("Book display name can't be got as string because it is not JsonPrimitive. Its JSON is " + pyDisplayName.toString());
+					e.printStackTrace();
+				} catch (IllegalStateException e) {
+					plugin.getLogger().info("Book display name can't be got as string because it is a multiple element array. Its JSON is " + pyDisplayName.toString());
+					e.printStackTrace();
+				}
+			}
+			if (pyDisplayLore != null) {
+				List<String> listLore = new ArrayList<String>();
+				if (pyDisplayLore.isJsonArray()) {
+					for (JsonElement je : pyDisplayLore.getAsJsonArray()) {
+						try {
+							listLore.add(je.getAsString());
+						} catch (ClassCastException e) {
+							plugin.getLogger().info("Book display lore item can't be got as string because it is not JsonPrimitive. Its JSON is " + je.toString());
+							e.printStackTrace();
+						} catch (IllegalStateException e) {
+							plugin.getLogger().info("Book display lore item can't be got as string because it is a multiple element array. Its JSON is " + je.toString());
+							e.printStackTrace();
+						}
+					}
+				} else {
+					try {
+						listLore.add(pyDisplayLore.getAsString());
+					} catch (ClassCastException e) {
+						plugin.getLogger().info("Book display lore can't be got as string because it is not JsonPrimitive. Really it should be JsonArray but if not we try this. Its JSON is " + pyDisplayLore.toString());
+						e.printStackTrace();
+					} catch (IllegalStateException e) {
+						plugin.getLogger().info("Book display lore can't be got as string because it is a multiple element array. This should never happen because we have already checked it is not a JsonArray. Its JSON is " + pyDisplayLore.toString());
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		if (pyGeneration != null) {
+			try {
+				int g = pyGeneration.getAsInt();
+				Generation[] ga = Generation.values();
+				if ( g >= 0 && g < ga.length ) {
+					meta.setGeneration(ga[g]);
+				}
+			} catch (ClassCastException e) {
+				plugin.getLogger().info("Book generation item can't be got as int because it is not JsonPrimitive of int. Its JSON is " + pyGeneration.toString());
+				e.printStackTrace();
+			} catch (IllegalStateException e) {
+				plugin.getLogger().info("Book generation item can't be got as int because it is a multiple element array rather than an int. Its JSON is " + pyGeneration.toString());
+				e.printStackTrace();
+			}
+		}
+		String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+		Class<?> craftMetaBookClass = null;
+		Field craftMetaBookField = null;
+		String strCraftMetaBook = "org.bukkit.craftbukkit." + version + ".inventory.CraftMetaBook";
+		try {
+			craftMetaBookClass = Class.forName(strCraftMetaBook);
+		} catch (ClassNotFoundException e) {
+			plugin.getLogger().warning("Can't get class " + strCraftMetaBook + " required to get pages of book that we want to modify");
+			e.printStackTrace();
+		}
+		if (craftMetaBookClass != null ) {
+			try {
+				craftMetaBookField = craftMetaBookClass.getDeclaredField("pages");
+				craftMetaBookField.setAccessible(true);							
+			} catch (NoSuchFieldException e) {
+				plugin.getLogger().info("Field 'pages' missing from class " + strCraftMetaBook + " required to get pages of book we want to modify");
+				e.printStackTrace();
+			} catch (SecurityException se) {
+				plugin.getLogger().warning("Security exception getting field 'pages' from class " + strCraftMetaBook + " required to get pages of book we want to modify");
+				se.printStackTrace();
+			}
+		}
+		Class<?> chatSerializer = null;
+		String strChatSerializer1 = "net.minecraft.server." + version + ".IChatBaseComponent$ChatSerializer";
+		String strChatSerializer2 = "net.minecraft.server." + version + ".ChatSerializer";
+		String strChatSerializer = null;
+		try {
+			chatSerializer = Class.forName(strChatSerializer1);
+			strChatSerializer = strChatSerializer1;
+		} catch(ClassNotFoundException e) {
+			plugin.getLogger().info("Can't find class " + strChatSerializer1 + ". Will try " + strChatSerializer2);
+			e.printStackTrace();
+		}
+		if ( chatSerializer == null ) {
+			try {
+				chatSerializer = Class.forName(strChatSerializer2);
+				strChatSerializer = strChatSerializer2;
+			} catch(ClassNotFoundException e) {
+				plugin.getLogger().warning("Can't find classes " + strChatSerializer1 + " or " + strChatSerializer2 + " needed to convert JSON to formatted interactive text in books");
+				e.printStackTrace();
+			}
+		}
+		Method chatSerializerA = null;
+		if ( chatSerializer != null ) {
+			try {
+				chatSerializerA = chatSerializer.getDeclaredMethod("a", String.class);
+			} catch (NoSuchMethodException e) {
+				plugin.getLogger().warning("Class " + strChatSerializer + " does not have method a() required to convert JSON to formatted interactive text in books");
+				e.printStackTrace();
+			} catch (SecurityException se) {
+				plugin.getLogger().warning("Security exception getting declared method a() from " + strChatSerializer);
+				se.printStackTrace();
+			}
+		}
+		List<Object> pages = null;
+		//get the pages if required for json formatting
+		if (craftMetaBookField != null ) {
+			try {
+				@SuppressWarnings("unchecked")
+				List<Object> lo = (List<Object>) craftMetaBookField.get(meta);
+				pages = lo;
+			} catch (ReflectiveOperationException ex) {
+				plugin.getLogger().warning("Reflection exception getting pages from book using " + strCraftMetaBook + ".pages");
+				ex.printStackTrace();
+			}
+		}
+		if (pyPages.isJsonArray()) {
+			for (JsonElement jePage : pyPages.getAsJsonArray()) {
+				String page = jePage.toString();
+				//plugin.getLogger().info(page);
+				if (chatSerializerA != null && pages != null) {
+					try {
+						pages.add(chatSerializerA.invoke(null, page));
+					} catch (IllegalAccessException e) {
+						plugin.getLogger().warning("IllegalAccessException invoking method " + strChatSerializer + ".a() using reflection");
+						e.printStackTrace();
+					} catch (IllegalArgumentException e) {
+						plugin.getLogger().warning("IllegalArgumentException invoking method " + strChatSerializer + ".a() using reflection");
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						plugin.getLogger().warning("InvocationTargetException invoking method " + strChatSerializer + ".a() using reflection");
+						e.printStackTrace();
+					}
+				} else {
+					//something wrong with reflection methods so just add raw text to book
+					meta.addPage(page);
+				}
+			}
+		}
+		ItemStack book = new ItemStack(Material.WRITTEN_BOOK);
+		book.setItemMeta(meta);
+		return book;
 	}
 
 }
