@@ -30,8 +30,8 @@ class Connection {
                 socket.setTcpNoDelay(true);
                 socket.setKeepAlive(true);
                 socket.setTrafficClass(0x10);
-                this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             } catch (IOException e) {
                 throw new ConnectionException("Couldn't connect to Minecraft, is it running?");
             }
