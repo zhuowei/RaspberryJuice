@@ -1,6 +1,6 @@
 # default config.yml
 
-# The interface to listen on. It can be also be "localhost" or an IP address 
+# The interface to listen on. It can be also be "localhost", "*" or an IP address 
 hostname: localhost
 port: 4711
 
