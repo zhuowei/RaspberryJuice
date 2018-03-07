@@ -75,7 +75,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 			if (hostname != null && ! hostname.isEmpty() && ! hostname.equals("*")) {
 				serverThread = new ServerListenerThread(this, new InetSocketAddress(hostname, port));
 			} else {
-				serverThread = new ServerListenerThread(this, new InetSocketAddress("localhost", port));
+				serverThread = new ServerListenerThread(this, new InetSocketAddress(port));
 			}
 			new Thread(serverThread).start();
 			getLogger().info("ThreadListener Started");
