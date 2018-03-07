@@ -1,4 +1,7 @@
 # default config.yml
+
+# The interface to listen on. It can be also be "localhost" or an IP address 
+hostname: localhost
 port: 4711
 
 # Determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
