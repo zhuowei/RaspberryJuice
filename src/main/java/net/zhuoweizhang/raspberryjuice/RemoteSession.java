@@ -9,6 +9,7 @@ import org.bukkit.entity.*;
 import org.bukkit.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.util.Vector;
 
 public class RemoteSession {
@@ -40,6 +41,8 @@ public class RemoteSession {
 	protected ArrayDeque<PlayerInteractEvent> interactEventQueue = new ArrayDeque<PlayerInteractEvent>();
 	
 	protected ArrayDeque<AsyncPlayerChatEvent> chatPostedQueue = new ArrayDeque<AsyncPlayerChatEvent>();
+	
+	protected ArrayDeque<ProjectileHitEvent> projectileHitQueue = new ArrayDeque<ProjectileHitEvent>();
 
 	private int maxCommandsPerTick = 9000;
 
@@ -92,6 +95,16 @@ public class RemoteSession {
 	public void queueChatPostedEvent(AsyncPlayerChatEvent event) {
 		//plugin.getLogger().info(event.toString());
 		chatPostedQueue.add(event);
+	}
+	
+	public void queueProjectileHitEvent(ProjectileHitEvent event) {
+		//plugin.getLogger().info(event.toString());
+
+		Arrow arrow = (Arrow) event.getEntity();
+		if (arrow.getShooter() instanceof Player) {
+
+			projectileHitQueue.add(event);
+		}
 	}
 
 	/** called from the server main thread */
@@ -224,6 +237,7 @@ public class RemoteSession {
 			} else if (c.equals("events.clear")) {
 				interactEventQueue.clear();
 				chatPostedQueue.clear();
+				projectileHitQueue.clear();
 				
 			// events.block.hits
 			} else if (c.equals("events.block.hits")) {
@@ -257,8 +271,41 @@ public class RemoteSession {
 				}
 				send(b.toString());
 				
+			// events.projectile.hits
+			} else if(c.equals("events.projectile.hits"))
+			{
+				String name = null;
+				if (args.length > 0) {
+					name = args[0];
+				}
+				Player currentPlayer = getCurrentPlayer(name);
+				Integer playerID = currentPlayer.getEntityId();
+
+				StringBuilder b = new StringBuilder();
+		 		ProjectileHitEvent event;
+				while ((event = projectileHitQueue.poll()) != null) {
+					Arrow arrow = (Arrow) event.getEntity();
+					Player shooter = (Player) arrow.getShooter();
+					if (shooter.getEntityId() == playerID) {
+						Block block = arrow.getLocation().getBlock();
+						Location loc = block.getLocation();
+						b.append(blockLocationToRelative(loc));
+						b.append(",");
+						b.append(1); //blockFaceToNotch(event.getBlockFace()), but don't really care
+						b.append(",");
+						b.append(shooter.getEntityId());
+					}
+					if (projectileHitQueue.size() > 0) {
+						b.append("|");
+					}
+					arrow.remove();
+				}
+				//DEBUG
+				//System.out.println(b.toString());
+				send(b.toString());
+			
 			// player.getTile
-			} else if (c.equals("player.getTile")) {
+			}else if (c.equals("player.getTile")) {
 				Player currentPlayer = getCurrentPlayer();
 				send(blockLocationToRelative(currentPlayer.getLocation()));
 				
