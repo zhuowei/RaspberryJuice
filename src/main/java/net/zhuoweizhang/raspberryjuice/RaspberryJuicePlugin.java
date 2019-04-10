@@ -116,6 +116,14 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 			session.queueChatPostedEvent(event);
 		}
 	}
+	
+	@EventHandler(ignoreCancelled=true)
+	public void onProjectileHit(ProjectileHitEvent event) {
+		
+		for (RemoteSession session: sessions) {
+			session.queueProjectileHitEvent(event);
+		}
+	}
 
 	/** called when a new session is established. */
 	public void handleConnection(RemoteSession newSession) {
