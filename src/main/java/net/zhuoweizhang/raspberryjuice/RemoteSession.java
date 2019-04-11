@@ -642,6 +642,22 @@ public class RemoteSession {
 		}
 		return player;
 	}
+	
+	public Player getCurrentPlayer(String name) {
+		// if a named player is returned use that
+		Player player = plugin.getNamedPlayer(name);
+		// otherwise if there is an attached player for this session use that
+		if (player == null) {
+			player = attachedPlayer;
+			// otherwise go and get the host player and make that the attached player
+			if (player == null) {
+				player = plugin.getHostPlayer();
+				attachedPlayer = player;
+			}
+		}
+		return player;
+	}
+
 
 	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr) {
 		int x = (int) Double.parseDouble(xstr);
