@@ -274,26 +274,37 @@ public class RemoteSession {
 			// events.projectile.hits
 			} else if(c.equals("events.projectile.hits"))
 			{
-				String name = null;
-				if (args.length > 0) {
-					name = args[0];
-				}
-				Player currentPlayer = getCurrentPlayer(name);
-				Integer playerID = currentPlayer.getEntityId();
+				//String name = null;
+				//if (args.length > 0) {
+				//	name = args[0];
+				//}
+				//Player currentPlayer = getCurrentPlayer(name);
+				//Integer playerID = currentPlayer.getEntityId();
 
 				StringBuilder b = new StringBuilder();
 		 		ProjectileHitEvent event;
 				while ((event = projectileHitQueue.poll()) != null) {
 					Arrow arrow = (Arrow) event.getEntity();
-					Player shooter = (Player) arrow.getShooter();
-					if (shooter.getEntityId() == playerID) {
+					Entity shooter = arrow.getShooter();
+					if (shooter instanceof Player) {
+						Player player = (Player)shooter;
 						Block block = arrow.getLocation().getBlock();
 						Location loc = block.getLocation();
 						b.append(blockLocationToRelative(loc));
 						b.append(",");
 						b.append(1); //blockFaceToNotch(event.getBlockFace()), but don't really care
 						b.append(",");
-						b.append(shooter.getEntityId());
+						b.append(player.getPlayerListName());
+						b.append(",");
+						Entity hitEntity = event.getHitEntity();
+						if(hitEntity!=null){
+							if(hitEntity instanceof Player){	
+								Player hitPlayer = (Player)hitEntity;
+								b.append(hitPlayer.getPlayerListName());
+							}else{
+								b.append(hitEntity.getName());
+							}
+						}
 					}
 					if (projectileHitQueue.size() > 0) {
 						b.append("|");
