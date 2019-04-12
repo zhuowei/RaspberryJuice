@@ -285,7 +285,7 @@ public class RemoteSession {
 		 		ProjectileHitEvent event;
 				while ((event = projectileHitQueue.poll()) != null) {
 					Arrow arrow = (Arrow) event.getEntity();
-					Entity shooter = arrow.getShooter();
+					LivingEntity shooter = (LivingEntity)arrow.getShooter();
 					if (shooter instanceof Player) {
 						Player player = (Player)shooter;
 						Block block = arrow.getLocation().getBlock();
