@@ -1,6 +1,6 @@
 from .connection import Connection
 from .vec3 import Vec3
-from .event import BlockEvent, ChatEvent
+from .event import BlockEvent, ChatEvent, ProjectileEvent
 from .entity import Entity
 from .block import Block
 import math
@@ -172,7 +172,7 @@ class CmdEvents:
         results = []
         for e in events:
             info = e.split(",")
-            results.append(ProjectileEvent.Hit(int(info[0]),int(info[1]),int(info[2]),int(info[3]),info[4],info[5])
+            results.append(ProjectileEvent.Hit(int(info[0]),int(info[1]),int(info[2]),int(info[3]),info[4],info[5]))
         return results
 
 class Minecraft:
