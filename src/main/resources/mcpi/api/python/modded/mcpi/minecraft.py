@@ -212,8 +212,8 @@ class Minecraft:
         self.conn.send(b"world.setSign",intFloor(flatargs[0:5]) + lines)
 
     def spawnEntity(self, *args):
-        """Spawn entity (x,y,z,id,[data])"""
-        return int(self.conn.sendReceive(b"world.spawnEntity", intFloor(args)))
+        """Spawn entity (x,y,z,id)"""
+        return int(self.conn.sendReceive(b"world.spawnEntity", args))
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
