@@ -41,6 +41,11 @@ A Bukkit plugin which implements the Minecraft Pi Socket API.
  - spawnEntity(x,y,z,entity) - creates an entity and returns its entity id. see entity.py for list.
  - getEntityTypes - returns all the entities supported by the server.
  - entity.getName(id) - get a player name for entity id. Reverse of getPlayerId(playerName)
+ - getEntities - get all currently loaded entities list
+ - removeEntity - removes entity with specified id
+ - removeEntityType - removes all currently loaded entities by entity type id
+ - entity.getEntities - get currently loaded entities list near specified player entity id
+ - entity.removeEntityType - removes currently loaded entities near specified player entity id, by entity type id
 
 Note - extra features are NOT guaranteed to be maintained in future releases, particularly if updates are made to the original Pi API which replace the functionality
 
@@ -70,6 +75,7 @@ mvn package
 
 ## Version history
 
+ - 1.12 - getEntities, removeEntity, removeEntityType, UTF-8 encoding
  - 1.11 - spawnEntity, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
@@ -94,3 +100,5 @@ mvn package
  - [opticyclic](https://github.com/opticyclic)
  - [timcu](https://www.triptera.com.au/wordpress/)
  - [pxai](https://github.com/pxai)
+ - [Marcinosoft](https://github.com/Marcinosoft)
+ 

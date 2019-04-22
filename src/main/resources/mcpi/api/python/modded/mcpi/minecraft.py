@@ -26,7 +26,11 @@ from .util import flatten
 - getPlayerEntityId()
 - pollChatPosts()
 - setSign()
-- spawnEntity()"""
+- spawnEntity()
+- getEntities()
+- removeEntity()
+- removeEntityType()
+"""
 
 def intFloor(*args):
     return [int(math.floor(x)) for x in flatten(args)]
@@ -94,6 +98,18 @@ class CmdEntity(CmdPositioner):
         
         Also can be used to find name of entity if entity is not a player."""
         return self.conn.sendReceive(b"entity.getName", id)
+
+    def getEntities(self, *args):
+        """Return a list of entities near player (playerEntityId:int, [distanceFromPlayerInBlocks:int]) => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
+        """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
+        s = self.conn.sendReceive(b"entity.getEntities", args)
+        entities = [e for e in s.split("|") if e]
+        return [ [int(n.split(",")[0]), int(n.split(",")[1]), n.split(",")[2], float(n.split(",")[3]), float(n.split(",")[4]), float(n.split(",")[5])] for n in entities]
+
+    def removeEntityType(self, *args):
+        """Remove entities all entities near player by type (playerEntityId:int, entityTypeId:int, [distanceFromPlayerInBlocks:int]) => (removedEntitiesCount:int)"""
+        """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
+        return self.conn.sendReceive(b"entity.removeEntityType", args)
 
 
 class CmdPlayer(CmdPositioner):
@@ -250,6 +266,19 @@ class Minecraft:
         types = [t for t in s.split("|") if t]
         return [Entity(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in types]
 
+    def getEntities(self):
+        """Return a list of all currently loaded entities () => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
+        s = self.conn.sendReceive(b"world.getEntities")
+        entities = [e for e in s.split("|") if e]
+        return [[int(n.split(",")[0]), int(n.split(",")[1]), n.split(",")[2], float(n.split(",")[3]), float(n.split(",")[4]), float(n.split(",")[5])] for n in entities]
+
+    def removeEntity(self, id):
+        """Remove entity by id (entityId:int) => (removedEntitiesCount:int)"""
+        return self.conn.sendReceive(b"world.removeEntity", int(id))
+
+    def removeEntityType(self, entityTypeId):
+        """Remove entities all currently loaded Entities by type (entityTypeId:int) => (removedEntitiesCount:int)"""
+        return self.conn.sendReceive(b"world.removeEntityType", int(entityTypeId))
 
     @staticmethod
     def create(address = "localhost", port = 4711):

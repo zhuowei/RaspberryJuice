@@ -1,6 +1,4 @@
 import collections
-import sys
-import locale
 
 def flatten(l):
     for e in l:
@@ -13,11 +11,9 @@ def flatten_parameters_to_bytestring(l):
 
 def _misc_to_bytes(m):
     """
-    Convert an arbitrary object into a string encoded using default OS encoding series of bytes.
+    Convert an arbitrary object into a string encoded as a UTF-8 series of bytes. 
 
     See `Connection.send` for more details.
     """
 
-    code, encoding = locale.getdefaultlocale()
-    return str(m).encode(encoding)
-    #return str(m).encode("cp437")
+    return str(m).encode("UTF-8")

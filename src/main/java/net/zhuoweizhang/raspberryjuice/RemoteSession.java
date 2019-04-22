@@ -58,8 +58,8 @@ public class RemoteSession {
 		socket.setTcpNoDelay(true);
 		socket.setKeepAlive(true);
 		socket.setTrafficClass(0x10);
-		this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+		this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
 		startThreads();
 		plugin.getLogger().info("Opened connection to" + socket.getRemoteSocketAddress() + ".");
 	}
@@ -196,6 +196,7 @@ public class RemoteSession {
 					plugin.getLogger().info("Player [" + args[0] + "] not found.");
 					send("Fail");
 				}
+				
 			// entity.getListName
 			} else if (c.equals("entity.getName")) {
 				Entity e = plugin.getEntity(Integer.parseInt(args[0]));
@@ -208,6 +209,52 @@ public class RemoteSession {
 				} else if (e != null) {
 					send(e.getName());
 				}
+				
+			// world.getEntities
+			} else if (c.equals("world.getEntities")) {
+				StringBuilder bdr = new StringBuilder();				
+				for (Entity e : world.getEntities()) {
+					if ( e.getType().isSpawnable() && e.getType().getTypeId() >= 0 ) {
+						bdr.append(e.getEntityId());
+						bdr.append(",");
+						bdr.append(e.getType().getTypeId());
+						bdr.append(",");
+						bdr.append(e.getType().toString());
+						bdr.append(",");
+						bdr.append(e.getLocation().getX());
+						bdr.append(",");
+						bdr.append(e.getLocation().getY());
+						bdr.append(",");
+						bdr.append(e.getLocation().getZ());
+						bdr.append("|");
+					}
+				}
+				send(bdr.toString());
+				
+			// world.removeEntity
+			} else if (c.equals("world.removeEntity")) {
+				int result = 0;
+				for (Entity e : world.getEntities()) {
+					if (e.getEntityId() == Integer.parseInt(args[0]))
+					{
+						e.remove();
+						result = 1;
+						break;
+					}
+				}
+				send(result);
+				
+			// world.removeEntityType
+			} else if (c.equals("world.removeEntityType")) {
+				int removedEntitiesCount = 0;
+				for (Entity e : world.getEntities()) {
+					if (e.getType().getTypeId() == Integer.parseInt(args[0]))
+					{
+						e.remove();
+						removedEntitiesCount++;
+					}
+				}
+				send(removedEntitiesCount);
 				
 			// chat.post
 			} else if (c.equals("chat.post")) {
@@ -469,6 +516,47 @@ public class RemoteSession {
 					send("Fail");
 				}
 				
+			// entity.getEntities
+			} else if (c.equals("entity.getEntities")) {
+				int distance = 10;
+				if (args.length > 1)
+					distance = Integer.parseInt(args[1]);
+				Entity playerEntityId = plugin.getEntity(Integer.parseInt(args[0]));
+				StringBuilder bdr = new StringBuilder();
+				for (Entity e : world.getEntities()) {
+					if ( e.getType().isSpawnable() && e.getType().getTypeId() >= 0 && getDistance(playerEntityId, e) <= distance) {
+						bdr.append(e.getEntityId());
+						bdr.append(",");
+						bdr.append(e.getType().getTypeId());
+						bdr.append(",");
+						bdr.append(e.getType().toString());
+						bdr.append(",");
+						bdr.append(e.getLocation().getX());
+						bdr.append(",");
+						bdr.append(e.getLocation().getY());
+						bdr.append(",");
+						bdr.append(e.getLocation().getZ());
+						bdr.append("|");
+					}
+				}
+				send(bdr.toString());
+					
+			// entity.removeEntityType
+			} else if (c.equals("entity.removeEntityType")) {
+				int removedEntitiesCount = 0;
+				int distance = 10;
+				if (args.length > 2)
+					distance = Integer.parseInt(args[2]);
+				Entity playerEntityId = plugin.getEntity(Integer.parseInt(args[0]));
+				for (Entity e : world.getEntities()) {
+					if (e.getType().getTypeId() == Integer.parseInt(args[1]) && getDistance(playerEntityId, e) <= distance)
+					{
+						e.remove();
+						removedEntitiesCount++;
+					}
+				}
+				send(removedEntitiesCount);
+				
 			// world.setSign
 			} else if (c.equals("world.setSign")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
@@ -648,6 +736,15 @@ public class RemoteSession {
 		return new Location(world, originX + x, originY + y, originZ + z);
 	}
 
+	private int getDistance(Entity ent1, Entity ent2) {
+		if (ent1 == null || ent2 == null)
+			return -1;
+		double dx = ent2.getLocation().getX() - ent1.getLocation().getX();
+		double dy = ent2.getLocation().getY() - ent1.getLocation().getY();
+		double dz = ent2.getLocation().getZ() - ent1.getLocation().getZ();
+		return (int)Math.sqrt(dx*dx + dy*dy + dz*dz);
+	}
+	
 	public void send(Object a) {
 		send(a.toString());
 	}
