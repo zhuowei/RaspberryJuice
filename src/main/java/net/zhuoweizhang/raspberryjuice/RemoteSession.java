@@ -9,6 +9,7 @@ import org.bukkit.entity.*;
 import org.bukkit.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.material.Directional;
 import org.bukkit.util.Vector;
 
 public class RemoteSession {
@@ -146,7 +147,7 @@ public class RemoteSession {
 			// world.getBlock
 			if (c.equals("world.getBlock")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockTypeIdAt(loc));
+				send(world.getBlockAt(loc).getType().getId());
 				
 			// world.getBlocks
 			} else if (c.equals("world.getBlocks")) {
@@ -157,7 +158,7 @@ public class RemoteSession {
 			// world.getBlockWithData
 			} else if (c.equals("world.getBlockWithData")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockTypeIdAt(loc) + "," + world.getBlockAt(loc).getData());
+				send(world.getBlockAt(loc).getType().getId() + "," + world.getBlockAt(loc).getData());
 				
 			// world.setBlock
 			} else if (c.equals("world.setBlock")) {
@@ -478,8 +479,10 @@ public class RemoteSession {
 				//facing direction for wall sign : 2=north, 3=south, 4=west, 5=east
 				//rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
 				byte blockData = Byte.parseByte(args[4]); 
-				if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
-					thisBlock.setTypeIdAndData(blockType, blockData, true);
+				if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
+					thisBlock.setType(Material.DIRT);
+					((Directional) thisBlock.getBlockData()).setFacingDirection(BlockFace.EAST);
+//					thisBlock.setTypeIdAndData(blockType, blockData, true);
 				}
 				//plugin.getLogger().info("Creating sign at " + loc);
 				if ( thisBlock.getState() instanceof Sign ) {
@@ -559,7 +562,7 @@ public class RemoteSession {
 		for (int y = minY; y <= maxY; ++y) {
 			 for (int x = minX; x <= maxX; ++x) {
 				 for (int z = minZ; z <= maxZ; ++z) {
-					blockData.append(new Integer(world.getBlockTypeIdAt(x, y, z)).toString() + ",");
+					blockData.append(new Integer(world.getBlockAt(x, y, z).getType().getId()).toString() + ",");
 				}
 			}
 		}
@@ -577,11 +580,13 @@ public class RemoteSession {
 		Block thisBlock = world.getBlockAt(x,y,z);
 		updateBlock(thisBlock, blockType, blockData);
 	}
-	
+
+	//暫時使用，需要及時修改
 	private void updateBlock(Block thisBlock, int blockType, byte blockData) {
 		// check to see if the block is different - otherwise leave it 
-		if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
-			thisBlock.setTypeIdAndData(blockType, blockData, true);
+		if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
+			thisBlock.setType(Material.valueOf("STONE"));
+//			thisBlock.setTypeIdAndData(blockType, blockData, true);
 		}
 	}
 	
