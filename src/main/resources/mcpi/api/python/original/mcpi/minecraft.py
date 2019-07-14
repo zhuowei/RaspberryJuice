@@ -135,7 +135,7 @@ class Minecraft:
 
     def setBlock(self, *args):
         """Set block (x,y,z,id,[data])"""
-        self.conn.send(b"world.setBlock", intFloor(args))
+        self.conn.send(b"world.setBlock", args)
 
     def setBlocks(self, *args):
         """Set a cuboid of blocks (x0,y0,z0,x1,y1,z1,id,[data])"""

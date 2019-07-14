@@ -163,13 +163,13 @@ public class RemoteSession {
 			// world.setBlock
 			} else if (c.equals("world.setBlock")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				updateBlock(world, loc, Integer.parseInt(args[3]), (args.length > 4? Byte.parseByte(args[4]) : (byte) 0));
+				updateBlock(world, loc, args[3], (args.length > 4? Byte.parseByte(args[4]) : (byte) 0));
 				
 			// world.setBlocks
 			} else if (c.equals("world.setBlocks")) {
 				Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
-				int blockType = Integer.parseInt(args[6]);
+				String blockType = args[6];
 				byte data = args.length > 7? Byte.parseByte(args[7]) : (byte) 0;
 				setCuboid(loc1, loc2, blockType, data);
 				
@@ -527,7 +527,7 @@ public class RemoteSession {
 	}
 
 	// create a cuboid of lots of blocks 
-	private void setCuboid(Location pos1, Location pos2, int blockType, byte data) {
+	private void setCuboid(Location pos1, Location pos2, String blockType, byte data) {
 		int minX, maxX, minY, maxY, minZ, maxZ;
 		World world = pos1.getWorld();
 		minX = pos1.getBlockX() < pos2.getBlockX() ? pos1.getBlockX() : pos2.getBlockX();
@@ -571,20 +571,20 @@ public class RemoteSession {
 	}
 
 	// updates a block
-	private void updateBlock(World world, Location loc, int blockType, byte blockData) {
+	private void updateBlock(World world, Location loc, String blockType, byte blockData) {
 		Block thisBlock = world.getBlockAt(loc);
 		updateBlock(thisBlock, blockType, blockData);
 	}
 	
-	private void updateBlock(World world, int x, int y, int z, int blockType, byte blockData) {
+	private void updateBlock(World world, int x, int y, int z, String blockType, byte blockData) {
 		Block thisBlock = world.getBlockAt(x,y,z);
 		updateBlock(thisBlock, blockType, blockData);
 	}
 
 	//暫時使用，需要及時修改
-	private void updateBlock(Block thisBlock, int blockType, byte blockData) {
+	private void updateBlock(Block thisBlock, String blockType, byte blockData) {
 		// check to see if the block is different - otherwise leave it 
-		if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
+		if ((thisBlock.getType() != Material.valueOf(blockType))) {
 			thisBlock.setType(Material.valueOf("STONE"));
 //			thisBlock.setTypeIdAndData(blockType, blockData, true);
 		}
