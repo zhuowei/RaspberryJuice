@@ -583,9 +583,10 @@ public class RemoteSession {
 
 	//暫時使用，需要及時修改
 	private void updateBlock(Block thisBlock, String blockType, byte blockData) {
-		// check to see if the block is different - otherwise leave it 
+		// check to see if the block is different - otherwise leave it
+		blockType = blockType.toUpperCase();
 		if ((thisBlock.getType() != Material.valueOf(blockType))) {
-			thisBlock.setType(Material.valueOf("STONE"));
+			thisBlock.setType(Material.valueOf(blockType.toUpperCase()));
 //			thisBlock.setTypeIdAndData(blockType, blockData, true);
 		}
 	}
