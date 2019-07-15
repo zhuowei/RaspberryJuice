@@ -2,7 +2,6 @@ from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent
 from .block import Block
-import math
 from .util import flatten
 
 """ Minecraft PI low level api v0.1_1
@@ -19,7 +18,7 @@ from .util import flatten
 
 
 def intFloor(*args):
-    return [int(math.floor(x)) for x in flatten(args)]
+    return [int(x) for x in flatten(args)]
 
 class CmdPositioner:
     """Methods for setting and getting positions"""
@@ -44,6 +43,15 @@ class CmdPositioner:
     def setTilePos(self, id, *args):
         """Set entity tile position (entityId:int) => Vec3"""
         self.conn.send(self.pkg + b".setTile", id, intFloor(*args))
+        
+    def getDirection(self, id):
+        """取得玩家視線方向"""
+        s = self.conn.sendReceive(self.pkg + b".getDirection", id)
+        return Vec3(*list(s.split(",")))
+        
+    def setDirection(self, id, *args):
+        """設置玩家視線方向"""
+        self.conn.send(self.pkg + b".setDirection", id, intFloor(*args))
 
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
@@ -70,6 +78,10 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.getTilePos(self, [])
     def setTilePos(self, *args):
         return CmdPositioner.setTilePos(self, [], args)
+    def getDirection(self):
+        return CmdPositioner.getDirection(self, [])
+    def setDirection(self, *args):
+        return CmdPositioner.setDirection(self, [], args)
 
 class CmdCamera:
     def __init__(self, connection):
@@ -139,7 +151,7 @@ class Minecraft:
 
     def setBlocks(self, *args):
         """Set a cuboid of blocks (x0,y0,z0,x1,y1,z1,id,[data])"""
-        self.conn.send(b"world.setBlocks", intFloor(args))
+        self.conn.send(b"world.setBlocks", intFloor(args[:6])+[args[6]])
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
