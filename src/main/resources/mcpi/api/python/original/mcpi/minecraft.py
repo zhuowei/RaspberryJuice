@@ -52,6 +52,15 @@ class CmdPositioner:
     def setDirection(self, id, *args):
         """設置玩家視線方向"""
         self.conn.send(self.pkg + b".setDirection", id, intFloor(*args))
+        
+    def getRotation(self, id):
+        """取得玩家轉向"""
+        s = self.conn.sendReceive(self.pkg + b".getRotation", id)
+        return float(s)
+    
+    def setRotation(self, id, yaw):
+        """設置玩家轉向"""
+        self.conn.send(self.pkg + b".setRotation", id, yaw)
 
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
@@ -82,6 +91,11 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.getDirection(self, [])
     def setDirection(self, *args):
         return CmdPositioner.setDirection(self, [], args)
+    def getRotation(self):
+        return CmdPositioner.getRotation(self, [])
+    def setRotation(self, yaw):
+        return CmdPositioner.setRotation(self, [], yaw)
+        
 
 class CmdCamera:
     def __init__(self, connection):
