@@ -472,18 +472,21 @@ public class RemoteSession {
 				
 			// world.setSign
 			} else if (c.equals("world.setSign")) {
+				for(String s: args){
+					System.out.println(s);
+				}
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Block thisBlock = world.getBlockAt(loc);
 				//blockType should be 68 for wall sign or 63 for standing sign
-				int blockType = Integer.parseInt(args[3]);	
+//				int blockType = Integer.parseInt(args[3]);
 				//facing direction for wall sign : 2=north, 3=south, 4=west, 5=east
 				//rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
-				byte blockData = Byte.parseByte(args[4]); 
-				if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
-					thisBlock.setType(Material.DIRT);
-					((Directional) thisBlock.getBlockData()).setFacingDirection(BlockFace.EAST);
+//				byte blockData = Byte.parseByte(args[4]);
+//				if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
+					thisBlock.setType(Material.SPRUCE_SIGN);
+					//((Directional) thisBlock.getBlockData()).setFacingDirection(BlockFace.EAST);
 //					thisBlock.setTypeIdAndData(blockType, blockData, true);
-				}
+//				}
 				//plugin.getLogger().info("Creating sign at " + loc);
 				if ( thisBlock.getState() instanceof Sign ) {
 					Sign sign = (Sign) thisBlock.getState();
@@ -581,7 +584,6 @@ public class RemoteSession {
 		updateBlock(thisBlock, blockType, blockData);
 	}
 
-	//暫時使用，需要及時修改
 	private void updateBlock(Block thisBlock, String blockType, byte blockData) {
 		// check to see if the block is different - otherwise leave it
 		blockType = blockType.toUpperCase();
