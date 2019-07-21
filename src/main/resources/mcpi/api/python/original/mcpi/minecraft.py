@@ -63,10 +63,12 @@ class CmdPositioner:
         self.conn.send(self.pkg + b".setRotation", id, yaw)
         
     def getPitch(self, id):
+        """取得玩家俯仰"""
         s = self.conn.sendReceive(self.pkg + b".getPitch",id)
         return float(s)
     
     def setPitch(self, id, pitch):
+        """設置玩家俯仰"""
         self.conn.send(self.pkg + b".setPitch", id, pitch)
 
     def setting(self, setting, status):
@@ -197,6 +199,9 @@ class Minecraft:
     def postToChat(self, msg):
         """Post a message to the game chat"""
         self.conn.send(b"chat.post", msg)
+        
+    def setSign(self, x, y, z, *args):
+        self.conn.send(b"world.setSign", x,y,z ,args)
 
     def setting(self, setting, status):
         """Set a world setting (setting, status). keys: world_immutable, nametags_visible"""

@@ -483,7 +483,7 @@ public class RemoteSession {
 				//rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
 //				byte blockData = Byte.parseByte(args[4]);
 //				if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
-					thisBlock.setType(Material.SPRUCE_SIGN);
+					thisBlock.setType(Material.JUNGLE_SIGN);
 					//((Directional) thisBlock.getBlockData()).setFacingDirection(BlockFace.EAST);
 //					thisBlock.setTypeIdAndData(blockType, blockData, true);
 //				}
