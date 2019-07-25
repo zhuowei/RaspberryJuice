@@ -1,6 +1,6 @@
 from .connection import Connection
 from .vec3 import Vec3
-from .event import BlockEvent
+from .event import BlockEvent, ChatEvent
 from .block import Block
 from .util import flatten
 
@@ -144,6 +144,12 @@ class CmdEvents:
         s = self.conn.sendReceive(b"events.block.hits")
         events = [e for e in s.split("|") if e]
         return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
+    
+    def pollChatPosts(self):
+        """Triggered by posts to chat => [ChatEvent]"""
+        s = self.conn.sendReceive(b"events.chat.posts")
+        events = [e for e in s.split("|") if e]
+        return [ChatEvent.Post(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in events]
 
 
 class Minecraft:
