@@ -1,6 +1,7 @@
 from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
+from .entity import Entity
 from .block import Block
 from .util import flatten
 
@@ -80,6 +81,12 @@ class CmdEntity(CmdPositioner):
     """Methods for entities"""
     def __init__(self, connection):
         CmdPositioner.__init__(self, connection, b"entity")
+        
+    def getName(self, id):
+        """Get the list name of the player with entity id => [name:str]
+        
+        Also can be used to find name of entity if entity is not a player."""
+        return self.conn.sendReceive(b"entity.getName", id)
 
 
 class CmdPlayer(CmdPositioner):
@@ -208,6 +215,14 @@ class Minecraft:
         
     def setSign(self, x, y, z, *args):
         self.conn.send(b"world.setSign", x,y,z ,args)
+        
+    def spawnEntity(self, *args):
+        """Spawn entity (x,y,z,id,[data])"""
+        return int(self.conn.sendReceive(b"world.spawnEntity", intFloor(args)))
+
+    def getPlayerEntityId(self, name):
+        """Get the entity id of the named player => [id:int]"""
+        return int(self.conn.sendReceive(b"world.getPlayerId", name))
 
     def setting(self, setting, status):
         """Set a world setting (setting, status). keys: world_immutable, nametags_visible"""
