@@ -147,7 +147,7 @@ public class RemoteSession {
 			// world.getBlock
 			if (c.equals("world.getBlock")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockAt(loc).getType().getId());
+				send(world.getBlockAt(loc).getType().name());
 				
 			// world.getBlocks
 			} else if (c.equals("world.getBlocks")) {
@@ -562,7 +562,7 @@ public class RemoteSession {
 		for (int y = minY; y <= maxY; ++y) {
 			 for (int x = minX; x <= maxX; ++x) {
 				 for (int z = minZ; z <= maxZ; ++z) {
-					blockData.append(new Integer(world.getBlockAt(x, y, z).getType().getId()).toString() + ",");
+					blockData.append(world.getBlockAt(x, y, z).getType().name() + ",");
 				}
 			}
 		}
