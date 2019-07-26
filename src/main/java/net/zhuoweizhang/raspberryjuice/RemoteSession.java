@@ -216,7 +216,7 @@ public class RemoteSession {
 				String chatMessage = "";
 				int count;
 				for(count=0;count<args.length;count++){
-					chatMessage = chatMessage + args[count] + ",";
+					chatMessage = chatMessage + args[count] + " ";
 				}
 				chatMessage = chatMessage.substring(0, chatMessage.length() - 1);
 				server.broadcastMessage(chatMessage);

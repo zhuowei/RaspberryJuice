@@ -1,7 +1,7 @@
 from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
-from .entity import Entity
+#from .entity import Entity
 from .block import Block
 from .util import flatten
 
@@ -169,58 +169,56 @@ class Minecraft:
         self.player = CmdPlayer(connection)
         self.events = CmdEvents(connection)
 
-    def getBlock(self, *args):
+    def getBlock(self, x:int, y:int, z:int) -> str:
         """Get block (x,y,z) => id:int"""
-        return int(self.conn.sendReceive(b"world.getBlock", intFloor(args)))
+        return self.conn.sendReceive(b"world.getBlock", x, y, z)
 
-    def getBlockWithData(self, *args):
+    def getBlockWithData(self, x:int, y:int, z:int) -> Block:
         """Get block with data (x,y,z) => Block"""
-        ans = self.conn.sendReceive(b"world.getBlockWithData", intFloor(args))
+        ans = self.conn.sendReceive(b"world.getBlockWithData", x, y, z)
         return Block(*list(map(int, ans.split(","))))
-    """
-        @TODO
-    """
-    def getBlocks(self, *args):
+
+    def getBlocks(self, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int):
         """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
-        return int(self.conn.sendReceive(b"world.getBlocks", intFloor(args)))
+        return self.conn.sendReceive(b"world.getBlocks", x1, y1, z1, x2, y2, z2)
 
-    def setBlock(self, *args):
+    def setBlock(self, x:int, y:int, z:int, block:str) -> None:
         """Set block (x,y,z,id,[data])"""
-        self.conn.send(b"world.setBlock", args)
+        self.conn.send(b"world.setBlock", x, y, z, block)
 
-    def setBlocks(self, *args):
-        """Set a cuboid of blocks (x0,y0,z0,x1,y1,z1,id,[data])"""
-        self.conn.send(b"world.setBlocks", intFloor(args[:6])+[args[6]])
+    def setBlocks(self, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int, block):
+        """Set a cuboid of blocks (x1,y1,z1,x2,y2,z2,id,[data])"""
+        self.conn.send(b"world.setBlocks", x1, y1, z1, x2, y2, z2, block)
 
-    def getHeight(self, *args):
+    def getHeight(self, x, z) -> int:
         """Get the height of the world (x,z) => int"""
-        return int(self.conn.sendReceive(b"world.getHeight", intFloor(args)))
+        return self.conn.sendReceive(b"world.getHeight", x, z)
 
-    def getPlayerEntityIds(self):
+    def getPlayerEntityIds(self) -> list:
         """Get the entity ids of the connected players => [id:int]"""
         ids = self.conn.sendReceive(b"world.getPlayerIds")
         return list(map(int, ids.split("|")))
 
-    def saveCheckpoint(self):
-        """Save a checkpoint that can be used for restoring the world"""
-        self.conn.send(b"world.checkpoint.save")
+#    def saveCheckpoint(self):
+#        """Save a checkpoint that can be used for restoring the world"""
+#        self.conn.send(b"world.checkpoint.save")
 
-    def restoreCheckpoint(self):
-        """Restore the world state to the checkpoint"""
-        self.conn.send(b"world.checkpoint.restore")
+#    def restoreCheckpoint(self):
+#        """Restore the world state to the checkpoint"""
+#        self.conn.send(b"world.checkpoint.restore")
 
-    def postToChat(self, msg):
+    def postToChat(self, *msg):
         """Post a message to the game chat"""
         self.conn.send(b"chat.post", msg)
         
-    def setSign(self, x, y, z, *args):
-        self.conn.send(b"world.setSign", x,y,z ,args)
+    def setSign(self, x:int, y:int, z:int, signType:str, signDir, line1="",line2="",line3="",line4=""):
+        self.conn.send(b"world.setSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
-    def spawnEntity(self, *args):
+    def spawnEntity(self, x:int, y:int, z:int, entityID:int):
         """Spawn entity (x,y,z,id,[data])"""
-        return int(self.conn.sendReceive(b"world.spawnEntity", intFloor(args)))
+        return int(self.conn.sendReceive(b"world.spawnEntity", x, y, z, entityID))
 
-    def getPlayerEntityId(self, name):
+    def getPlayerEntityId(self, name:str):
         """Get the entity id of the named player => [id:int]"""
         return int(self.conn.sendReceive(b"world.getPlayerId", name))
 
