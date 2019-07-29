@@ -211,7 +211,11 @@ class Minecraft:
         """Post a message to the game chat"""
         self.conn.send(b"chat.post", msg)
         
+    # TODO：修改成一個py檔處理Sign
     def setSign(self, x:int, y:int, z:int, signType:str, signDir, line1="",line2="",line3="",line4=""):
+        minecraftSigns = ["SPRUCE_SIGN","ACACIA_SIGN","BIRCH_SIGN","DARK_OAK_SIGN","JUNGLE_SIGN","OAK_SIGN"]
+        signType = signType.upper()
+        if signType not in minecraftSigns: raise Exception("告示牌名稱打錯")
         self.conn.send(b"world.setSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
     def spawnEntity(self, x:int, y:int, z:int, entityID:int):

@@ -485,7 +485,7 @@ public class RemoteSession {
 //				byte blockData = Byte.parseByte(args[4]);
 //				if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
 
-				thisBlock.setType(Material.JUNGLE_SIGN);
+				thisBlock.setType(Material.valueOf(args[3]));
 
 //				BlockData data = thisBlock.getBlockData();
 //				((Directional) data).setFacingDirection(BlockFace.SOUTH_EAST);
