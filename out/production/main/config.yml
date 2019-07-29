@@ -1,0 +1,8 @@
+# default config.yml
+port: 4711
+
+# Determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
+location: RELATIVE
+
+# Determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH
+hitclick: RIGHT
