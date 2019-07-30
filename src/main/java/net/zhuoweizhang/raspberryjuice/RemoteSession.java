@@ -495,14 +495,13 @@ public class RemoteSession {
 				//plugin.getLogger().info("Creating sign at " + loc);
 
 				org.bukkit.block.data.type.Sign s = (org.bukkit.block.data.type.Sign) thisBlock.getBlockData();
-				s.setRotation(BlockFace.SOUTH_SOUTH_EAST);
+				s.setRotation(BlockFace.valueOf(args[4]));
 				thisBlock.setBlockData(s);
 
 				BlockState signState = thisBlock.getState();
 
 				if (signState instanceof Sign) {
 					Sign sign = (Sign) signState;
-
 
 //					if (signState.getData() instanceof org.bukkit.material.Sign) {
 //						System.out.println("Test");

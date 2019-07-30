@@ -212,10 +212,37 @@ class Minecraft:
         self.conn.send(b"chat.post", msg)
         
     # TODO：修改成一個py檔處理Sign
-    def setSign(self, x:int, y:int, z:int, signType:str, signDir, line1="",line2="",line3="",line4=""):
-        minecraftSigns = ["SPRUCE_SIGN","ACACIA_SIGN","BIRCH_SIGN","DARK_OAK_SIGN","JUNGLE_SIGN","OAK_SIGN"]
+    def setSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4=""):
+        minecraftSignsType = ["SPRUCE_SIGN","ACACIA_SIGN","BIRCH_SIGN","DARK_OAK_SIGN","JUNGLE_SIGN","OAK_SIGN"]
+        minecraftSignsDir = {0:'SOUTH',
+                             1:'SOUTH_SOUTH_WEST',
+                             2:'SOUTH_WEST',
+                             3:'WEST_SOUTH_WEST',
+                             4:'WEST',
+                             5:'WEST_NORTH_WEST',
+                             6:'NORTH_WEST',
+                             7:'NORTH_NORTH_WEST',
+                             8:'NORTH',
+                             9:'NORTH_NORTH_EAST',
+                             10:'NORTH_EAST',
+                             11:'EAST_NORTH_EAST',
+                             12:'EAST',
+                             13:'EAST_SOUTH_EAST',
+                             14:'SOUTH_EAST',
+                             15:'SOUTH_SOUTH_EAST'
+                             }
+        if type(signDir) == int:
+            if 0 <= signDir < 16:
+                signDir = minecraftSignsDir.get(signDir)
+        elif type(signDir) == str:
+            for k,v in minecraftSignsDir.items():
+                if signDir == v:
+                    break
+            else:
+                signDir = minecraftSignsDir.get(0)
+            
         signType = signType.upper()
-        if signType not in minecraftSigns: raise Exception("告示牌名稱打錯")
+        if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
         self.conn.send(b"world.setSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
     def spawnEntity(self, x:int, y:int, z:int, entityID:int):
