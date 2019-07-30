@@ -28,7 +28,7 @@ hs_err_pid*
 *.iws
 
 # IntelliJ
-/out/
+#/out/
 
 # JIRA plugin
 atlassian-ide-plugin.xml
