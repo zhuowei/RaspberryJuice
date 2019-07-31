@@ -6,6 +6,7 @@ import java.util.*;
 
 import org.bukkit.*;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.*;
 import org.bukkit.block.*;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -487,13 +488,6 @@ public class RemoteSession {
 
 				thisBlock.setType(Material.valueOf(args[3]));
 
-//				BlockData data = thisBlock.getBlockData();
-//				((Directional) data).setFacingDirection(BlockFace.SOUTH_EAST);
-//				thisBlock.setBlockData(data);
-//					thisBlock.setTypeIdAndData(blockType, blockData, true);
-//				}
-				//plugin.getLogger().info("Creating sign at " + loc);
-
 				org.bukkit.block.data.type.Sign s = (org.bukkit.block.data.type.Sign) thisBlock.getBlockData();
 				s.setRotation(BlockFace.valueOf(args[4]));
 				thisBlock.setBlockData(s);
@@ -503,11 +497,26 @@ public class RemoteSession {
 				if (signState instanceof Sign) {
 					Sign sign = (Sign) signState;
 
-//					if (signState.getData() instanceof org.bukkit.material.Sign) {
-//						System.out.println("Test");
-//						org.bukkit.material.Sign signData = (org.bukkit.material.Sign) sign.getData();
-//						signData.setFacingDirection(BlockFace.EAST_NORTH_EAST);
-//					}
+					for (int i = 5; i - 5 < 4 && i < args.length; i++) {
+						sign.setLine(i - 5, args[i]);
+					}
+					sign.update();
+				}
+
+
+			} else if (c.equals("world.setWallSign")) {
+				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				Block thisBlock = world.getBlockAt(loc);
+				thisBlock.setType(Material.valueOf(args[3]));
+
+				org.bukkit.block.data.type.WallSign s = (org.bukkit.block.data.type.WallSign) thisBlock.getBlockData();
+				s.setFacing(BlockFace.valueOf(args[4]));
+				thisBlock.setBlockData(s);
+
+				BlockState signState = thisBlock.getState();
+
+				if (signState instanceof Sign) {
+					Sign sign = (Sign) signState;
 
 					for (int i = 5; i - 5 < 4 && i < args.length; i++) {
 						sign.setLine(i - 5, args[i]);

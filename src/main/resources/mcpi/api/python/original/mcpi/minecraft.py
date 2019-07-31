@@ -214,6 +214,8 @@ class Minecraft:
     # TODO：修改成一個py檔處理Sign
     def setSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4=""):
         minecraftSignsType = ["SPRUCE_SIGN","ACACIA_SIGN","BIRCH_SIGN","DARK_OAK_SIGN","JUNGLE_SIGN","OAK_SIGN"]
+        
+        # ["SPRUCE_WALL_SIGN","ACACIA_WALL_SIGN","BIRCH_WALL_SIGN","DARK_OAK_WALL_SIGN","JUNGLE_WALL_SIGN","OAK_WALL_SIGN"]
         minecraftSignsDir = {0:'SOUTH',
                              1:'SOUTH_SOUTH_WEST',
                              2:'SOUTH_WEST',
@@ -231,6 +233,7 @@ class Minecraft:
                              14:'SOUTH_EAST',
                              15:'SOUTH_SOUTH_EAST'
                              }
+        
         if type(signDir) == int:
             if 0 <= signDir < 16:
                 signDir = minecraftSignsDir.get(signDir)
@@ -244,6 +247,28 @@ class Minecraft:
         signType = signType.upper()
         if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
         self.conn.send(b"world.setSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
+        
+    def setWallSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4=""):
+        minecraftSignsType = ["SPRUCE_WALL_SIGN","ACACIA_WALL_SIGN","BIRCH_WALL_SIGN","DARK_OAK_WALL_SIGN","JUNGLE_WALL_SIGN","OAK_WALL_SIGN"]
+        
+        minecraftSignsDir = {0:'SOUTH',
+                             1:'WEST',
+                             2:'NORTH',
+                             3:'EAST'}
+        
+        if type(signDir) == int:
+            if 0 <= signDir < 4:
+                signDir = minecraftSignsDir.get(signDir)
+        elif type(signDir) == str:
+            for k,v in minecraftSignsDir.items():
+                if signDir == v:
+                    break
+            else:
+                signDir = minecraftSignsDir.get(0)
+            
+        signType = signType.upper()
+        if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
+        self.conn.send(b"world.setWallSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
     def spawnEntity(self, x:int, y:int, z:int, entityID:int):
         """Spawn entity (x,y,z,id,[data])"""
