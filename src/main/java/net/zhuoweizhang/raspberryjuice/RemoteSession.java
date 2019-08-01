@@ -1,19 +1,21 @@
 package net.zhuoweizhang.raspberryjuice;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-
 import org.bukkit.*;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.block.data.type.WallSign;
-import org.bukkit.entity.*;
-import org.bukkit.block.*;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.material.Directional;
-import org.bukkit.material.MaterialData;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+
+import java.io.*;
+import java.net.Socket;
+import java.util.ArrayDeque;
+import java.util.Collection;
 
 public class RemoteSession {
 
@@ -529,6 +531,13 @@ public class RemoteSession {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Entity entity = world.spawnEntity(loc, EntityType.fromId(Integer.parseInt(args[3])));
 				send(entity.getEntityId());
+
+				// world.explode
+			}else if(c.equals("world.createExplosion")){
+				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
+				Float power = Float.parseFloat(args[3]);
+
+				world.createExplosion(loc,power);
 
 				// world.getEntityTypes
 			} else if (c.equals("world.getEntityTypes")) {

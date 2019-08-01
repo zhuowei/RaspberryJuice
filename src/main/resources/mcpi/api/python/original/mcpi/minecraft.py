@@ -273,6 +273,9 @@ class Minecraft:
     def spawnEntity(self, x:int, y:int, z:int, entityID:int):
         """Spawn entity (x,y,z,id,[data])"""
         return int(self.conn.sendReceive(b"world.spawnEntity", x, y, z, entityID))
+    
+    def createExplosion(self, x:int, y:int, z:int, power:int=4):
+        self.conn.send(b"world.createExplosion", x, y, z, power)
 
     def getPlayerEntityId(self, name:str):
         """Get the entity id of the named player => [id:int]"""
