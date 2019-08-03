@@ -1,6 +1,6 @@
 # RaspberryJuice
 
-A Bukkit plugin which implements the Minecraft Pi Socket API.
+一個Minecraft Bukkit插件，用來實現與Python連接，使用Python控制Minecraft Server
 
 ## Commands
 
@@ -70,6 +70,7 @@ mvn package
 
 ## Version history
 
+ - 1.14 修改指令方式，從數字方塊ID改為方塊名稱。
  - 1.11 - spawnEntity, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
