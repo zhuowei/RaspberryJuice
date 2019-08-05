@@ -6,23 +6,47 @@
 
 ### Commands supported
 
- - world.get/setBlock
+#### world
+ - world.getBlock
  - world.getBlockWithData
- - world.setBlocks
- - world.getPlayerIds
  - world.getBlocks
- - chat.post
- - events.clear
- - events.block.hits
- - player.getTile
- - player.setTile
+ - world.setBlock
+ - world.setBlocks
+ - world.getHeight
+ - world.getPlayerEntityIds
+ - world.postToChat
+ - world.setSign
+ - world.setWallSign
+ - world.spawnEntity
+ - world.createExplosion
+ - world.getPlayerEntityId
+ - world.create
+ 
+#### player
  - player.getPos
  - player.setPos
- - world.getHeight
- - entity.getTile
- - entity.setTile
+ - player.getTilePos
+ - player.setTilePos
+ - player.getDirection
+ - player.setDirection
+ - player.getRotation
+ - player.setRotation
+ - player.getPitch
+ - player.setPitch
+ 
+#### entity
  - entity.getPos
  - entity.setPos
+ - entity.getTilePos
+ - entity.setTilePos
+ - entity.getDirection
+ - entity.setDirection
+ - entity.getRotation
+ - entity.setRotation
+ - entity.getPitch
+ - entity.setPitch
+ - entity.getName
+ 
 
 ### Commands that can't be supported
 
