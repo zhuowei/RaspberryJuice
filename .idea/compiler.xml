@@ -7,10 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="raspberryjuice" />
+        <module name="RaspberryJuice" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="raspberryjuice" target="1.6" />
+      <module name="RaspberryJuice" target="1.5" />
     </bytecodeTargetLevel>
   </component>
 </project>
