@@ -33,6 +33,7 @@
  - player.setRotation
  - player.getPitch
  - player.setPitch
+ - player.sendTitle
  
 #### entity
  - entity.getPos
@@ -46,6 +47,7 @@
  - entity.getPitch
  - entity.setPitch
  - entity.getName
+ - entity.sendTitle
  
 
 ### Commands that can't be supported
