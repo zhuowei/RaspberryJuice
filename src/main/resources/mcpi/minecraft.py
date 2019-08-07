@@ -71,6 +71,9 @@ class CmdPositioner:
     def setPitch(self, id, pitch):
         """設置玩家俯仰"""
         self.conn.send(self.pkg + b".setPitch", id, pitch)
+        
+    def sendTitle(self, id, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20):
+        self.conn.send(self.pkg + b".sendTitle", id, title, subTitle, fadeIn, stay, fadeOut) 
 
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
@@ -115,7 +118,9 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.getPitch(self, [])
     def setPitch(self, pitch):
         return CmdPositioner.setPitch(self, [], pitch)
-
+    def sendTitle(self, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20):
+        return CmdPositioner.sendTitle(self, [], title, subTitle, fadeIn, stay, fadeOut)
+        
 class CmdCamera:
     def __init__(self, connection):
         self.conn = connection
@@ -212,7 +217,7 @@ class Minecraft:
         self.conn.send(b"chat.post", msg)
         
     # TODO：修改成一個py檔處理Sign
-    def setSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4=""):
+    def setSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1:str="", line2:str="", line3:str="", line4:str=""):
         minecraftSignsType = ["SPRUCE_SIGN","ACACIA_SIGN","BIRCH_SIGN","DARK_OAK_SIGN","JUNGLE_SIGN","OAK_SIGN"]
         
         # ["SPRUCE_WALL_SIGN","ACACIA_WALL_SIGN","BIRCH_WALL_SIGN","DARK_OAK_WALL_SIGN","JUNGLE_WALL_SIGN","OAK_WALL_SIGN"]

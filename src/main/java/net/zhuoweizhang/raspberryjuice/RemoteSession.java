@@ -351,6 +351,16 @@ public class RemoteSession {
 				Player currentPlayer = getCurrentPlayer();
 				send(currentPlayer.getLocation().getPitch());
 
+				// player.sendTitle
+			} else if (c.equals("player.sendTitle")) {
+				Player currentPlayer = getCurrentPlayer();
+				String title = args[0];
+				String subTitle = args[1];
+				Integer fadeIn = Integer.parseInt(args[2]);
+				Integer stay = Integer.parseInt(args[3]);
+				Integer fadeOut = Integer.parseInt(args[4]);
+				currentPlayer.sendTitle(title, subTitle, fadeIn, stay, fadeOut);
+
 				// world.getHeight
 			} else if (c.equals("world.getHeight")) {
 				send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
@@ -533,11 +543,11 @@ public class RemoteSession {
 				send(entity.getEntityId());
 
 				// world.explode
-			}else if(c.equals("world.createExplosion")){
+			} else if (c.equals("world.createExplosion")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Float power = Float.parseFloat(args[3]);
 
-				world.createExplosion(loc,power);
+				world.createExplosion(loc, power);
 
 				// world.getEntityTypes
 			} else if (c.equals("world.getEntityTypes")) {
