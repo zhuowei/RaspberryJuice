@@ -32,27 +32,27 @@ class CmdPositioner:
         s = self.conn.sendReceive(self.pkg + b".getPos", id)
         return Vec3(*list(map(float, s.split(","))))
 
-    def setPos(self, id, *args):
+    def setPos(self, id, x:float, y:float, z:float):
         """Set entity position (entityId:int, x,y,z)"""
-        self.conn.send(self.pkg + b".setPos", id, args)
+        self.conn.send(self.pkg + b".setPos", id, x, y, z)
 
     def getTilePos(self, id):
         """Get entity tile position (entityId:int) => Vec3"""
         s = self.conn.sendReceive(self.pkg + b".getTile", id)
         return Vec3(*list(map(int, s.split(","))))
 
-    def setTilePos(self, id, *args):
+    def setTilePos(self, id, x:int, y:int, z:int):
         """Set entity tile position (entityId:int) => Vec3"""
-        self.conn.send(self.pkg + b".setTile", id, intFloor(*args))
+        self.conn.send(self.pkg + b".setTile", id, x, y, z)
         
     def getDirection(self, id):
         """取得玩家視線方向"""
         s = self.conn.sendReceive(self.pkg + b".getDirection", id)
         return Vec3(*list(s.split(",")))
         
-    def setDirection(self, id, *args):
+    def setDirection(self, id, x:float, y:float, z:float):
         """設置玩家視線方向"""
-        self.conn.send(self.pkg + b".setDirection", id, intFloor(*args))
+        self.conn.send(self.pkg + b".setDirection", id, x, y, z)
         
     def getRotation(self, id):
         """取得玩家轉向"""
@@ -100,16 +100,16 @@ class CmdPlayer(CmdPositioner):
 
     def getPos(self):
         return CmdPositioner.getPos(self, [])
-    def setPos(self, *args):
-        return CmdPositioner.setPos(self, [], args)
+    def setPos(self, x:float, y:float, z:float):
+        return CmdPositioner.setPos(self, [], x, y, z)
     def getTilePos(self):
         return CmdPositioner.getTilePos(self, [])
-    def setTilePos(self, *args):
-        return CmdPositioner.setTilePos(self, [], args)
+    def setTilePos(self, x:int, y:int, z:int):
+        return CmdPositioner.setTilePos(self, [], x, y, z)
     def getDirection(self):
         return CmdPositioner.getDirection(self, [])
-    def setDirection(self, *args):
-        return CmdPositioner.setDirection(self, [], args)
+    def setDirection(self, x:float, y:float, z:float):
+        return CmdPositioner.setDirection(self, [], x, y, z)
     def getRotation(self):
         return CmdPositioner.getRotation(self, [])
     def setRotation(self, yaw):
@@ -137,9 +137,9 @@ class CmdCamera:
         """Set camera mode to follow an entity ([entityId])"""
         self.conn.send(b"camera.mode.setFollow", args)
 
-    def setPos(self, *args):
+    def setPos(self, x:float, y:float, z:float):
         """Set camera entity position (x,y,z)"""
-        self.conn.send(b"camera.setPos", args)
+        self.conn.send(b"camera.setPos", x, y, z)
 
 
 class CmdEvents:
