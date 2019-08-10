@@ -1,8 +1,8 @@
 author: [MinecraftDawn,Zhuowei]
 database: false
 description: Implementation of the Minecraft PI modding API
-main: net.zhuoweizhang.raspberryjuice.RaspberryJuicePlugin
+main: com.minecraftdawn.raspberryjuice.RaspberryJuicePlugin
 name: RaspberryJuice
 startup: postworld
-version: '1.14-0.2'
+version: '1.14-0.3'
 api-version: 1.13

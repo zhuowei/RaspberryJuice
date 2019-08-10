@@ -1,4 +1,4 @@
-package net.zhuoweizhang.raspberryjuice;
+package com.minecraftdawn.raspberryjuice;
 
 /**
  * Config option to determine whether hit events are triggered by LEFT clicks, RIGHT clicks (like the Pi) or BOTH

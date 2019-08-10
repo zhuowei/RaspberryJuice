@@ -1,4 +1,4 @@
-package net.zhuoweizhang.raspberryjuice;
+package com.minecraftdawn.raspberryjuice;
 
 import java.io.*;
 import java.net.*;
