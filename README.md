@@ -47,7 +47,6 @@
  - entity.getPitch
  - entity.setPitch
  - entity.getName
- - entity.sendTitle
  
 
 ### Commands that can't be supported
