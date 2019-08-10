@@ -72,9 +72,6 @@ class CmdPositioner:
         """設置玩家俯仰"""
         self.conn.send(self.pkg + b".setPitch", id, pitch)
         
-    def sendTitle(self, id, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20):
-        self.conn.send(self.pkg + b".sendTitle", id, title, subTitle, fadeIn, stay, fadeOut) 
-
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
         self.conn.send(self.pkg + b".setting", setting, 1 if bool(status) else 0)
@@ -119,7 +116,7 @@ class CmdPlayer(CmdPositioner):
     def setPitch(self, pitch):
         return CmdPositioner.setPitch(self, [], pitch)
     def sendTitle(self, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20):
-        return CmdPositioner.sendTitle(self, [], title, subTitle, fadeIn, stay, fadeOut)
+        self.conn.send(self.pkg + b".sendTitle", id, title, subTitle, fadeIn, stay, fadeOut)
         
 class CmdCamera:
     def __init__(self, connection):

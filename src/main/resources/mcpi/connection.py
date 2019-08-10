@@ -53,8 +53,9 @@ class Connection:
     def receive(self):
         """Receives data. Note that the trailing newline '\n' is trimmed"""
         s = self.socket.makefile("r").readline().rstrip("\n")
-        if s == Connection.RequestFailed:
-            raise RequestError("%s failed"%self.lastSent.strip())
+        checkFail = s.split(",")
+        if checkFail[0] == Connection.RequestFailed:
+            raise RequestError("%s failed! Cause: %s" % (self.lastSent.strip(),checkFail[-1]))
         return s
 
     def sendReceive(self, *data):
