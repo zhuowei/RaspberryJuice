@@ -16,7 +16,6 @@ public class CmdPlayer {
 		this.session = session;
 		this.command = cmd;
 		this.args = args;
-
 	}
 
 	private boolean serverHasPlayer() {

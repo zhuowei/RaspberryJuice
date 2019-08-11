@@ -4,6 +4,7 @@ import com.minecraftdawn.raspberryjuice.RaspberryJuicePlugin;
 import com.minecraftdawn.raspberryjuice.RemoteSession;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class CmdEntity {
@@ -94,6 +95,16 @@ public class CmdEntity {
 			// entity.getPitch
 		} else if (command.equals("getPitch")) {
 			session.send(entity.getLocation().getPitch());
+
+			// entity.getListName
+		} else if (command.equals("entity.getName")) {
+			if (entity instanceof Player) {
+				Player p = (Player) entity;
+				//sending list name because plugin.getNamedPlayer() uses list name
+				session.send(p.getPlayerListName());
+			} else {
+				session.send(entity.getName());
+			}
 
 		} else {
 			session.plugin.getLogger().warning(preFix + command + " is not supported.");

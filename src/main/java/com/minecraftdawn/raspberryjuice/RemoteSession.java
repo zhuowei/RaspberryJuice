@@ -2,6 +2,7 @@ package com.minecraftdawn.raspberryjuice;
 
 import com.minecraftdawn.raspberryjuice.cmd.CmdEntity;
 import com.minecraftdawn.raspberryjuice.cmd.CmdPlayer;
+import com.minecraftdawn.raspberryjuice.cmd.CmdWorld;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -161,73 +162,9 @@ public class RemoteSession {
 
 			} else if (cmd[0].equals("entity")) {
 				new CmdEntity(this, cmd[1], args).execute();
-			}
 
-			// world.getBlock
-			else if (c.equals("world.getBlock")) {
-				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockAt(loc).getType().name());
-
-				// world.getBlocks
-			} else if (c.equals("world.getBlocks")) {
-				Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
-				send(getBlocks(loc1, loc2));
-
-				// world.getBlockWithData
-			} else if (c.equals("world.getBlockWithData")) {
-				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockAt(loc).getType().getId() + "," + world.getBlockAt(loc).getData());
-
-				// world.setBlock
-			} else if (c.equals("world.setBlock")) {
-				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				updateBlock(world, loc, args[3], (args.length > 4 ? Byte.parseByte(args[4]) : (byte) 0));
-
-				// world.setBlocks
-			} else if (c.equals("world.setBlocks")) {
-				Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
-				String blockType = args[6];
-				byte data = args.length > 7 ? Byte.parseByte(args[7]) : (byte) 0;
-				setCuboid(loc1, loc2, blockType, data);
-
-				// world.getPlayerIds
-			} else if (c.equals("world.getPlayerIds")) {
-				StringBuilder bdr = new StringBuilder();
-				Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-				if (players.size() > 0) {
-					for (Player p : players) {
-						bdr.append(p.getEntityId());
-						bdr.append("|");
-					}
-					bdr.deleteCharAt(bdr.length() - 1);
-					send(bdr.toString());
-				} else {
-					send("Fail");
-				}
-
-				// world.getPlayerId
-			} else if (c.equals("world.getPlayerId")) {
-				Player p = plugin.getNamedPlayer(args[0]);
-				if (p != null) {
-					send(p.getEntityId());
-				} else {
-					plugin.getLogger().info("Player [" + args[0] + "] not found.");
-					send("Fail");
-				}
-				// entity.getListName
-			} else if (c.equals("entity.getName")) {
-				Entity e = plugin.getEntity(Integer.parseInt(args[0]));
-				if (e == null) {
-					plugin.getLogger().info("Player (or Entity) [" + args[0] + "] not found in entity.getName.");
-				} else if (e instanceof Player) {
-					Player p = (Player) e;
-					//sending list name because plugin.getNamedPlayer() uses list name
-					send(p.getPlayerListName());
-				} else if (e != null) {
-					send(e.getName());
-				}
+			} else if(cmd[0].equals("world")){
+				new CmdWorld(this, world, cmd[1], args).execute();
 
 				// chat.post
 			} else if (c.equals("chat.post")) {
@@ -278,85 +215,6 @@ public class RemoteSession {
 				send(b.toString());
 
 
-			} else if (c.equals("world.getHeight")) {
-				send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
-
-			}
-			// world.setSign
-			else if (c.equals("world.setSign")) {
-				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				Block thisBlock = world.getBlockAt(loc);
-				//blockType should be 68 for wall sign or 63 for standing sign
-//				int blockType = Integer.parseInt(args[3]);
-				//facing  direction for wall sign : 2=north, 3=south, 4=west, 5=east
-				//rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
-//				byte blockData = Byte.parseByte(args[4]);
-//				if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
-
-				thisBlock.setType(Material.valueOf(args[3]));
-
-				org.bukkit.block.data.type.Sign s = (org.bukkit.block.data.type.Sign) thisBlock.getBlockData();
-				s.setRotation(BlockFace.valueOf(args[4]));
-				thisBlock.setBlockData(s);
-
-				BlockState signState = thisBlock.getState();
-
-				if (signState instanceof Sign) {
-					Sign sign = (Sign) signState;
-
-					for (int i = 5; i - 5 < 4 && i < args.length; i++) {
-						sign.setLine(i - 5, args[i]);
-					}
-					sign.update();
-				}
-
-
-			} else if (c.equals("world.setWallSign")) {
-				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				Block thisBlock = world.getBlockAt(loc);
-				thisBlock.setType(Material.valueOf(args[3]));
-
-				org.bukkit.block.data.type.WallSign s = (org.bukkit.block.data.type.WallSign) thisBlock.getBlockData();
-				s.setFacing(BlockFace.valueOf(args[4]));
-				thisBlock.setBlockData(s);
-
-				BlockState signState = thisBlock.getState();
-
-				if (signState instanceof Sign) {
-					Sign sign = (Sign) signState;
-
-					for (int i = 5; i - 5 < 4 && i < args.length; i++) {
-						sign.setLine(i - 5, args[i]);
-					}
-					sign.update();
-				}
-
-				// world.spawnEntity
-			} else if (c.equals("world.spawnEntity")) {
-				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				Entity entity = world.spawnEntity(loc, EntityType.fromId(Integer.parseInt(args[3])));
-				send(entity.getEntityId());
-
-				// world.explode
-			} else if (c.equals("world.createExplosion")) {
-				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				Float power = Float.parseFloat(args[3]);
-
-				world.createExplosion(loc, power);
-
-				// world.getEntityTypes
-			} else if (c.equals("world.getEntityTypes")) {
-				StringBuilder bdr = new StringBuilder();
-				for (EntityType entityType : EntityType.values()) {
-					if (entityType.isSpawnable() && entityType.getTypeId() >= 0) {
-						bdr.append(entityType.getTypeId());
-						bdr.append(",");
-						bdr.append(entityType.toString());
-						bdr.append("|");
-					}
-				}
-				send(bdr.toString());
-
 				// not a command which is supported
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");
@@ -371,7 +229,7 @@ public class RemoteSession {
 		}
 	}
 
-	// create a cuboid of lots of blocks 
+	// create a cuboid of lots of blocks
 	private void setCuboid(Location pos1, Location pos2, String blockType, byte data) {
 		int minX, maxX, minY, maxY, minZ, maxZ;
 		World world = pos1.getWorld();
