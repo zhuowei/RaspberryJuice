@@ -6,19 +6,13 @@ import com.minecraftdawn.raspberryjuice.cmd.CmdWorld;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Sign;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.util.Vector;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.ArrayDeque;
-import java.util.Collection;
 
 public class RemoteSession {
 
@@ -163,7 +157,7 @@ public class RemoteSession {
 			} else if (cmd[0].equals("entity")) {
 				new CmdEntity(this, cmd[1], args).execute();
 
-			} else if(cmd[0].equals("world")){
+			} else if (cmd[0].equals("world")) {
 				new CmdWorld(this, world, cmd[1], args).execute();
 
 				// chat.post

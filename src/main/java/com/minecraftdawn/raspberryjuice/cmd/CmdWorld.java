@@ -52,6 +52,7 @@ public class CmdWorld {
 			// world.setBlock
 		} else if (command.equals("setBlock")) {
 			Location loc = session.parseRelativeBlockLocation(args[0], args[1], args[2]);
+
 			updateBlock(world, loc, args[3]);
 
 			// world.setBlocks
@@ -59,7 +60,7 @@ public class CmdWorld {
 			Location loc1 = session.parseRelativeBlockLocation(args[0], args[1], args[2]);
 			Location loc2 = session.parseRelativeBlockLocation(args[3], args[4], args[5]);
 			String blockType = args[6];
-			byte data = args.length > 7 ? Byte.parseByte(args[7]) : (byte) 0;
+
 			setCuboid(loc1, loc2, blockType);
 
 			// world.getPlayerIds
@@ -74,7 +75,7 @@ public class CmdWorld {
 				bdr.deleteCharAt(bdr.length() - 1);
 				session.send(bdr.toString());
 			} else {
-				session.send("Fail");
+				session.send("Fail," + "There are no players in the server.");
 			}
 
 			// world.getPlayerId
@@ -84,12 +85,12 @@ public class CmdWorld {
 				session.send(p.getEntityId());
 			} else {
 				plugin.getLogger().info("Player [" + args[0] + "] not found.");
-				session.send("Fail");
+				session.send("Fail," + "T	he player not exist");
 			}
 
 			// TODO
 		} else if (command.equals("getHeight")) {
-//			session.send(world.getHighestBlockYAt(session.parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
+			session.send(world.getHighestBlockYAt(session.parseRelativeBlockLocation(args[0], "0", args[1])));
 
 		}
 		// world.setSign
