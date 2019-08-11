@@ -88,7 +88,7 @@ public class CmdWorld {
 				session.send("Fail," + "T	he player not exist");
 			}
 
-			// TODO
+			// world.getHeight
 		} else if (command.equals("getHeight")) {
 			session.send(world.getHighestBlockYAt(session.parseRelativeBlockLocation(args[0], "0", args[1])));
 
@@ -97,12 +97,6 @@ public class CmdWorld {
 		else if (command.equals("setSign")) {
 			Location loc = session.parseRelativeBlockLocation(args[0], args[1], args[2]);
 			Block thisBlock = world.getBlockAt(loc);
-			//blockType should be 68 for wall sign or 63 for standing sign
-//				int blockType = Integer.parseInt(args[3]);
-			//facing  direction for wall sign : 2=north, 3=south, 4=west, 5=east
-			//rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
-//				byte blockData = Byte.parseByte(args[4]);
-//				if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
 
 			thisBlock.setType(Material.valueOf(args[3]));
 
