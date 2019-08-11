@@ -175,11 +175,6 @@ class Minecraft:
         """Get block (x,y,z) => id:int"""
         return self.conn.sendReceive(b"world.getBlock", x, y, z)
 
-    def getBlockWithData(self, x:int, y:int, z:int) -> Block:
-        """Get block with data (x,y,z) => Block"""
-        ans = self.conn.sendReceive(b"world.getBlockWithData", x, y, z)
-        return Block(*list(map(int, ans.split(","))))
-
     def getBlocks(self, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int):
         """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
         return self.conn.sendReceive(b"world.getBlocks", x1, y1, z1, x2, y2, z2)
