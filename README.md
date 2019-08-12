@@ -7,45 +7,84 @@
 ### Commands supported
 
 #### world
- - world.getBlock
- - world.getBlockWithData
- - world.getBlocks
- - world.setBlock
- - world.setBlocks
+ - world.getBlock(x:int, y:int, z:int) -> str
+   - Get the block of the input position
+ 
+ - world.getBlocks(x1:int, y1:int, z1:int, x2:int, y2:int, z2:int) -> list
+   - Get the blocks of the input position range
+ 
+ - world.setBlock(x:int, y:int, z:int, block:str) -> None:
+   - Set the block of the input position
+ 
+ - world.setBlocks(x1:int, y1:int, z1:int, x2:int, y2:int, z2:int, block) -> None:
+    - Set the blocks of the input position range
+ 
  - world.getHeight
+ 
  - world.getPlayerEntityIds
+ 
  - world.postToChat
+ 
  - world.setSign
+ 
  - world.setWallSign
+ 
  - world.spawnEntity
+ 
  - world.createExplosion
+ 
  - world.getPlayerEntityId
+ 
  - world.create
+ 
+ ---
  
 #### player
  - player.getPos
+ 
  - player.setPos
+ 
  - player.getTilePos
+ 
  - player.setTilePos
+ 
  - player.getDirection
+ 
  - player.setDirection
+ 
  - player.getRotation
+ 
  - player.setRotation
+ 
  - player.getPitch
+ 
  - player.setPitch
+ 
  - player.sendTitle
+ 
+ ---
  
 #### entity
  - entity.getPos
+   
  - entity.setPos
+ 
  - entity.getTilePos
+ 
  - entity.setTilePos
+ 
  - entity.getDirection
+ 
  - entity.setDirection
+ 
  - entity.getRotation
+ 
  - entity.setRotation
+ 
  - entity.getPitch
+ 
  - entity.setPitch
+ 
  - entity.getName
  
 
@@ -77,18 +116,12 @@ Modify config.yml:
  - location: RELATIVE - determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
  - hitclick: RIGHT - determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH 
 
-## Libraries
-
-To use the extra features an modded version of the java and python libraries that were originally supplied by Mojang with the Pi is required, [github.com/zhuowei/RaspberryJuice/tree/master/src/main/resources/mcpi](https://github.com/zhuowei/RaspberryJuice/tree/master/src/main/resources/mcpi).  
-
-You only need the modded libraries to use the extra features, the original libraries supplied with Minecraft Pi edition still work, you just wont be able to use the extra features
-
 ## Build
 
 To build RaspberryJuice, [download and install Maven](https://maven.apache.org/install.html), clone the repository, run `mvn package':
 
 ```
-git clone https://github.com/zhuowei/RaspberryJuice
+https://github.com/MinecraftDawn/RaspberryJuice.git
 cd RaspberryJuice
 mvn package
 ```

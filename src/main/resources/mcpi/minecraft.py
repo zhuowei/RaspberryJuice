@@ -27,48 +27,48 @@ class CmdPositioner:
         self.conn = connection
         self.pkg = packagePrefix
 
-    def getPos(self, id):
+    def getPos(self, id) -> Vec3:
         """Get entity position (entityId:int) => Vec3"""
         s = self.conn.sendReceive(self.pkg + b".getPos", id)
         return Vec3(*list(map(float, s.split(","))))
 
-    def setPos(self, id, x:float, y:float, z:float):
+    def setPos(self, id, x:float, y:float, z:float) -> None:
         """Set entity position (entityId:int, x,y,z)"""
         self.conn.send(self.pkg + b".setPos", id, x, y, z)
 
-    def getTilePos(self, id):
+    def getTilePos(self, id) -> Vec3:
         """Get entity tile position (entityId:int) => Vec3"""
         s = self.conn.sendReceive(self.pkg + b".getTile", id)
         return Vec3(*list(map(int, s.split(","))))
 
-    def setTilePos(self, id, x:int, y:int, z:int):
+    def setTilePos(self, id, x:int, y:int, z:int) -> None:
         """Set entity tile position (entityId:int) => Vec3"""
         self.conn.send(self.pkg + b".setTile", id, x, y, z)
         
-    def getDirection(self, id):
+    def getDirection(self, id) -> Vec3:
         """取得玩家視線方向"""
         s = self.conn.sendReceive(self.pkg + b".getDirection", id)
         return Vec3(*list(s.split(",")))
         
-    def setDirection(self, id, x:float, y:float, z:float):
+    def setDirection(self, id, x:float, y:float, z:float) -> None:
         """設置玩家視線方向"""
         self.conn.send(self.pkg + b".setDirection", id, x, y, z)
         
-    def getRotation(self, id):
+    def getRotation(self, id) -> float:
         """取得玩家轉向"""
         s = self.conn.sendReceive(self.pkg + b".getRotation", id)
         return float(s)
     
-    def setRotation(self, id, yaw):
+    def setRotation(self, id, yaw) -> float:
         """設置玩家轉向"""
         self.conn.send(self.pkg + b".setRotation", id, yaw)
         
-    def getPitch(self, id):
+    def getPitch(self, id) -> float:
         """取得玩家俯仰"""
         s = self.conn.sendReceive(self.pkg + b".getPitch",id)
         return float(s)
     
-    def setPitch(self, id, pitch):
+    def setPitch(self, id, pitch) -> None:
         """設置玩家俯仰"""
         self.conn.send(self.pkg + b".setPitch", id, pitch)
         
@@ -122,19 +122,19 @@ class CmdCamera:
     def __init__(self, connection):
         self.conn = connection
 
-    def setNormal(self, *args):
+    def setNormal(self, *args) -> None:
         """Set camera mode to normal Minecraft view ([entityId])"""
         self.conn.send(b"camera.mode.setNormal", args)
 
-    def setFixed(self):
+    def setFixed(self) -> None:
         """Set camera mode to fixed view"""
         self.conn.send(b"camera.mode.setFixed")
 
-    def setFollow(self, *args):
+    def setFollow(self, *args) -> None:
         """Set camera mode to follow an entity ([entityId])"""
         self.conn.send(b"camera.mode.setFollow", args)
 
-    def setPos(self, x:float, y:float, z:float):
+    def setPos(self, x:float, y:float, z:float) -> None:
         """Set camera entity position (x,y,z)"""
         self.conn.send(b"camera.setPos", x, y, z)
 
@@ -175,7 +175,7 @@ class Minecraft:
         """Get block (x,y,z) => id:int"""
         return self.conn.sendReceive(b"world.getBlock", x, y, z)
 
-    def getBlocks(self, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int):
+    def getBlocks(self, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int) -> list:
         """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
         return self.conn.sendReceive(b"world.getBlocks", x1, y1, z1, x2, y2, z2)
 
@@ -183,7 +183,7 @@ class Minecraft:
         """Set block (x,y,z,id,[data])"""
         self.conn.send(b"world.setBlock", x, y, z, block)
 
-    def setBlocks(self, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int, block):
+    def setBlocks(self, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int, block) -> None: 
         """Set a cuboid of blocks (x1,y1,z1,x2,y2,z2,id,[data])"""
         self.conn.send(b"world.setBlocks", x1, y1, z1, x2, y2, z2, block)
 
@@ -204,12 +204,12 @@ class Minecraft:
 #        """Restore the world state to the checkpoint"""
 #        self.conn.send(b"world.checkpoint.restore")
 
-    def postToChat(self, *msg):
+    def postToChat(self, *msg) -> None:
         """Post a message to the game chat"""
         self.conn.send(b"chat.post", msg)
         
     # TODO：修改成一個py檔處理Sign
-    def setSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1:str="", line2:str="", line3:str="", line4:str=""):
+    def setSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1:str="", line2:str="", line3:str="", line4:str="") -> None:
         minecraftSignsType = ["SPRUCE_SIGN","ACACIA_SIGN","BIRCH_SIGN","DARK_OAK_SIGN","JUNGLE_SIGN","OAK_SIGN"]
         
         # ["SPRUCE_WALL_SIGN","ACACIA_WALL_SIGN","BIRCH_WALL_SIGN","DARK_OAK_WALL_SIGN","JUNGLE_WALL_SIGN","OAK_WALL_SIGN"]
@@ -245,7 +245,7 @@ class Minecraft:
         if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
         self.conn.send(b"world.setSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
-    def setWallSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4=""):
+    def setWallSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4="") -> None:
         minecraftSignsType = ["SPRUCE_WALL_SIGN","ACACIA_WALL_SIGN","BIRCH_WALL_SIGN","DARK_OAK_WALL_SIGN","JUNGLE_WALL_SIGN","OAK_WALL_SIGN"]
         
         minecraftSignsDir = {0:'SOUTH',
@@ -267,14 +267,14 @@ class Minecraft:
         if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
         self.conn.send(b"world.setWallSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
-    def spawnEntity(self, x:int, y:int, z:int, entityID:int):
+    def spawnEntity(self, x:int, y:int, z:int, entityID:int) -> int:
         """Spawn entity (x,y,z,id,[data])"""
         return int(self.conn.sendReceive(b"world.spawnEntity", x, y, z, entityID))
     
-    def createExplosion(self, x:int, y:int, z:int, power:int=4):
+    def createExplosion(self, x:int, y:int, z:int, power:int=4) -> None:
         self.conn.send(b"world.createExplosion", x, y, z, power)
 
-    def getPlayerEntityId(self, name:str):
+    def getPlayerEntityId(self, name:str) -> int:
         """Get the entity id of the named player => [id:int]"""
         return int(self.conn.sendReceive(b"world.getPlayerId", name))
 
