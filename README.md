@@ -19,73 +19,73 @@
  - world.setBlocks(x1:int, y1:int, z1:int, x2:int, y2:int, z2:int, block) -> None:
     - Set the blocks of the input position range
  
- - world.getHeight
+ - world.getHeight(x:int, z:int) -> int:
  
- - world.getPlayerEntityIds
+ - world.getPlayerEntityIds() -> list:
  
- - world.postToChat
+ - world.postToChat(*msg) -> None:
  
- - world.setSign
+ - world.setSign(x:int, y:int, z:int, signType:str, signDir:int, line1:str="", line2:str="", line3:str="", line4:str="") -> None:
  
- - world.setWallSign
+ - world.setWallSign(x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4="") -> None:
  
- - world.spawnEntity
+ - world.spawnEntity(x:int, y:int, z:int, entityID:int) -> int:
  
- - world.createExplosion
+ - world.createExplosion(x:int, y:int, z:int, power:int=4) -> None:
  
- - world.getPlayerEntityId
+ - world.getPlayerEntityId(name:str) -> int:
  
- - world.create
+ - world.create(address = "localhost", port = 4711):
  
  ---
  
 #### player
- - player.getPos
+ - player.getPos() -> Vec3:
  
- - player.setPos
+ - player.setPos(x:float, y:float, z:float) -> None:
  
- - player.getTilePos
+ - player.getTilePos() -> Vec3:
  
- - player.setTilePos
+ - player.setTilePos(x:int, y:int, z:int) -> None:
  
- - player.getDirection
+ - player.getDirection() -> Vec3:
  
- - player.setDirection
+ - player.setDirection(x:float, y:float, z:float) -> None:
  
- - player.getRotation
+ - player.getRotation() -> float:
  
- - player.setRotation
+ - player.setRotation(yaw) -> None:
  
- - player.getPitch
+ - player.getPitch() -> float:
  
- - player.setPitch
+ - player.setPitch(pitch) -> None:
  
- - player.sendTitle
+ - player.sendTitle(title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20) -> None:
  
  ---
  
 #### entity
- - entity.getPos
+ - entity.getPos(ID) -> Vec3:
    
- - entity.setPos
+ - entity.setPos(ID, x:float, y:float, z:float) -> None:
  
- - entity.getTilePos
+ - entity.getTilePos(ID) -> Vec3:
  
- - entity.setTilePos
+ - entity.setTilePos(ID, x:int, y:int, z:int) -> None:
  
- - entity.getDirection
+ - entity.getDirection(ID) -> Vec3:
  
- - entity.setDirection
+ - entity.setDirection(ID, x:float, y:float, z:float) -> None:
  
- - entity.getRotation
+ - entity.getRotation(ID) -> float:
  
- - entity.setRotation
+ - entity.setRotation(ID, yaw) -> float:
  
- - entity.getPitch
+ - entity.getPitch(ID) -> float:
  
- - entity.setPitch
+ - entity.setPitch(ID, pitch) -> None:
  
- - entity.getName
+ - entity.getName(ID):
  
 
 ### Commands that can't be supported
