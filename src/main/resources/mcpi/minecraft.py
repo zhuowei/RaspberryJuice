@@ -27,50 +27,50 @@ class CmdPositioner:
         self.conn = connection
         self.pkg = packagePrefix
 
-    def getPos(self, id) -> Vec3:
+    def getPos(self, ID) -> Vec3:
         """Get entity position (entityId:int) => Vec3"""
-        s = self.conn.sendReceive(self.pkg + b".getPos", id)
+        s = self.conn.sendReceive(self.pkg + b".getPos", ID)
         return Vec3(*list(map(float, s.split(","))))
 
-    def setPos(self, id, x:float, y:float, z:float) -> None:
+    def setPos(self, ID, x:float, y:float, z:float) -> None:
         """Set entity position (entityId:int, x,y,z)"""
-        self.conn.send(self.pkg + b".setPos", id, x, y, z)
+        self.conn.send(self.pkg + b".setPos", ID, x, y, z)
 
-    def getTilePos(self, id) -> Vec3:
+    def getTilePos(self, ID) -> Vec3:
         """Get entity tile position (entityId:int) => Vec3"""
-        s = self.conn.sendReceive(self.pkg + b".getTile", id)
+        s = self.conn.sendReceive(self.pkg + b".getTile", ID)
         return Vec3(*list(map(int, s.split(","))))
 
-    def setTilePos(self, id, x:int, y:int, z:int) -> None:
+    def setTilePos(self, ID, x:int, y:int, z:int) -> None:
         """Set entity tile position (entityId:int) => Vec3"""
-        self.conn.send(self.pkg + b".setTile", id, x, y, z)
+        self.conn.send(self.pkg + b".setTile", ID, x, y, z)
         
-    def getDirection(self, id) -> Vec3:
+    def getDirection(self, ID) -> Vec3:
         """取得玩家視線方向"""
         s = self.conn.sendReceive(self.pkg + b".getDirection", id)
         return Vec3(*list(s.split(",")))
         
-    def setDirection(self, id, x:float, y:float, z:float) -> None:
+    def setDirection(self, ID, x:float, y:float, z:float) -> None:
         """設置玩家視線方向"""
-        self.conn.send(self.pkg + b".setDirection", id, x, y, z)
+        self.conn.send(self.pkg + b".setDirection", ID, x, y, z)
         
-    def getRotation(self, id) -> float:
+    def getRotation(self, ID) -> float:
         """取得玩家轉向"""
-        s = self.conn.sendReceive(self.pkg + b".getRotation", id)
+        s = self.conn.sendReceive(self.pkg + b".getRotation", ID)
         return float(s)
     
-    def setRotation(self, id, yaw) -> float:
+    def setRotation(self, ID, yaw) -> float:
         """設置玩家轉向"""
-        self.conn.send(self.pkg + b".setRotation", id, yaw)
+        self.conn.send(self.pkg + b".setRotation", ID, yaw)
         
-    def getPitch(self, id) -> float:
+    def getPitch(self, ID) -> float:
         """取得玩家俯仰"""
-        s = self.conn.sendReceive(self.pkg + b".getPitch",id)
+        s = self.conn.sendReceive(self.pkg + b".getPitch", ID)
         return float(s)
     
-    def setPitch(self, id, pitch) -> None:
+    def setPitch(self, ID, pitch) -> None:
         """設置玩家俯仰"""
-        self.conn.send(self.pkg + b".setPitch", id, pitch)
+        self.conn.send(self.pkg + b".setPitch", ID, pitch)
         
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
@@ -82,11 +82,11 @@ class CmdEntity(CmdPositioner):
     def __init__(self, connection):
         CmdPositioner.__init__(self, connection, b"entity")
         
-    def getName(self, id):
+    def getName(self, ID):
         """Get the list name of the player with entity id => [name:str]
         
         Also can be used to find name of entity if entity is not a player."""
-        return self.conn.sendReceive(b"entity.getName", id)
+        return self.conn.sendReceive(b"entity.getName", ID)
 
 
 class CmdPlayer(CmdPositioner):
@@ -95,27 +95,27 @@ class CmdPlayer(CmdPositioner):
         CmdPositioner.__init__(self, connection, b"player")
         self.conn = connection
 
-    def getPos(self):
+    def getPos(self) -> Vec3:
         return CmdPositioner.getPos(self, [])
-    def setPos(self, x:float, y:float, z:float):
+    def setPos(self, x:float, y:float, z:float) -> None:
         return CmdPositioner.setPos(self, [], x, y, z)
-    def getTilePos(self):
+    def getTilePos(self) -> Vec3:
         return CmdPositioner.getTilePos(self, [])
-    def setTilePos(self, x:int, y:int, z:int):
+    def setTilePos(self, x:int, y:int, z:int) -> None:
         return CmdPositioner.setTilePos(self, [], x, y, z)
-    def getDirection(self):
+    def getDirection(self) -> Vec3:
         return CmdPositioner.getDirection(self, [])
-    def setDirection(self, x:float, y:float, z:float):
+    def setDirection(self, x:float, y:float, z:float) -> None:
         return CmdPositioner.setDirection(self, [], x, y, z)
-    def getRotation(self):
+    def getRotation(self) -> float:
         return CmdPositioner.getRotation(self, [])
-    def setRotation(self, yaw):
+    def setRotation(self, yaw) -> None:
         return CmdPositioner.setRotation(self, [], yaw)
-    def getPitch(self):
+    def getPitch(self) -> float:
         return CmdPositioner.getPitch(self, [])
-    def setPitch(self, pitch):
+    def setPitch(self, pitch) -> None:
         return CmdPositioner.setPitch(self, [], pitch)
-    def sendTitle(self, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20):
+    def sendTitle(self, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20) -> None:
         self.conn.send(self.pkg + b".sendTitle", id, title, subTitle, fadeIn, stay, fadeOut)
         
 class CmdCamera:
@@ -187,7 +187,7 @@ class Minecraft:
         """Set a cuboid of blocks (x1,y1,z1,x2,y2,z2,id,[data])"""
         self.conn.send(b"world.setBlocks", x1, y1, z1, x2, y2, z2, block)
 
-    def getHeight(self, x, z) -> int:
+    def getHeight(self, x:int, z:int) -> int:
         """Get the height of the world (x,z) => int"""
         return self.conn.sendReceive(b"world.getHeight", x, z)
 
