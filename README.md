@@ -20,10 +20,13 @@
     - Set the blocks of the input position range
  
  - world.getHeight(x:int, z:int) -> int:
- 
+    - Get highest position y of the block
+    
  - world.getPlayerEntityIds() -> list:
- 
+    - Get the list of server players'id
+    
  - world.postToChat(*msg) -> None:
+    -Print message to minecraft chat
  
  - world.setSign(x:int, y:int, z:int, signType:str, signDir:int, line1:str="", line2:str="", line3:str="", line4:str="") -> None:
  
