@@ -29,17 +29,22 @@
     -Print message to minecraft chat
  
  - world.setSign(x:int, y:int, z:int, signType:str, signDir:int, line1:str="", line2:str="", line3:str="", line4:str="") -> None:
+    - Set the stand sign of the input position
  
  - world.setWallSign(x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4="") -> None:
- 
+    -Set the wall sign of the input position
+    
  - world.spawnEntity(x:int, y:int, z:int, entityID:int) -> int:
+    -Spawn a entity of the input position
  
  - world.createExplosion(x:int, y:int, z:int, power:int=4) -> None:
+    -Create a explosion of the input position
  
  - world.getPlayerEntityId(name:str) -> int:
+    -Get the entity ID of input name
  
  - world.create(address = "localhost", port = 4711):
- 
+    -Connect your python program to Raspberryjuice
  ---
  
 #### player
