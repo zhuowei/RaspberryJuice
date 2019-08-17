@@ -49,7 +49,8 @@
  
 #### player
  - player.getPos() -> Vec3:
- 
+    -Get player's float position
+    
  - player.setPos(x:float, y:float, z:float) -> None:
  
  - player.getTilePos() -> Vec3:
