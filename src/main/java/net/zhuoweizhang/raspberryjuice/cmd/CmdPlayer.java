@@ -1,6 +1,6 @@
-package com.minecraftdawn.raspberryjuice.cmd;
+package net.zhuoweizhang.raspberryjuice.cmd;
 
-import com.minecraftdawn.raspberryjuice.RemoteSession;
+import net.zhuoweizhang.raspberryjuice.RemoteSession;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

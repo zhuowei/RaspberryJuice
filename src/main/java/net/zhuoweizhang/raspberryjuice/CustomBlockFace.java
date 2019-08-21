@@ -1,4 +1,4 @@
-package com.minecraftdawn.raspberryjuice;
+package net.zhuoweizhang.raspberryjuice;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;

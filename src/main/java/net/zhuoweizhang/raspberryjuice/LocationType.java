@@ -1,4 +1,4 @@
-package com.minecraftdawn.raspberryjuice;
+package net.zhuoweizhang.raspberryjuice;
 
 /**
  * Config option to determine whether locations are relative to the spawn point (default like pi) or absolute

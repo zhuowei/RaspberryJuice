@@ -1,8 +1,8 @@
-package com.minecraftdawn.raspberryjuice;
+package net.zhuoweizhang.raspberryjuice;
 
-import com.minecraftdawn.raspberryjuice.cmd.CmdEntity;
-import com.minecraftdawn.raspberryjuice.cmd.CmdPlayer;
-import com.minecraftdawn.raspberryjuice.cmd.CmdWorld;
+import net.zhuoweizhang.raspberryjuice.cmd.CmdEntity;
+import net.zhuoweizhang.raspberryjuice.cmd.CmdPlayer;
+import net.zhuoweizhang.raspberryjuice.cmd.CmdWorld;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

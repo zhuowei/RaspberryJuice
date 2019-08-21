@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="RaspberryJuice:jar">
-    <output-path>$PROJECT_DIR$/target/artifacts/RaspberryJuice_jar</output-path>
-    <root id="archive" name="RaspberryJuice.jar">
-      <element id="module-output" name="RaspberryJuice" />
-    </root>
-  </artifact>
-</component>
