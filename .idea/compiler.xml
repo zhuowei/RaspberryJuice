@@ -9,5 +9,8 @@
         <module name="RaspberryJuice" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="RaspberryJuice" target="6" />
+    </bytecodeTargetLevel>
   </component>
 </project>

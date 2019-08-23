@@ -55,6 +55,9 @@ tmp/
 
 # Editor detritus
 *.vim
-*.swp
+#*.swp
 tags
 .vscode
+.idea/encodings.xml
+.idea/modules.xml
+#target/
