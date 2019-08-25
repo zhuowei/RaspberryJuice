@@ -1,6 +1,6 @@
 # RaspberryJuice
 
-一個Minecraft Bukkit插件，用來實現與Python連接，使用Python控制Minecraft Server
+A Minecraft Bukkit plugin which connect to python program
 
 ## Commands
 
@@ -167,14 +167,14 @@ Modify config.yml:
 To build RaspberryJuice, [download and install Maven](https://maven.apache.org/install.html), clone the repository, run `mvn package':
 
 ```
-https://github.com/MinecraftDawn/RaspberryJuice.git
+git clone https://github.com/zhuowei/RaspberryJuice
 cd RaspberryJuice
 mvn package
 ```
 
 ## Version history
 
- - 1.14 修改指令方式，從數字方塊ID改為方塊名稱。
+ - 1.14 - Modify the command, change the block number identity to block name.
  - 1.11 - spawnEntity, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
