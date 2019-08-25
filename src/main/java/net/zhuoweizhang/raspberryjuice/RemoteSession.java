@@ -61,8 +61,8 @@ public class RemoteSession {
 		socket.setTcpNoDelay(true);
 		socket.setKeepAlive(true);
 		socket.setTrafficClass(0x10);
-		this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(),"utf-8"));
+		this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(),"utf-8"));
 		startThreads();
 		plugin.getLogger().info("Opened connection to" + socket.getRemoteSocketAddress() + ".");
 	}
