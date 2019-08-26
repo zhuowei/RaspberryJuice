@@ -2,7 +2,6 @@ from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
 #from .entity import Entity
-from .block import Block
 from .util import flatten
 
 """ Minecraft PI low level api v0.1_1
@@ -208,7 +207,7 @@ class Minecraft:
         """Post a message to the game chat"""
         self.conn.send(b"chat.post", msg)
         
-    # TODO：修改成一個py檔處理Sign
+    # TODO：Use a .py file processing Sign
     def setSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1:str="", line2:str="", line3:str="", line4:str="") -> None:
         minecraftSignsType = ["SPRUCE_SIGN","ACACIA_SIGN","BIRCH_SIGN","DARK_OAK_SIGN","JUNGLE_SIGN","OAK_SIGN"]
         
@@ -242,7 +241,7 @@ class Minecraft:
                 signDir = minecraftSignsDir.get(0)
             
         signType = signType.upper()
-        if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
+        if signType not in minecraftSignsType: raise Exception("Sign name error")
         self.conn.send(b"world.setSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
     def setWallSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4="") -> None:
@@ -264,7 +263,7 @@ class Minecraft:
                 signDir = minecraftSignsDir.get(0)
             
         signType = signType.upper()
-        if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
+        if signType not in minecraftSignsType: raise Exception("Sign name error")
         self.conn.send(b"world.setWallSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
     def spawnEntity(self, x:int, y:int, z:int, entityID:int) -> int:
