@@ -212,13 +212,13 @@ public class RemoteSession {
 				// not a command which is supported
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");
-				send("Fail");
+				send("Fail," + c + " is not supported.");
 			}
 		} catch (Exception e) {
 
 			plugin.getLogger().warning("Error occured handling command");
 			e.printStackTrace();
-			send("Fail");
+			send("Fail,Please check out minecraft server console");
 
 		}
 	}
