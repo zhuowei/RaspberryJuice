@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 import java.util.Collection;
 
 public class CmdWorld {
-	private String preFix = "world.";
+	private final String preFix = "world.";
 	private String command;
 	private String[] args;
 	private RemoteSession session;

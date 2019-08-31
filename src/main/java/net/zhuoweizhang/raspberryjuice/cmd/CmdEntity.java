@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class CmdEntity {
-	private String preFix = "entity.";
+	private final String preFix = "entity.";
 	private String command;
 	private String[] args;
 	private RemoteSession session;

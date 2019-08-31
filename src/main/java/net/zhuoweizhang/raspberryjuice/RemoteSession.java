@@ -1,6 +1,7 @@
 package net.zhuoweizhang.raspberryjuice;
 
 import net.zhuoweizhang.raspberryjuice.cmd.CmdEntity;
+import net.zhuoweizhang.raspberryjuice.cmd.CmdEvent;
 import net.zhuoweizhang.raspberryjuice.cmd.CmdPlayer;
 import net.zhuoweizhang.raspberryjuice.cmd.CmdWorld;
 import org.bukkit.*;
@@ -40,9 +41,9 @@ public class RemoteSession {
 
 	public RaspberryJuicePlugin plugin;
 
-	protected ArrayDeque<PlayerInteractEvent> interactEventQueue = new ArrayDeque<PlayerInteractEvent>();
+	public ArrayDeque<PlayerInteractEvent> interactEventQueue = new ArrayDeque<PlayerInteractEvent>();
 
-	protected ArrayDeque<AsyncPlayerChatEvent> chatPostedQueue = new ArrayDeque<AsyncPlayerChatEvent>();
+	public ArrayDeque<AsyncPlayerChatEvent> chatPostedQueue = new ArrayDeque<AsyncPlayerChatEvent>();
 
 	private int maxCommandsPerTick = 9000;
 
@@ -160,6 +161,9 @@ public class RemoteSession {
 			} else if (cmd[0].equals("world")) {
 				new CmdWorld(this, world, cmd[1], args).execute();
 
+			} else if (cmd[0].equals("events")){
+				new CmdEvent(this, cmd[1], args).execute();
+
 				// chat.post
 			} else if (c.equals("chat.post")) {
 				//create chat message from args as it was split by ,
@@ -170,44 +174,6 @@ public class RemoteSession {
 				}
 				chatMessage = chatMessage.substring(0, chatMessage.length() - 1);
 				server.broadcastMessage(chatMessage);
-
-				// events.clear
-			} else if (c.equals("events.clear")) {
-				interactEventQueue.clear();
-				chatPostedQueue.clear();
-
-				// events.block.hits
-			} else if (c.equals("events.block.hits")) {
-				StringBuilder b = new StringBuilder();
-				PlayerInteractEvent event;
-				while ((event = interactEventQueue.poll()) != null) {
-					Block block = event.getClickedBlock();
-					Location loc = block.getLocation();
-					b.append(blockLocationToRelative(loc));
-					b.append(",");
-					b.append(blockFaceToNotch(event.getBlockFace()));
-					b.append(",");
-					b.append(event.getPlayer().getEntityId());
-					if (interactEventQueue.size() > 0) {
-						b.append("|");
-					}
-				}
-				send(b.toString());
-
-				// events.chat.posts
-			} else if (c.equals("events.chat.posts")) {
-				StringBuilder b = new StringBuilder();
-				AsyncPlayerChatEvent event;
-				while ((event = chatPostedQueue.poll()) != null) {
-					b.append(event.getPlayer().getEntityId());
-					b.append(",");
-					b.append(event.getMessage());
-					if (chatPostedQueue.size() > 0) {
-						b.append("|");
-					}
-				}
-				send(b.toString());
-
 
 				// not a command which is supported
 			} else {

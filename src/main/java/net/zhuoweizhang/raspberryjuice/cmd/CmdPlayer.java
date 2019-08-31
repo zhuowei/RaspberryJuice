@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class CmdPlayer {
-	private String preFix = "player.";
+	private final String preFix = "player.";
 	private String command;
 	private String[] args;
 	private RemoteSession session;
