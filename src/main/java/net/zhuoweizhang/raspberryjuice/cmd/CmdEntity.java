@@ -9,20 +9,16 @@ import org.bukkit.util.Vector;
 
 public class CmdEntity {
 	private final String preFix = "entity.";
-	private String command;
-	private String[] args;
 	private RemoteSession session;
 	private RaspberryJuicePlugin plugin;
 
-	public CmdEntity(RemoteSession session, String cmd, String[] args) {
+	public CmdEntity(RemoteSession session) {
 		this.session = session;
-		this.command = cmd;
-		this.args = args;
 
 		this.plugin = session.plugin;
 	}
 
-	public void execute() {
+	public void execute(String command, String[] args) {
 
 		//get entity based on id
 		Entity entity = plugin.getEntity(Integer.parseInt(args[0]));

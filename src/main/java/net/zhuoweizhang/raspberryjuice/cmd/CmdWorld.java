@@ -25,16 +25,13 @@ public class CmdWorld {
 	private RaspberryJuicePlugin plugin;
 	private World world;
 
-	public CmdWorld(RemoteSession session, World world, String cmd, String[] args) {
+	public CmdWorld(RemoteSession session) {
 		this.session = session;
-		this.command = cmd;
-		this.args = args;
-		this.world = world;
 
 		this.plugin = session.plugin;
 	}
 
-	public void execute() {
+	public void execute(World world, String cmd, String[] args) {
 
 		// world.getBlock
 		if (command.equals("getBlock")) {

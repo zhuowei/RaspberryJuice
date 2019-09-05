@@ -8,14 +8,10 @@ import org.bukkit.util.Vector;
 
 public class CmdPlayer {
 	private final String preFix = "player.";
-	private String command;
-	private String[] args;
 	private RemoteSession session;
 
-	public CmdPlayer(RemoteSession session, String cmd, String[] args) {
+	public CmdPlayer(RemoteSession session) {
 		this.session = session;
-		this.command = cmd;
-		this.args = args;
 	}
 
 	private boolean serverHasPlayer() {
@@ -34,7 +30,7 @@ public class CmdPlayer {
 		return null;
 	}
 
-	public void execute() {
+	public void execute(String command, String[] args) {
 
 		Player currentPlayer = getCurrentPlayer();
 		if (currentPlayer == null) {

@@ -8,17 +8,13 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class CmdEvent {
     private final String preFix = "events.";
-    private String command;
-    private String[] args;
     private RemoteSession session;
 
-    public CmdEvent(RemoteSession session, String cmd, String[] args) {
+    public CmdEvent(RemoteSession session) {
         this.session = session;
-        this.command = cmd;
-        this.args = args;
     }
 
-    public void execute() {
+    public void execute(String command, String[] args) {
         // events.clear
         if (command.equals("clear")) {
             session.interactEventQueue.clear();
