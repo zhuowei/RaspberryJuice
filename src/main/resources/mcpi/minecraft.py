@@ -2,8 +2,9 @@ from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
 #from .entity import Entity
-from .block import Block
+#from .block import Block
 from .util import flatten
+from warnings import warn
 
 """ Minecraft PI low level api v0.1_1
 
@@ -177,7 +178,24 @@ class Minecraft:
 
     def getBlocks(self, x1:int, y1:int, z1:int, x2:int, y2:int, z2:int) -> list:
         """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
-        return self.conn.sendReceive(b"world.getBlocks", x1, y1, z1, x2, y2, z2)
+        blocks = self.conn.sendReceive(b"world.getBlocks", x1, y1, z1, x2, y2, z2)
+        arr1d = blocks.split(',')
+        
+        xSize = abs(x1 - x2) + 1
+        ySize = abs(y1 - y2) + 1
+        zSize = abs(z1 - z2) + 1
+        totalSize = xSize * ySize * zSize
+        arr3d = []
+        
+        if len(arr1d) != totalSize:
+            warn('Get number of blocks is incomplete')
+        
+        for i in range(0,totalSize,xSize*ySize):
+            curArr = []
+            for j in range(0,xSize*ySize,xSize):
+                curArr.append(arr1d[i+j:i+j+xSize])
+            arr3d.append(curArr)
+        return arr3d
 
     def setBlock(self, x:int, y:int, z:int, block:str) -> None:
         """Set block (x,y,z,id,[data])"""
