@@ -124,6 +124,11 @@ public class CmdPlayer {
 
 			session.send(currentPlayer.getLocation().getPitch());
 
+			// player.getFoodLevel
+		}else if (command.equals("getFoodLevel")){
+
+			session.send(currentPlayer.getFoodLevel());
+
 			// player.sendTitle
 		} else if (command.equals("sendTitle")) {
 

@@ -116,6 +116,11 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.getPitch(self, [])
     def setPitch(self, pitch) -> None:
         return CmdPositioner.setPitch(self, [], pitch)
+    
+    def getFoodLevel(self) -> int:
+        print('test')
+        return self.conn.sendReceive(self.pkg + b".getFoodLevel", id)
+    
     def sendTitle(self, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20) -> None:
         self.conn.send(self.pkg + b".sendTitle", id, title, subTitle, fadeIn, stay, fadeOut)
         
