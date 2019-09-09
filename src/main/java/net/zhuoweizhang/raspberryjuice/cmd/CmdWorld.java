@@ -19,11 +19,8 @@ import java.util.Collection;
 
 public class CmdWorld {
 	private final String preFix = "world.";
-	private String command;
-	private String[] args;
 	private RemoteSession session;
 	private RaspberryJuicePlugin plugin;
-	private World world;
 
 	public CmdWorld(RemoteSession session) {
 		this.session = session;
@@ -31,7 +28,7 @@ public class CmdWorld {
 		this.plugin = session.plugin;
 	}
 
-	public void execute(World world, String cmd, String[] args) {
+	public void execute(World world, String command, String[] args) {
 
 		// world.getBlock
 		if (command.equals("getBlock")) {
