@@ -93,7 +93,7 @@ public class CmdEntity {
 			session.send(entity.getLocation().getPitch());
 
 			// entity.getListName
-		} else if (command.equals("entity.getName")) {
+		} else if (command.equals("getName")) {
 			if (entity instanceof Player) {
 				Player p = (Player) entity;
 				//sending list name because plugin.getNamedPlayer() uses list name
