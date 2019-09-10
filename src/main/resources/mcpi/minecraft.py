@@ -38,7 +38,6 @@ class CmdPositioner:
         self.conn.send(self.pkg + b".setPos", ID, x, y, z)
 
     def getTilePos(self, ID) -> Vec3:
-        print(self.pkg)
         """Get entity tile position (entityId:int) => Vec3"""
         s = self.conn.sendReceive(self.pkg + b".getTile", ID)
         return Vec3(*list(map(int, s.split(","))))
