@@ -7,12 +7,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class CmdPlayer {
-	private final String preFix = "player.";
-	private RemoteSession session;
+    private final String preFix = "player.";
+    private RemoteSession session;
 
-	public CmdPlayer(RemoteSession session) {
-		this.session = session;
-	}
+    public CmdPlayer(RemoteSession session) {
+        this.session = session;
+    }
 
 	private boolean serverHasPlayer() {
 		return !Bukkit.getOnlinePlayers().isEmpty();
@@ -30,7 +30,7 @@ public class CmdPlayer {
 		return null;
 	}
 
-	public void execute(String command, String[] args) {
+    public void execute(String command, String[] args) {
 
 		Player currentPlayer = getCurrentPlayer();
 		if (currentPlayer == null) {
@@ -124,13 +124,19 @@ public class CmdPlayer {
 
 			session.send(currentPlayer.getLocation().getPitch());
 
-			// player.getFoodLevel
-		}else if (command.equals("getFoodLevel")){
+            // player.getFoodLevel
+        } else if (command.equals("getFoodLevel")) {
 
-			session.send(currentPlayer.getFoodLevel());
+            session.send(currentPlayer.getFoodLevel());
 
-			// player.sendTitle
-		} else if (command.equals("sendTitle")) {
+            // player.setFoodLevel
+        } else if (command.equals("setFoodLevel")) {
+            Integer foodLevel = Integer.parseInt(args[0]);
+
+            currentPlayer.setFoodLevel(foodLevel);
+
+            // player.sendTitle
+        } else if (command.equals("sendTitle")) {
 
 			String title = args[0];
 			String subTitle = args[1];

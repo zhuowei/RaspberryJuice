@@ -24,7 +24,6 @@ public class CmdWorld {
 
 	public CmdWorld(RemoteSession session) {
 		this.session = session;
-
 		this.plugin = session.plugin;
 	}
 

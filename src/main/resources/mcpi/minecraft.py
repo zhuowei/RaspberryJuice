@@ -38,6 +38,7 @@ class CmdPositioner:
         self.conn.send(self.pkg + b".setPos", ID, x, y, z)
 
     def getTilePos(self, ID) -> Vec3:
+        print(self.pkg)
         """Get entity tile position (entityId:int) => Vec3"""
         s = self.conn.sendReceive(self.pkg + b".getTile", ID)
         return Vec3(*list(map(int, s.split(","))))
@@ -118,8 +119,10 @@ class CmdPlayer(CmdPositioner):
         return CmdPositioner.setPitch(self, [], pitch)
     
     def getFoodLevel(self) -> int:
-        print('test')
-        return self.conn.sendReceive(self.pkg + b".getFoodLevel", id)
+        return self.conn.sendReceive(self.pkg + b".getFoodLevel", [])
+    
+    def setFoodLevel(self, foodLevel:int) -> None:
+        self.conn.send(self.pkg + b".setFoodLevel", foodLevel)
     
     def sendTitle(self, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20) -> None:
         self.conn.send(self.pkg + b".sendTitle", id, title, subTitle, fadeIn, stay, fadeOut)

@@ -51,16 +51,17 @@ public class RemoteSession {
 
     private Player attachedPlayer = null;
 
-    private CmdEntity cmdEntity = new CmdEntity(this);
-    private CmdEvent cmdEvent = new CmdEvent(this);
-    private CmdPlayer cmdPlayer = new CmdPlayer(this);
-    private CmdWorld cmdWorld = new CmdWorld(this);
+    private CmdEntity cmdEntity;
+    private CmdEvent cmdEvent;
+    private CmdPlayer cmdPlayer;
+    private CmdWorld cmdWorld;
 
     public RemoteSession(RaspberryJuicePlugin plugin, Socket socket) throws IOException {
         this.socket = socket;
         this.plugin = plugin;
         this.locationType = plugin.getLocationType();
         init();
+        createCmdObject();
     }
 
     public void init() throws IOException {
@@ -71,6 +72,14 @@ public class RemoteSession {
         this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "utf-8"));
         startThreads();
         plugin.getLogger().info("Opened connection to" + socket.getRemoteSocketAddress() + ".");
+    }
+
+    public void createCmdObject(){
+        cmdEntity = new CmdEntity(this);
+        cmdEvent = new CmdEvent(this);
+        cmdPlayer = new CmdPlayer(this);
+        cmdWorld = new CmdWorld(this);
+
     }
 
     protected void startThreads() {
@@ -164,6 +173,7 @@ public class RemoteSession {
                 cmdEntity.execute(cmd[1], args);
 
             } else if (cmd[0].equals("world")) {
+//                new CmdWorld(this).execute(world, cmd[1], args);
                 cmdWorld.execute(world, cmd[1], args);
 
             } else if (cmd[0].equals("events")) {
