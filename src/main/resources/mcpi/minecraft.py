@@ -267,7 +267,7 @@ class Minecraft:
                 signDir = minecraftSignsDir.get(0)
             
         signType = signType.upper()
-        if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
+        if signType not in minecraftSignsType: raise Exception("Sign name error")
         self.conn.send(b"world.setSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
     def setWallSign(self, x:int, y:int, z:int, signType:str, signDir:int, line1="",line2="",line3="",line4="") -> None:
@@ -289,7 +289,7 @@ class Minecraft:
                 signDir = minecraftSignsDir.get(0)
             
         signType = signType.upper()
-        if signType not in minecraftSignsType: raise Exception("告示牌名稱打錯")
+        if signType not in minecraftSignsType: raise Exception("Sign name error")
         self.conn.send(b"world.setWallSign", x, y, z , signType, signDir, line1 ,line2 ,line3 ,line4)
         
     def spawnEntity(self, x:int, y:int, z:int, entityID:int) -> int:
