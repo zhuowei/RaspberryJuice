@@ -122,6 +122,9 @@ class CmdPlayer(CmdPositioner):
     
     def setFoodLevel(self, foodLevel:int) -> None:
         self.conn.send(self.pkg + b".setFoodLevel", foodLevel)
+        
+    def getHealth(self) -> float:
+        return self.conn.sendReceive(self.pkg + b".getHealth", [])
     
     def sendTitle(self, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20) -> None:
         self.conn.send(self.pkg + b".sendTitle", id, title, subTitle, fadeIn, stay, fadeOut)
