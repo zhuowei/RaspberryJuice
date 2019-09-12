@@ -126,6 +126,9 @@ class CmdPlayer(CmdPositioner):
     def getHealth(self) -> float:
         return self.conn.sendReceive(self.pkg + b".getHealth", [])
     
+    def setHealth(self, health:float) -> None:
+        self.conn.send(self.pkg + b".setHealth", [], health)
+    
     def sendTitle(self, title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20) -> None:
         self.conn.send(self.pkg + b".sendTitle", id, title, subTitle, fadeIn, stay, fadeOut)
         
