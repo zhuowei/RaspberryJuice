@@ -89,7 +89,7 @@ A Minecraft Bukkit plugin which connect to python program
     - Get player's rotation
     
  
- - player.setRotation(yaw) -> None:
+ - player.setRotation(yaw:float) -> None:
     - Set player's rotation
  
  
@@ -98,7 +98,23 @@ A Minecraft Bukkit plugin which connect to python program
  
  
  - player.setPitch(pitch) -> None:
-    - Set player's pitch
+     - Set player's pitch
+ 
+ 
+ - player.getFoodLevel() -> int:
+    - Get player's food level
+    
+    
+- player.setFoodLevel(foodLevel:int) -> None:
+    - Set player's food level
+    
+    
+- player.getHealth() -> float:
+    - Get player's health
+    
+    
+- player.setHealth(health:float) -> None:
+    - Set player's health
  
  
  - player.sendTitle(title:str, subTitle:str="", fadeIn:int=10, stay:int=70, fadeOut:int=20) -> None:
