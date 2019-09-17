@@ -47,30 +47,30 @@ class CmdPositioner:
         self.conn.send(self.pkg + b".setTile", ID, x, y, z)
         
     def getDirection(self, ID) -> Vec3:
-        """取得玩家視線方向"""
+        """Get direction of the entity"""
         s = self.conn.sendReceive(self.pkg + b".getDirection", id)
         return Vec3(*list(s.split(",")))
         
     def setDirection(self, ID, x:float, y:float, z:float) -> None:
-        """設置玩家視線方向"""
+        """Set direction of the entity"""
         self.conn.send(self.pkg + b".setDirection", ID, x, y, z)
         
     def getRotation(self, ID) -> float:
-        """取得玩家轉向"""
+        """Get rotation if the entity"""
         s = self.conn.sendReceive(self.pkg + b".getRotation", ID)
         return float(s)
     
     def setRotation(self, ID, yaw) -> float:
-        """設置玩家轉向"""
+        """Set rotation if the entity"""
         self.conn.send(self.pkg + b".setRotation", ID, yaw)
         
     def getPitch(self, ID) -> float:
-        """取得玩家俯仰"""
+        """Get pitch if the entity"""
         s = self.conn.sendReceive(self.pkg + b".getPitch", ID)
         return float(s)
     
     def setPitch(self, ID, pitch) -> None:
-        """設置玩家俯仰"""
+        """Set pitch if the entity"""
         self.conn.send(self.pkg + b".setPitch", ID, pitch)
         
     def setting(self, setting, status):
