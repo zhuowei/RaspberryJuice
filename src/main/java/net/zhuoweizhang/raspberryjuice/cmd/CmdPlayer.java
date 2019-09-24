@@ -135,14 +135,17 @@ public class CmdPlayer {
 
 			currentPlayer.setFoodLevel(foodLevel);
 
+			// player.getHealth
 		} else if(command.equals("getHealth")) {
 
 			session.send(currentPlayer.getHealth());
 
+			// player.setHealth
 		} else if(command.equals("setHealth")){
 			Double health = Double.parseDouble(args[0]);
 
 			currentPlayer.setHealth(health);
+
             // player.sendTitle
         } else if (command.equals("sendTitle")) {
 
