@@ -24,10 +24,6 @@ public class CustomBlockFace {
 		//NORTH_WEST
 		//NORTH_NORTH_WEST
 
-
-
-
-
 		return null;
 	}
 }
