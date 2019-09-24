@@ -11,8 +11,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
@@ -84,6 +88,14 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		//setup the schedule to called the tick handler
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new TickHandler(), 1, 1);
 	}
+	@EventHandler
+	public void PlayerJoin(PlayerJoinEvent event) {
+		Player p = event.getPlayer();
+		p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 2, true, false));
+		Server server = getServer();
+		server.broadcastMessage("Welcome " + p.getPlayerListName() + " I will give you night vision power");
+
+	}
 
 	@EventHandler(ignoreCancelled=true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
@@ -114,6 +126,14 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		//getLogger().info("Chat event fired");
 		for (RemoteSession session: sessions) {
 			session.queueChatPostedEvent(event);
+		}
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	public void onProjectileHit(ProjectileHitEvent event) {
+		
+		for (RemoteSession session: sessions) {
+			session.queueProjectileHitEvent(event);
 		}
 	}
 

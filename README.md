@@ -76,6 +76,7 @@ mvn package
 ## Version history
 
  - 1.12 - getEntities, removeEntity, removeEntityType, UTF-8 encoding
+ - 1.12 - add projectile event
  - 1.11 - spawnEntity, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug

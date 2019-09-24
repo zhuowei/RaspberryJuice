@@ -1,6 +1,6 @@
 from .connection import Connection
 from .vec3 import Vec3
-from .event import BlockEvent, ChatEvent
+from .event import BlockEvent, ChatEvent, ProjectileEvent
 from .entity import Entity
 from .block import Block
 import math
@@ -180,6 +180,16 @@ class CmdEvents:
         s = self.conn.sendReceive(b"events.chat.posts")
         events = [e for e in s.split("|") if e]
         return [ChatEvent.Post(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in events]
+    
+    def pollProjectileHits(self):
+        """Only triggered by projectiles => [BlockEvent]"""
+        s = self.conn.sendReceive(b"events.projectile.hits")
+        events = [e for e in s.split("|") if e]
+        results = []
+        for e in events:
+            info = e.split(",")
+            results.append(ProjectileEvent.Hit(*map(int,info[0:4]),*info[4:]))
+        return results
 
 class Minecraft:
     """The main class to interact with a running instance of Minecraft Pi."""
@@ -265,6 +275,7 @@ class Minecraft:
         s = self.conn.sendReceive(b"world.getEntityTypes")
         types = [t for t in s.split("|") if t]
         return [Entity(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in types]
+    
 
     def getEntities(self):
         """Return a list of all currently loaded entities () => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
