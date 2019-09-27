@@ -46,6 +46,7 @@ A Bukkit plugin which implements the Minecraft Pi Socket API.
  - removeEntityType - removes all currently loaded entities by entity type id
  - entity.getEntities - get currently loaded entities list near specified player entity id
  - entity.removeEntityType - removes currently loaded entities near specified player entity id, by entity type id
+ - events.poolProjectileHits - get events back of arrow hit
 
 Note - extra features are NOT guaranteed to be maintained in future releases, particularly if updates are made to the original Pi API which replace the functionality
 
