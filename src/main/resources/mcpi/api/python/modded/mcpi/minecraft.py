@@ -175,7 +175,7 @@ class CmdEvents:
         events = [e for e in s.split("|") if e]
         return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
 
-    def pollChatPosts(self):
+    def pollChatPosts(self, *args):
         """Triggered by posts to chat => [ChatEvent]"""
         s = self.conn.sendReceive(b"events.chat.posts")
         events = [e for e in s.split("|") if e]
