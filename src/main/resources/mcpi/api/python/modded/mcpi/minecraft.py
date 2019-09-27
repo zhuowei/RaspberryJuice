@@ -177,7 +177,7 @@ class CmdEvents:
 
     def pollChatPosts(self, *args):
         """Triggered by posts to chat => [ChatEvent]"""
-        s = self.conn.sendReceive(b"events.chat.posts")
+        s = self.conn.sendReceive(b"events.chat.posts", intFloor(args))
         events = [e for e in s.split("|") if e]
         return [ChatEvent.Post(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in events]
     
