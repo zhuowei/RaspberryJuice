@@ -165,13 +165,13 @@ class CmdEvents:
     def __init__(self, connection):
         self.conn = connection
 
-    def clearAll(self):
+    def clearAll(self, *args):
         """Clear all old events"""
-        self.conn.send(b"events.clear")
+        self.conn.send(b"events.clear", intFloor(args))
 
-    def pollBlockHits(self):
+    def pollBlockHits(self, *args):
         """Only triggered by sword => [BlockEvent]"""
-        s = self.conn.sendReceive(b"events.block.hits")
+        s = self.conn.sendReceive(b"events.block.hits", intFloor(args))
         events = [e for e in s.split("|") if e]
         return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
 
@@ -181,9 +181,9 @@ class CmdEvents:
         events = [e for e in s.split("|") if e]
         return [ChatEvent.Post(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in events]
     
-    def pollProjectileHits(self):
+    def pollProjectileHits(self, *args):
         """Only triggered by projectiles => [BlockEvent]"""
-        s = self.conn.sendReceive(b"events.projectile.hits")
+        s = self.conn.sendReceive(b"events.projectile.hits", intFloor(args))
         events = [e for e in s.split("|") if e]
         results = []
         for e in events:

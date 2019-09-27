@@ -100,10 +100,11 @@ public class RemoteSession {
 	public void queueProjectileHitEvent(ProjectileHitEvent event) {
 		//plugin.getLogger().info(event.toString());
 
-		Arrow arrow = (Arrow) event.getEntity();
-		if (arrow.getShooter() instanceof Player) {
-
-			projectileHitQueue.add(event);
+		if (event.getEntityType() == EntityType.ARROW) {
+			Arrow arrow = (Arrow) event.getEntity();
+			if (arrow.getShooter() instanceof Player) {
+				projectileHitQueue.add(event);
+			}
 		}
 	}
 
@@ -282,84 +283,119 @@ public class RemoteSession {
 				
 			// events.clear
 			} else if (c.equals("events.clear")) {
-				interactEventQueue.clear();
-				chatPostedQueue.clear();
-				projectileHitQueue.clear();
+				int entityId = -1;
+				if (args[0].length() > 0)
+					entityId = Integer.parseInt(args[0]);
+				if (entityId == -1) {
+					interactEventQueue.clear();
+					chatPostedQueue.clear();
+					projectileHitQueue.clear();
+				}
+				else {
+					for (Iterator<PlayerInteractEvent> iter = interactEventQueue.iterator(); iter.hasNext(); ) {
+						PlayerInteractEvent event = iter.next();
+						if (event.getPlayer().getEntityId() == entityId)
+							iter.remove();
+					}
+					for (Iterator<AsyncPlayerChatEvent> iter = chatPostedQueue.iterator(); iter.hasNext(); ) {
+						AsyncPlayerChatEvent event = iter.next();
+						if (event.getPlayer().getEntityId() == entityId)
+							iter.remove();
+					}
+					for (Iterator<ProjectileHitEvent> iter = projectileHitQueue.iterator(); iter.hasNext(); ) {
+						ProjectileHitEvent event = iter.next();
+						Arrow arrow = (Arrow) event.getEntity();
+						LivingEntity shooter = (LivingEntity)arrow.getShooter();
+						if (shooter.getEntityId() == entityId)
+							iter.remove();
+					}
+				}
 				
 			// events.block.hits
 			} else if (c.equals("events.block.hits")) {
+				int entityId = -1;
+				if (args[0].length() > 0)
+					entityId = Integer.parseInt(args[0]);
 				StringBuilder b = new StringBuilder();
-		 		PlayerInteractEvent event;
-				while ((event = interactEventQueue.poll()) != null) {
-					Block block = event.getClickedBlock();
-					Location loc = block.getLocation();
-					b.append(blockLocationToRelative(loc));
-					b.append(",");
-					b.append(blockFaceToNotch(event.getBlockFace()));
-					b.append(",");
-					b.append(event.getPlayer().getEntityId());
-					if (interactEventQueue.size() > 0) {
+				for (Iterator<PlayerInteractEvent> iter = interactEventQueue.iterator(); iter.hasNext(); ) {
+					PlayerInteractEvent event = iter.next();
+					if (entityId == -1 || event.getPlayer().getEntityId() == entityId) {
+						Block block = event.getClickedBlock();
+						Location loc = block.getLocation();
+						b.append(blockLocationToRelative(loc));
+						b.append(",");
+						b.append(blockFaceToNotch(event.getBlockFace()));
+						b.append(",");
+						b.append(event.getPlayer().getEntityId());
 						b.append("|");
+						iter.remove();
 					}
 				}
+				if (b.length() > 0)
+					b.deleteCharAt(b.length() - 1);
 				send(b.toString());
-			
+
 			// events.chat.posts
 			} else if (c.equals("events.chat.posts")) {
+				int entityId = -1;
+				if (args[0].length() > 0)
+					entityId = Integer.parseInt(args[0]);
 				StringBuilder b = new StringBuilder();
-				AsyncPlayerChatEvent event;
-				while ((event = chatPostedQueue.poll()) != null) {
-					b.append(event.getPlayer().getEntityId());
-					b.append(",");
-					b.append(event.getMessage());
-					if (chatPostedQueue.size() > 0) {
+				for (Iterator<AsyncPlayerChatEvent> iter = chatPostedQueue.iterator(); iter.hasNext(); ) {
+					AsyncPlayerChatEvent event = iter.next();
+					if (entityId == -1 || event.getPlayer().getEntityId() == entityId) {
+						b.append(event.getPlayer().getEntityId());
+						b.append(",");
+						b.append(event.getMessage());
 						b.append("|");
+						iter.remove();
 					}
 				}
+				if (b.length() > 0)
+					b.deleteCharAt(b.length() - 1);
 				send(b.toString());
 				
 			// events.projectile.hits
 			} else if(c.equals("events.projectile.hits"))
 			{
-				//String name = null;
-				//if (args.length > 0) {
-				//	name = args[0];
-				//}
-				//Player currentPlayer = getCurrentPlayer(name);
-				//Integer playerID = currentPlayer.getEntityId();
-
+				int entityId = -1;
+				if (args[0].length() > 0)
+					entityId = Integer.parseInt(args[0]);
 				StringBuilder b = new StringBuilder();
-		 		ProjectileHitEvent event;
-				while ((event = projectileHitQueue.poll()) != null) {
+				for (Iterator<ProjectileHitEvent> iter = projectileHitQueue.iterator(); iter.hasNext(); ) {
+					ProjectileHitEvent event = iter.next();
 					Arrow arrow = (Arrow) event.getEntity();
 					LivingEntity shooter = (LivingEntity)arrow.getShooter();
-					if (shooter instanceof Player) {
-						Player player = (Player)shooter;
-						Block block = arrow.getLocation().getBlock();
-						Location loc = block.getLocation();
-						b.append(blockLocationToRelative(loc));
-						b.append(",");
-						b.append(1); //blockFaceToNotch(event.getBlockFace()), but don't really care
-						b.append(",");
-						b.append(player.getPlayerListName());
-						b.append(",");
-						Entity hitEntity = event.getHitEntity();
-						if(hitEntity!=null){
-							if(hitEntity instanceof Player){	
-								Player hitPlayer = (Player)hitEntity;
-								b.append(hitPlayer.getPlayerListName());
-							}else{
-								b.append(hitEntity.getName());
+					if (entityId == -1 || shooter.getEntityId() == entityId) {
+						if (shooter instanceof Player) {
+							Player player = (Player)shooter;
+							Block block = arrow.getAttachedBlock(); 
+							if (block == null)
+								block = arrow.getLocation().getBlock();
+							Location loc = block.getLocation();
+							b.append(blockLocationToRelative(loc));
+							b.append(",");
+							b.append(1); //blockFaceToNotch(event.getBlockFace()), but don't really care
+							b.append(",");
+							b.append(player.getPlayerListName());
+							b.append(",");
+							Entity hitEntity = event.getHitEntity();
+							if(hitEntity!=null){
+								if(hitEntity instanceof Player){	
+									Player hitPlayer = (Player)hitEntity;
+									b.append(hitPlayer.getPlayerListName());
+								}else{
+									b.append(hitEntity.getName());
+								}
 							}
 						}
-					}
-					if (projectileHitQueue.size() > 0) {
 						b.append("|");
-					}
-					arrow.remove();
+						arrow.remove();
+						iter.remove();
+					}						
 				}
-				//DEBUG
-				//System.out.println(b.toString());
+				if (b.length() > 0)
+					b.deleteCharAt(b.length() - 1);
 				send(b.toString());
 			
 			// player.getTile
