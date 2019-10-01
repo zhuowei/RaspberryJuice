@@ -7,6 +7,7 @@ import java.util.*;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.block.*;
+import org.bukkit.block.data.Rotatable;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.util.Vector;
@@ -146,7 +147,7 @@ public class RemoteSession {
 			// world.getBlock
 			if (c.equals("world.getBlock")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockTypeIdAt(loc));
+				send(world.getBlockAt(loc).getType().name());
 				
 			// world.getBlocks
 			} else if (c.equals("world.getBlocks")) {
@@ -154,23 +155,19 @@ public class RemoteSession {
 				Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
 				send(getBlocks(loc1, loc2));
 				
-			// world.getBlockWithData
-			} else if (c.equals("world.getBlockWithData")) {
-				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockTypeIdAt(loc) + "," + world.getBlockAt(loc).getData());
-				
 			// world.setBlock
 			} else if (c.equals("world.setBlock")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				updateBlock(world, loc, Integer.parseInt(args[3]), (args.length > 4? Byte.parseByte(args[4]) : (byte) 0));
+                                System.out.println("args are " + args[0] + ", " + args[1] + ", " + args[2]);
+                                System.out.println("relative location is " + loc.toString());
+				updateBlock(world, loc, args[3]);
 				
 			// world.setBlocks
 			} else if (c.equals("world.setBlocks")) {
 				Location loc1 = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Location loc2 = parseRelativeBlockLocation(args[3], args[4], args[5]);
-				int blockType = Integer.parseInt(args[6]);
-				byte data = args.length > 7? Byte.parseByte(args[7]) : (byte) 0;
-				setCuboid(loc1, loc2, blockType, data);
+				String blockType = args[6];
+				setCuboid(loc1, loc2, blockType);
 				
 			// world.getPlayerIds
 			} else if (c.equals("world.getPlayerIds")) {
@@ -473,15 +470,15 @@ public class RemoteSession {
 			} else if (c.equals("world.setSign")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
 				Block thisBlock = world.getBlockAt(loc);
-				//blockType should be 68 for wall sign or 63 for standing sign
-				int blockType = Integer.parseInt(args[3]);	
-				//facing direction for wall sign : 2=north, 3=south, 4=west, 5=east
-				//rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
-				byte blockData = Byte.parseByte(args[4]); 
-				if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
-					thisBlock.setTypeIdAndData(blockType, blockData, true);
-				}
+				String blockType = args[3];
+				String facingDirection = args[4];
+
+                                updateBlock(thisBlock, blockType);
 				//plugin.getLogger().info("Creating sign at " + loc);
+                                if ( thisBlock.getBlockData() instanceof Rotatable) {
+                                    Rotatable rotatable = (Rotatable) thisBlock.getBlockData();
+                                    rotatable.setRotation(BlockFace.valueOf(facingDirection));
+                                }
 				if ( thisBlock.getState() instanceof Sign ) {
 					Sign sign = (Sign) thisBlock.getState();
 					for ( int i = 5; i-5 < 4 && i < args.length; i++) {
@@ -493,17 +490,15 @@ public class RemoteSession {
 			// world.spawnEntity
 			} else if (c.equals("world.spawnEntity")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				Entity entity = world.spawnEntity(loc, EntityType.fromId(Integer.parseInt(args[3])));
+				Entity entity = world.spawnEntity(loc, EntityType.valueOf(args[3]));
 				send(entity.getEntityId());
 
 			// world.getEntityTypes
 			} else if (c.equals("world.getEntityTypes")) {
 				StringBuilder bdr = new StringBuilder();				
 				for (EntityType entityType : EntityType.values()) {
-					if ( entityType.isSpawnable() && entityType.getTypeId() >= 0 ) {
-						bdr.append(entityType.getTypeId());
-						bdr.append(",");
-						bdr.append(entityType.toString());
+					if ( entityType.isSpawnable() && !entityType.name().isEmpty() ) {
+						bdr.append(entityType.name());
 						bdr.append("|");
 					}
 				}
@@ -524,7 +519,7 @@ public class RemoteSession {
 	}
 
 	// create a cuboid of lots of blocks 
-	private void setCuboid(Location pos1, Location pos2, int blockType, byte data) {
+	private void setCuboid(Location pos1, Location pos2, String blockType) {
 		int minX, maxX, minY, maxY, minZ, maxZ;
 		World world = pos1.getWorld();
 		minX = pos1.getBlockX() < pos2.getBlockX() ? pos1.getBlockX() : pos2.getBlockX();
@@ -537,7 +532,7 @@ public class RemoteSession {
 		for (int x = minX; x <= maxX; ++x) {
 			for (int z = minZ; z <= maxZ; ++z) {
 				for (int y = minY; y <= maxY; ++y) {
-					updateBlock(world, x, y, z, blockType, data);
+					updateBlock(world, x, y, z, blockType);
 				}
 			}
 		}
@@ -559,7 +554,7 @@ public class RemoteSession {
 		for (int y = minY; y <= maxY; ++y) {
 			 for (int x = minX; x <= maxX; ++x) {
 				 for (int z = minZ; z <= maxZ; ++z) {
-					blockData.append(new Integer(world.getBlockTypeIdAt(x, y, z)).toString() + ",");
+					blockData.append(world.getBlockAt(x, y, z).getType().name() + ",");
 				}
 			}
 		}
@@ -568,20 +563,20 @@ public class RemoteSession {
 	}
 
 	// updates a block
-	private void updateBlock(World world, Location loc, int blockType, byte blockData) {
+	private void updateBlock(World world, Location loc, String blockType) {
 		Block thisBlock = world.getBlockAt(loc);
-		updateBlock(thisBlock, blockType, blockData);
+		updateBlock(thisBlock, blockType);
 	}
 	
-	private void updateBlock(World world, int x, int y, int z, int blockType, byte blockData) {
+	private void updateBlock(World world, int x, int y, int z, String blockType) {
 		Block thisBlock = world.getBlockAt(x,y,z);
-		updateBlock(thisBlock, blockType, blockData);
+		updateBlock(thisBlock, blockType);
 	}
 	
-	private void updateBlock(Block thisBlock, int blockType, byte blockData) {
+	private void updateBlock(Block thisBlock, String blockType) {
 		// check to see if the block is different - otherwise leave it 
-		if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
-			thisBlock.setTypeIdAndData(blockType, blockData, true);
+		if ((thisBlock.getType().name() != blockType)) {
+			thisBlock.setType(Material.valueOf(blockType), true);
 		}
 	}
 	

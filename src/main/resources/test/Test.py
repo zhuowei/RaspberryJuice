@@ -4,9 +4,6 @@
 
 import original.mcpi.minecraft as minecraft
 import modded.mcpi.minecraft as minecraftmodded
-import original.mcpi.block as block
-import modded.mcpi.block as blockmodded
-import modded.mcpi.entity as entitymodded
 import time
 import math
 
@@ -28,13 +25,18 @@ def runBlockTests(mc):
             "GLOWSTONE_BLOCK","GLASS_PANE","LIT_PUMPKIN","END_STONE","EMERALD_ORE","GLOWING_OBSIDIAN","ICE",
             "SNOW_BLOCK","MYCELIUM","NETHER_BRICK","NETHER_REACTOR_CORE"]
     fences=["FENCE","FENCE_NETHER_BRICK","FENCE_SPRUCE","FENCE_BIRCH","FENCE_JUNGLE","FENCE_DARK_OAK","FENCE_ACACIA"]
-    woods=["WOOD_PLANKS"]
-    trees=["WOOD","LEAVES"]
-    trees2=["LEAVES2"] #options are acacia and dark oak
+    woods=["ACACIA_PLANKS","BIRCH_PLANKS","DARK_OAK_PLANKS","JUNGLE_PLANKS","OAK_PLANKS","SPRUCE_PLANKS"]
+    trees=["ACACIA_LOG","BIRCH_LOG","DARK_OAK_LOG","JUNGLE_LOG","OAK_LOG","SPRUCE_LOG","ACACIA_LEAVES","BIRCH_LEAVES","DARK_OAK_LEAVES",
+           "JUNGLE_LEAVES","OAK_LEAVES","SPRUCE_LEAVES"]
     plants=["DEAD_BUSH","FLOWER_CYAN","FLOWER_YELLOW","SUGAR_CANE"]
     liquids=["WATER","LAVA"]
     beds=["BED"]
-    coloureds=["WOOL","STAINED_GLASS"]
+    coloureds=["BLACK_WOOL","BLUE_WOOL","BROWN_WOOL","CYAN_WOOL","GRAY_WOOL","GREEN_WOOL","LIGHT_BLUE_WOOL","LIGHT_GRAY_WOOL",
+               "LIME_WOOL","MAGENTA_WOOL","ORANGE_WOOL","PINK_WOOL","PURPLE_WOOL","RED_WOOL","WHITE_WOOL","YELLOW_WOOL",
+               "BLACK_STAINED_GLASS","BLUE_STAINED_GLASS","BROWN_STAINED_GLASS","CYAN_STAINED_GLASS","GRAY_STAINED_GLASS",
+               "GREEN_STAINED_GLASS","LIGHT_BLUE_STAINED_GLASS","LIGHT_GRAY_STAINED_GLASS","LIME_STAINED_GLASS","MAGENTA_STAINED_GLASS",
+               "ORANGE_STAINED_GLASS","PINK_STAINED_GLASS","PURPLE_STAINED_GLASS","RED_STAINED_GLASS","WHITE_STAINED_GLASS",
+               "YELLOW_STAINED_GLASS"]
     flats=["RAIL","RAIL_POWERED","RAIL_DETECTOR","RAIL_ACTIVATOR","TRAPDOOR","TRAPDOOR_IRON"]
     slabs=["STONE_SLAB","STONE_SLAB_DOUBLE","WOODEN_SLAB"]
     torches=["TORCH","TORCH_REDSTONE"]
@@ -44,14 +46,15 @@ def runBlockTests(mc):
     doors=["DOOR_WOOD","DOOR_IRON","DOOR_SPRUCE","DOOR_BIRCH","DOOR_JUNGLE","DOOR_ACACIA","DOOR_DARK_OAK"]
     gates=["FENCE_GATE"]
     wallmounts=["SIGN_WALL","LADDER","CHEST","FURNACE_INACTIVE","FURNACE_ACTIVE"]
-    saplings=["SAPLING"]
-    tallgrasses=["GRASS_TALL"]
+    saplings=["ACACIA_SAPLING","BIRCH_SAPLING","DARK_OAK_SAPLING","JUNGLE_SAPLING","OAK_SAPLING","SPRUCE_SAPLING"]
+    tallgrasses=["TALL_GRASS"]
     stonebricks=["STONE_BRICK"]
     snowblocks=["SNOW"]
     sandstones=["SANDSTONE"]
     cacti=["CACTUS"]
     mushrooms=["MUSHROOM_BROWN","MUSHROOM_RED"]
-    
+    facings=["SOUTH","SOUTH_WEST","WEST","NORTH_WEST","NORTH","NORTH_EAST","EAST","SOUTH_EAST"]
+
     # location for platform showing all block types
     xtest = 0
     ytest = 50
@@ -61,36 +64,28 @@ def runBlockTests(mc):
     # note some blocks have different names but same ids so they only have to be tested once per id
     # create a map of ids to names so can see which ones haven't been tested by name
     untested=set()
-    blockmap={}
-    for varname in dir(blockmodded):
-        var=getattr(blockmodded,varname)
+    tested=set()
+    for varname in dir(blocks):
         try:
-            # check var has data and id and add id to untested set
-            var.data
-            untested.add(var.id)
-            try:
-                names=blockmap[var.id]
-                names.append(varname)
-            except KeyError:
-                blockmap[var.id]=[varname]
+            untested.add(varname)
         except AttributeError:
             #only interested in objects with an id and data which behave like Blocks
             pass
     
-    signmount=blockmodded.STONE
-    sign=blockmodded.SIGN_STANDING.withData(12)
-    signid=sign.id
+    signmount="STONE"
+    signface="SOUTH_WEST"
+    sign="SIGN_STANDING"
     
     x=xtest
     y=ytest-1
     z=ztest
-    mc.setBlocks(x,y,z,x+100,y,z+100,blockmodded.STONE)
+    mc.setBlocks(x,y,z,x+100,y,z+100,"STONE")
     time.sleep(1)
     #clear the area in segments, otherwise it breaks the server
     #clearing area
-    #mc.setBlocks(x,y+1,z,x+100,y+50,z+100,blockmodded.AIR)
+    #mc.setBlocks(x,y+1,z,x+100,y+50,z+100,"AIR")
     for y_inc in range(1, 10):
-        mc.setBlocks(x,y+y_inc,z,x+100,y+y_inc,z+100,blockmodded.AIR)
+        mc.setBlocks(x,y+y_inc,z,x+100,y+y_inc,z+100,"AIR")
         time.sleep(2)
     mc.player.setTilePos(xtest, ytest, ztest)
     time.sleep(1)
@@ -98,345 +93,278 @@ def runBlockTests(mc):
     y=ytest
     z=ztest+10
     for key in solids + gases + flats + fences:
-        b = getattr(blockmodded,key)
         z += 1
         mc.setBlock(x-1,y,z,signmount)
-        mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-        mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+        mc.setSign(x-1,y+1,z,key,signface,"facing=" + signface,"material=" + key)
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)
     
     time.sleep(1)
     x=xtest+20
     z=ztest+10
     for key in trees:
-        for data in range(16):
-            b = getattr(blockmodded,key).withData(data)
-            z += 1
-            mc.setBlock(x-1,y,z,signmount)
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)        
-    for key in trees2:
-        for data in [0,1,4,5,8,9,12,13]:
-            b = getattr(blockmodded,key).withData(data)
-            z += 1
-            mc.setBlock(x-1,y,z,signmount)
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)    
+        z += 1
+        mc.setBlock(x-1,y,z,signmount)
+        mc.setSign(x-1,y+1,z,key,signface,"facing=" + signface,"material=" + key)
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)        
     for key in woods + stonebricks:
-        for data in range(4):
-            b = getattr(blockmodded,key).withData(data)
-            z += 1
-            mc.setBlock(x-1,y,z,signmount)
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)       
+        z += 1
+        mc.setBlock(x-1,y,z,signmount)
+        mc.setSign(x-1,y+1,z,key,signface,"facing=" + signface,"material=" + key)
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)       
     for key in sandstones:
-        for data in range(3):
-            b = getattr(blockmodded,key).withData(data)
-            z += 1
-            mc.setBlock(x-1,y,z,signmount)
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+        z += 1
+        mc.setBlock(x-1,y,z,signmount)
+        mc.setSign(x-1,y+1,z,key,signface,"facing=" + signface,"material=" + key)
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)
     for key in saplings + tallgrasses:
-        for data in range(4):
-            b = getattr(blockmodded,key).withData(data)
-            z += 1
-            mc.setBlock(x-1,y,z,signmount)
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y-1,z,blockmodded.DIRT)
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+        z += 1
+        mc.setBlock(x-1,y,z,signmount)
+        mc.setSign(x-1,y+1,z,key,signface,"facing=" + signface,"material=" + key)
+        mc.setBlock(x,y-1,z,"DIRT")
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)
     for key in plants:
-        b = getattr(blockmodded,key)
         z += 1
         mc.setBlock(x-1,y,z,signmount)
-        mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-        mc.setBlock(x,y-1,z,blockmodded.DIRT)
-        mc.setBlock(x+1,y-2,z,blockmodded.DIRT)
-        mc.setBlock(x+1,y-1,z,blockmodded.WATER)
-        mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+        mc.setSign(x-1,y+1,z,key,signface,"facing=" + signface,"material=" + key)
+        mc.setBlock(x,y-1,z,"DIRT")
+        mc.setBlock(x+1,y-2,z,"DIRT")
+        mc.setBlock(x+1,y-1,z,"WATER")
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)
     for key in cacti:
-        b = getattr(blockmodded,key)
         z += 1
         mc.setBlock(x-1,y,z,signmount)
-        mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
+        mc.setSign(x-1,y+1,z,key,signface,"facing=" + signface,"material=" + key)
         # cactus has to be on sand and away from other blocks
-        mc.setBlock(x+1,y-2,z,blockmodded.DIRT)
-        mc.setBlock(x+1,y-1,z,blockmodded.SAND)
+        mc.setBlock(x+1,y-2,z,"DIRT")
+        mc.setBlock(x+1,y-1,z,"SAND")
         mc.setBlock(x+1,y,z,b)
-        untested.discard(b.id)
+        untested.discard(key)
     for key in mushrooms:
-        b = getattr(blockmodded,key)
         z += 1
         mc.setBlock(x-1,y,z,signmount)
-        mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-        mc.setBlocks(x-3,y+3,z-3,x+3,y+3,z+3,blockmodded.STONE)
-        mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+        mc.setSign(x-1,y+1,z,key,signface,"facing=" + signface,"material=" + key)
+        mc.setBlocks(x-3,y+3,z-3,x+3,y+3,z+3,"STONE")
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)
     
     time.sleep(1)
     x=xtest+30
     z=ztest+10
     for key in coloureds:
-        for data in range(16):
-            b = getattr(blockmodded,key).withData(data)
-            z += 1
-            mc.setBlock(x-1,y,z,signmount)
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+        z += 1
+        mc.setBlock(x-1,y,z,signmount)
+        mc.setSign(x-1,y+1,z,sign,"facing=" + signface,"material=" + key)
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)
     for key in beds:
         #RaspberryJuice can't do coloured beds
-        b = getattr(blockmodded,key)
         z += 10
         mc.setBlock(x-1,y,z,signmount)
         mc.setBlock(x+1,y,z,signmount)
         mc.setBlock(x,y,z-1,signmount)
         mc.setBlock(x,y,z+1,signmount)
-        mc.setSign(x-1,y+1,z,signid,4,key,"id=" + str(b.id),"head=11","foot=3")
-        mc.setSign(x+1,y+1,z,signid,12,key,"id=" + str(b.id),"head=9","foot=1")
-        mc.setSign(x,y+1,z-1,signid,8,key,"id=" + str(b.id),"head=8","foot=0")
-        mc.setSign(x,y+1,z+1,signid,0,key,"id=" + str(b.id),"head=10","foot=2")
-        mc.setBlock(x+3,y,z,b.id,1)
-        mc.setBlock(x+2,y,z,b.id,9)
-        mc.setBlock(x-3,y,z,b.id,3)
-        mc.setBlock(x-2,y,z,b.id,11)
-        mc.setBlock(x,y,z-3,b.id,0)
-        mc.setBlock(x,y,z-2,b.id,8)
-        mc.setBlock(x,y,z+3,b.id,2)
-        mc.setBlock(x,y,z+2,b.id,10)
-        untested.discard(b.id)
-        b=blockmodded.SIGN_STANDING
-        mc.setSign (x-2,y,z-5,b.id,15,"SIGN_STANDING","id=" + str(b.id),"data=15","rotation")
-        mc.setSign (x-4,y,z-4,b.id,14,"SIGN_STANDING","id=" + str(b.id),"data=14","rotation")
-        mc.setSign (x-5,y,z-2,b.id,13,"SIGN_STANDING","id=" + str(b.id),"data=13","rotation")
-        mc.setSign (x-6,y,z  ,b.id,12,"SIGN_STANDING","id=" + str(b.id),"data=12","rotation")
-        mc.setSign (x-5,y,z+2,b.id,11,"SIGN_STANDING","id=" + str(b.id),"data=11","rotation")
-        mc.setSign (x-4,y,z+4,b.id,10,"SIGN_STANDING","id=" + str(b.id),"data=10","rotation")
-        mc.setSign (x-2,y,z+5,b.id, 9,"SIGN_STANDING","id=" + str(b.id),"data= 9","rotation")
-        mc.setSign (x  ,y,z+6,b.id, 8,"SIGN_STANDING","id=" + str(b.id),"data= 8","rotation")
-        mc.setSign (x+2,y,z+5,b.id, 7,"SIGN_STANDING","id=" + str(b.id),"data= 7","rotation")
-        mc.setSign (x+4,y,z+4,b.id, 6,"SIGN_STANDING","id=" + str(b.id),"data= 6","rotation")
-        mc.setSign (x+5,y,z+2,b.id, 5,"SIGN_STANDING","id=" + str(b.id),"data= 5","rotation")
-        mc.setSign (x+6,y,z  ,b.id, 4,"SIGN_STANDING","id=" + str(b.id),"data= 4","rotation")
-        mc.setSign (x+5,y,z-2,b.id, 3,"SIGN_STANDING","id=" + str(b.id),"data= 3","rotation")
-        mc.setSign (x+4,y,z-4,b.id, 2,"SIGN_STANDING","id=" + str(b.id),"data= 2","rotation")
-        mc.setSign (x+2,y,z-5,b.id, 1,"SIGN_STANDING","id=" + str(b.id),"data= 1","rotation")
-        mc.setSign (x  ,y,z-6,b.id, 0,"SIGN_STANDING","id=" + str(b.id),"data= 0","rotation")
-        untested.discard(b.id)
+        mc.setSign(x-1,y+1,z,sign,"WEST","material=" + sign,"facing=WEST","head=11","foot=3")
+        mc.setSign(x+1,y+1,z,sign,"EAST","material=" + sign,"facing=EAST","head=9","foot=1")
+        mc.setSign(x,y+1,z-1,sign,"NORTH","material=" + sign,"facing=NORTH","head=8","foot=0")
+        mc.setSign(x,y+1,z+1,sign,"SOUTH","material=" + sign,"facing=SOUTH","head=10","foot=2")
+        mc.setBlock(x+3,y,z,key)
+        mc.setBlock(x+2,y,z,key)
+        mc.setBlock(x-3,y,z,key)
+        mc.setBlock(x-2,y,z,key)
+        mc.setBlock(x,y,z-3,key)
+        mc.setBlock(x,y,z-2,key)
+        mc.setBlock(x,y,z+3,key)
+        mc.setBlock(x,y,z+2,key)
+        untested.discard(key)
+        mc.setSign (x-2,y,z-5,"SIGN_STANDING","SOUTH_SOUTH_EAST","facing=SOUTH_SOUTH_EAST","rotation")
+        mc.setSign (x-4,y,z-4,"SIGN_STANDING","SOUTH_EAST",      "facing=SOUTH_EAST",      "rotation")
+        mc.setSign (x-5,y,z-2,"SIGN_STANDING","EAST_SOUTH_EAST", "facing=EAST_SOUTH_EAST", "rotation")
+        mc.setSign (x-6,y,z  ,"SIGN_STANDING","EAST",            "facing=EAST",            "rotation")
+        mc.setSign (x-5,y,z+2,"SIGN_STANDING","EAST_NORTH_EAST", "facing=EAST_NORTH_EAST", "rotation")
+        mc.setSign (x-4,y,z+4,"SIGN_STANDING","NORTH_EAST",      "facing=NORTH_EAST",      "rotation")
+        mc.setSign (x-2,y,z+5,"SIGN_STANDING","NORTH_NORTH_EAST","facing=NORTH_NORTH_EAST","rotation")
+        mc.setSign (x  ,y,z+6,"SIGN_STANDING","NORTH",           "facing=NORTH",           "rotation")
+        mc.setSign (x+2,y,z+5,"SIGN_STANDING","NORTH_NORTH_WEST","facing=NORTH_NORTH_WEST","rotation")
+        mc.setSign (x+4,y,z+4,"SIGN_STANDING","NORTH_WEST",      "facing=NORTH_WEST",      "rotation")
+        mc.setSign (x+5,y,z+2,"SIGN_STANDING","WEST_NORTH_WEST", "facing=WEST_NORTH_WEST", "rotation")
+        mc.setSign (x+6,y,z  ,"SIGN_STANDING","WEST",            "facing=WEST",            "rotation")
+        mc.setSign (x+5,y,z-2,"SIGN_STANDING","WEST_SOUTH_WEST", "facing=WEST_SOUTH_WEST", "rotation")
+        mc.setSign (x+4,y,z-4,"SIGN_STANDING","SOUTH_WEST",      "facing=SOUTH_WEST",      "rotation")
+        mc.setSign (x+2,y,z-5,"SIGN_STANDING","SOUTH_SOUTH_WEST","facing=SOUTH_SOUTH_WEST","rotation")
+        mc.setSign (x  ,y,z-6,"SIGN_STANDING","SOUTH",           "facing=SOUTH",           "rotation")
+        untested.discard(key)
     
     time.sleep(1)
     x=xtest+40
     z=ztest+10
     for key in liquids:
         z += 1
-        mc.setBlocks(x-1,y,z,x+1,y,z+10,blockmodded.STONE)
-        b = getattr(blockmodded,key + "_STATIONARY")
+        mc.setBlocks(x-1,y,z,x+1,y,z+10,"STONE")
         z += 1
-        mc.setSign(x-1,y+1,z,sign,key+"_STATIONARY","id=" + str(b.id),"data=" + str(b.data))
-        mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
-        for data in range(8):
-            b = getattr(blockmodded,key).withData(data)
+        mc.setSign(x-1,y+1,z,sign,signface,"facing=" + signface,"material=" + key)
+        mc.setBlock(x,y,z,key)
+        untested.discard(key)
+        for newface in facings:
             z += 1
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+            mc.setSign(x-1,y+1,z,key,newface,"facing=" + newface,"material=" + key)
+            mc.setBlock(x,y,z,key)
+        untested.discard(key)
     for key in snowblocks:
         z += 1
-        mc.setBlocks(x-1,y,z,x-1,y,z+8,blockmodded.STONE)
-        for data in range(8):
-            b = getattr(blockmodded,key).withData(data)
+        mc.setBlocks(x-1,y,z,x-1,y,z+8,"STONE")
+        for newface in facings:
             z += 1
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+            mc.setSign(x-1,y+1,z,key,newface,"facing=" + newface,"material=" + key)
+            mc.setBlock(x,y,z,key)
+        untested.discard(key)
     
     time.sleep(1)
     x=xtest+50
     z=ztest+10
     for key in slabs:
-        for data in range(8):
-            b = getattr(blockmodded,key).withData(data)
+        for newface in facings:
             z += 1
             mc.setBlock(x-1,y,z,signmount)
-            mc.setSign(x-1,y+1,z,sign,key,"id=" + str(b.id),"data=" + str(b.data))
-            mc.setBlock(x,y,z,b)
-        untested.discard(b.id)
+            mc.setSign(x-1,y+1,z,key,newface,"facing=" + newface,"material=" + key)
+            mc.setBlock(x,y,z,key)
+        untested.discard(key)
     
     time.sleep(1)
     x=xtest+60
     y=ytest
     z=ztest+10
-    wallsignid=blockmodded.SIGN_WALL.id
+    wallsign="SIGN_WALL"
     for key in wallmounts:
-        b = getattr(blockmodded,key)
         mc.setBlock(x,y,z,signmount)
         mc.setBlock(x,y+1,z,signmount)
         #north
-        mc.setBlock(x,y,z-1,b.id,2)
-        mc.setSign(x,y+1,z-1,wallsignid,2,key,"id=" + str(b.id),"data=2","north")
+        mc.setBlock(x,y,z-1,key)
+        mc.setSign(x,y+1,z-1,wallsign,"NORTH","north")
         #south
-        mc.setBlock(x,y,z+1,b.id,3)
-        mc.setSign(x,y+1,z+1,wallsignid,3,key,"id=" + str(b.id),"data=3","south")
+        mc.setBlock(x,y,z+1,key)
+        mc.setSign(x,y+1,z+1,wallsign,"SOUTH","south")
         #west
-        mc.setBlock(x-1,y,z,b.id,4)
-        mc.setSign(x-1,y+1,z,wallsignid,4,key,"id=" + str(b.id),"data=4","west")
+        mc.setBlock(x-1,y,z,key)
+        mc.setSign(x-1,y+1,z,wallsign,"WEST","west")
         #east
-        mc.setBlock(x+1,y,z,b.id,5)
-        mc.setSign(x+1,y+1,z,wallsignid,5,key,"id=" + str(b.id),"data=5","east")
+        mc.setBlock(x+1,y,z,key)
+        mc.setSign(x+1,y+1,z,wallsign,"EAST","east")
         y+=2
-        untested.discard(b.id)
-        #untested.discard(wallsignid)
+        untested.discard(key)
+        #untested.discard(wallsign)
         
     time.sleep(1)
     x=xtest+60
     y=ytest
     z=ztest+20
     for key in torches:
-        b = getattr(blockmodded,key)
         mc.setBlocks(x,y,z,x,y+2,z,signmount)
         #north
-        mc.setBlock(x,y,z-1,b.id,4)
-        mc.setSign(x,y+1,z-1,wallsignid,2,key,"id=" + str(b.id),"data=4","north")
+        mc.setBlock(x,y,z-1,key)
+        mc.setSign(x,y+1,z-1,wallsign,"NORTH","facing=NORTH")
         #south
-        mc.setBlock(x,y,z+1,b.id,3)
-        mc.setSign(x,y+1,z+1,wallsignid,3,key,"id=" + str(b.id),"data=3","south")
+        mc.setBlock(x,y,z+1,key)
+        mc.setSign(x,y+1,z+1,wallsign,"SOUTH","facing=SOUTH")
         #west
-        mc.setBlock(x-1,y,z,b.id,2)
-        mc.setSign(x-1,y+1,z,wallsignid,4,key,"id=" + str(b.id),"data=2","west")
+        mc.setBlock(x-1,y,z,key)
+        mc.setSign(x-1,y+1,z,wallsign,"WEST","facing=WEST")
         #east
-        mc.setBlock(x+1,y,z,b.id,1)
-        mc.setSign(x+1,y+1,z,wallsignid,5,key,"id=" + str(b.id),"data=1","east")
+        mc.setBlock(x+1,y,z,key)
+        mc.setSign(x+1,y+1,z,wallsign,"EAST","facing=EAST")
         #up
-        mc.setBlock(x,y+3,z,b.id,5)
-        mc.setSign(x+1,y+2,z,wallsignid,5,key,"id=" + str(b.id),"data=5","up")
+        mc.setBlock(x,y+3,z,key)
+        mc.setSign(x+1,y+2,z,wallsign,"UP","facing=UP")
         z+=10
-        untested.discard(b.id)
+        untested.discard(key)
     
     time.sleep(1)
     x=xtest+70
     y=ytest
     z=ztest+10
     for key in doors:
-        b = getattr(blockmodded,key)
         mc.setBlocks(x,y,z,x+3,y+2,z+3,signmount)
-        mc.setBlocks(x+1,y,z+1,x+2,y+1,z+2,blockmodded.AIR)
-        mc.setBlock(x+1,y  ,z  ,b.id,1)
-        mc.setBlock(x+1,y+1,z  ,b.id,9)
-        mc.setBlock(x+2,y  ,z  ,b.id,1)
-        mc.setBlock(x+2,y+1,z  ,b.id,8)
-        mc.setBlock(x  ,y  ,z+1,b.id,0)
-        mc.setBlock(x  ,y+1,z+1,b.id,8)
-        mc.setBlock(x  ,y  ,z+2,b.id,0)
-        mc.setBlock(x  ,y+1,z+2,b.id,9)
-        mc.setBlock(x+3,y  ,z+1,b.id,2)
-        mc.setBlock(x+3,y+1,z+1,b.id,9)
-        mc.setBlock(x+3,y  ,z+2,b.id,2)
-        mc.setBlock(x+3,y+1,z+2,b.id,8)
-        mc.setBlock(x+1,y  ,z+3,b.id,3)
-        mc.setBlock(x+1,y+1,z+3,b.id,8)
-        mc.setBlock(x+2,y  ,z+3,b.id,3)
-        mc.setBlock(x+2,y+1,z+3,b.id,9)
-        mc.setSign (x  ,y  ,z-1,wallsignid,2,key,"id=" + str(b.id),"data=1")
-        mc.setSign (x  ,y+1,z-1,wallsignid,2,key,"id=" + str(b.id),"data=9")
-        mc.setSign (x+3,y  ,z-1,wallsignid,2,key,"id=" + str(b.id),"data=1")
-        mc.setSign (x+3,y+1,z-1,wallsignid,2,key,"id=" + str(b.id),"data=8")
-        mc.setSign (x-1,y  ,z  ,wallsignid,4,key,"id=" + str(b.id),"data=0")
-        mc.setSign (x-1,y+1,z  ,wallsignid,4,key,"id=" + str(b.id),"data=8")
-        mc.setSign (x-1,y  ,z+3,wallsignid,4,key,"id=" + str(b.id),"data=0")
-        mc.setSign (x-1,y+1,z+3,wallsignid,4,key,"id=" + str(b.id),"data=9")
-        mc.setSign (x+4,y  ,z  ,wallsignid,5,key,"id=" + str(b.id),"data=2")
-        mc.setSign (x+4,y+1,z  ,wallsignid,5,key,"id=" + str(b.id),"data=9")
-        mc.setSign (x+4,y  ,z+3,wallsignid,5,key,"id=" + str(b.id),"data=2")
-        mc.setSign (x+4,y+1,z+3,wallsignid,5,key,"id=" + str(b.id),"data=8")
-        mc.setSign (x  ,y  ,z+4,wallsignid,3,key,"id=" + str(b.id),"data=3")
-        mc.setSign (x  ,y+1,z+4,wallsignid,3,key,"id=" + str(b.id),"data=8")
-        mc.setSign (x+3,y  ,z+4,wallsignid,3,key,"id=" + str(b.id),"data=3")
-        mc.setSign (x+3,y+1,z+4,wallsignid,3,key,"id=" + str(b.id),"data=9")
+        mc.setBlocks(x+1,y,z+1,x+2,y+1,z+2,"AIR")
+        mc.setBlock(x+1,y  ,z  ,key)
+        mc.setBlock(x+1,y+1,z  ,key)
+        mc.setBlock(x+2,y  ,z  ,key)
+        mc.setBlock(x+2,y+1,z  ,key)
+        mc.setBlock(x  ,y  ,z+1,key)
+        mc.setBlock(x  ,y+1,z+1,key)
+        mc.setBlock(x  ,y  ,z+2,key)
+        mc.setBlock(x  ,y+1,z+2,key)
+        mc.setBlock(x+3,y  ,z+1,key)
+        mc.setBlock(x+3,y+1,z+1,key)
+        mc.setBlock(x+3,y  ,z+2,key)
+        mc.setBlock(x+3,y+1,z+2,key)
+        mc.setBlock(x+1,y  ,z+3,key)
+        mc.setBlock(x+1,y+1,z+3,key)
+        mc.setBlock(x+2,y  ,z+3,key)
+        mc.setBlock(x+2,y+1,z+3,key)
         y+=3
-        untested.discard(b.id)
+        untested.discard(key)
     for key in gates:
-        b = getattr(blockmodded,key)
-        mc.setBlocks(x,y,z,x+3,y,z+3,blockmodded.AIR)
-        mc.setBlock(x+1,y  ,z  ,b.id,0)
-        mc.setBlock(x+2,y  ,z  ,b.id,0)
-        mc.setBlock(x  ,y  ,z+1,b.id,1)
-        mc.setBlock(x  ,y  ,z+2,b.id,1)
-        mc.setBlock(x+3,y  ,z+1,b.id,1)
-        mc.setBlock(x+3,y  ,z+2,b.id,1)
-        mc.setBlock(x+1,y  ,z+3,b.id,0)
-        mc.setBlock(x+2,y  ,z+3,b.id,0)
+        mc.setBlocks(x,y,z,x+3,y,z+3,"AIR")
+        mc.setBlock(x+1,y  ,z  ,key)
+        mc.setBlock(x+2,y  ,z  ,key)
+        mc.setBlock(x  ,y  ,z+1,key)
+        mc.setBlock(x  ,y  ,z+2,key)
+        mc.setBlock(x+3,y  ,z+1,key)
+        mc.setBlock(x+3,y  ,z+2,key)
+        mc.setBlock(x+1,y  ,z+3,key)
+        mc.setBlock(x+2,y  ,z+3,key)
         mc.setBlock(x,y,z,signmount)
         mc.setBlock(x+3,y,z,signmount)
         mc.setBlock(x,y,z+3,signmount)
         mc.setBlock(x+3,y,z+3,signmount)
-        mc.setSign (x  ,y  ,z-1,wallsignid,2,key,"id=" + str(b.id),"data=0")
-        mc.setSign (x+3,y  ,z-1,wallsignid,2,key,"id=" + str(b.id),"data=0")
-        mc.setSign (x-1,y  ,z  ,wallsignid,4,key,"id=" + str(b.id),"data=1")
-        mc.setSign (x-1,y  ,z+3,wallsignid,4,key,"id=" + str(b.id),"data=1")
-        mc.setSign (x+4,y  ,z  ,wallsignid,5,key,"id=" + str(b.id),"data=1")
-        mc.setSign (x+4,y  ,z+3,wallsignid,5,key,"id=" + str(b.id),"data=1")
-        mc.setSign (x  ,y  ,z+4,wallsignid,3,key,"id=" + str(b.id),"data=0")
-        mc.setSign (x+3,y  ,z+4,wallsignid,3,key,"id=" + str(b.id),"data=0")
         y+=3
-        untested.discard(b.id)
+        untested.discard(key)
         
     time.sleep(1)
     x=xtest+70
     y=ytest
     z=ztest+20
     for key in stairs:
-        b = getattr(blockmodded,key)
         mc.setBlocks(x+1,y,z-1,x+3,y+11,z-3,signmount)
-        mc.setBlock(x+1,y  ,z  ,b.id,0)
-        mc.setBlock(x+2,y+1,z  ,b.id,0)
-        mc.setBlock(x+3,y+2,z  ,b.id,0)
+        mc.setBlock(x+1,y  ,z  ,key)
+        mc.setBlock(x+2,y+1,z  ,key)
+        mc.setBlock(x+3,y+2,z  ,key)
         mc.setBlock(x+4,y+2,z  ,signmount)
-        mc.setBlock(x+4,y+3,z-1,b.id,3)
-        mc.setBlock(x+4,y+4,z-2,b.id,3)
-        mc.setBlock(x+4,y+5,z-3,b.id,3)
+        mc.setBlock(x+4,y+3,z-1,key)
+        mc.setBlock(x+4,y+4,z-2,key)
+        mc.setBlock(x+4,y+5,z-3,key)
         mc.setBlock(x+4,y+5,z-4,signmount)
-        mc.setBlock(x+3,y+6,z-4,b.id,1)
-        mc.setBlock(x+2,y+7,z-4,b.id,1)
-        mc.setBlock(x+1,y+8,z-4,b.id,1)
+        mc.setBlock(x+3,y+6,z-4,key)
+        mc.setBlock(x+2,y+7,z-4,key)
+        mc.setBlock(x+1,y+8,z-4,key)
         mc.setBlock(x  ,y+8,z-4,signmount)
-        mc.setBlock(x  ,y+9,z-3,b.id,2)
-        mc.setBlock(x  ,y+10,z-2,b.id,2)
-        mc.setBlock(x  ,y+11,z-1,b.id,2)
+        mc.setBlock(x  ,y+9,z-3,key)
+        mc.setBlock(x  ,y+10,z-2,key)
+        mc.setBlock(x  ,y+11,z-1,key)
         mc.setBlock(x  ,y+11,z  ,signmount)
-        mc.setBlock(x+1,y-1,z  ,b.id,5)
-        mc.setBlock(x+2,y  ,z  ,b.id,5)
-        mc.setBlock(x+3,y+1,z  ,b.id,5)
-        mc.setBlock(x+4,y+2,z-1,b.id,6)
-        mc.setBlock(x+4,y+3,z-2,b.id,6)
-        mc.setBlock(x+4,y+4,z-3,b.id,6)
-        mc.setBlock(x+3,y+5,z-4,b.id,4)
-        mc.setBlock(x+2,y+6,z-4,b.id,4)
-        mc.setBlock(x+1,y+7,z-4,b.id,4)
-        mc.setBlock(x  ,y+8,z-3,b.id,7)
-        mc.setBlock(x  ,y+9,z-2,b.id,7)
-        mc.setBlock(x  ,y+10,z-1,b.id,7)
-        mc.setSign (x+2,y+2 ,z  ,wallsignid,3,key,"id=" + str(b.id),"data=0")
-        mc.setSign (x+3,y   ,z  ,wallsignid,3,key,"id=" + str(b.id),"data=5")
-        mc.setSign (x+4,y+5 ,z-2,wallsignid,5,key,"id=" + str(b.id),"data=3")
-        mc.setSign (x+4,y+3 ,z-3,wallsignid,5,key,"id=" + str(b.id),"data=6")
-        mc.setSign (x+2,y+8 ,z-4,wallsignid,2,key,"id=" + str(b.id),"data=1")
-        mc.setSign (x+1,y+6 ,z-4,wallsignid,2,key,"id=" + str(b.id),"data=4")
-        mc.setSign (x  ,y+11,z-2,wallsignid,4,key,"id=" + str(b.id),"data=2")
-        mc.setSign (x  ,y+9 ,z-1,wallsignid,4,key,"id=" + str(b.id),"data=7")
+        mc.setBlock(x+1,y-1,z  ,key)
+        mc.setBlock(x+2,y  ,z  ,key)
+        mc.setBlock(x+3,y+1,z  ,key)
+        mc.setBlock(x+4,y+2,z-1,key)
+        mc.setBlock(x+4,y+3,z-2,key)
+        mc.setBlock(x+4,y+4,z-3,key)
+        mc.setBlock(x+3,y+5,z-4,key)
+        mc.setBlock(x+2,y+6,z-4,key)
+        mc.setBlock(x+1,y+7,z-4,key)
+        mc.setBlock(x  ,y+8,z-3,key)
+        mc.setBlock(x  ,y+9,z-2,key)
+        mc.setBlock(x  ,y+10,z-1,key)
         y+=12
-        untested.discard(b.id)
+        untested.discard(key)
         
     #Display list of all blocks which did not get tested
-    for id in untested:
-        untest="Untested block " + str(id)
-        for varname in blockmap[id]:
-            untest+=" " + varname
+    for name in untested:
+        untest="Untested block " + name
         mc.postToChat(untest)
     mc.postToChat("runBlockTests() complete")
 
@@ -468,17 +396,17 @@ def runEntityTests(mc):
     xtest = 50
     ytest = 50
     ztest = 50
-    air=blockmodded.AIR
-    wall=blockmodded.GLASS
-    roof=blockmodded.STONE
-    floor=blockmodded.STONE
-    fence=blockmodded.FENCE
-    signmount=blockmodded.STONE
-    sign=blockmodded.SIGN_STANDING.withData(4)
-    signid=sign.id
-    torch=blockmodded.TORCH.withData(5)
-    rail=blockmodded.RAIL
-    wallsignid=blockmodded.SIGN_WALL.id
+    air="AIR"
+    wall="GLASS"
+    roof="STONE"
+    floor="STONE"
+    fence="FENCE"
+    signmount="STONE"
+    signface="WEST"
+    sign=sign
+    torch="TORCH".withData(5)
+    rail="RAIL"
+    wallsign="SIGN_WALL"
     mc.postToChat("runEntityTests(): Creating test entities at x=" + str(xtest) + " y=" + str(ytest) + " z=" + str(ztest))
     #mc.setBlocks(xtest,ytest-1,ztest,xtest+100,ytest+50,ztest+100,air)
     
@@ -496,7 +424,7 @@ def runEntityTests(mc):
     x=xtest
     y=ytest
     z=ztest + r
-    id=mc.spawnEntity(x,y,z,entitymodded.VILLAGER)
+    id=mc.spawnEntity(x,y,z,"VILLAGER")
     theta = 0
     while theta <= 2 * math.pi:
         time.sleep(1)
@@ -538,7 +466,7 @@ def runEntityTests(mc):
             x += 10
         e = getattr(entitymodded,key)
         mc.setBlock(x+2,y,z,signmount)
-        mc.setSign(x+2,y+1,z,sign,key,"id=" + str(e.id))
+        mc.setSign(x+2,y+1,z,key,signface,"id=" + str(e.id))
         mc.spawnEntity(x,y,z,e)
         untested.discard(e.id)
     for key in hangers:
@@ -548,7 +476,7 @@ def runEntityTests(mc):
             x += 10
         e = getattr(entitymodded,key)
         mc.setBlocks(x+2,y,z-1,x+2,y+2,z+1,signmount)
-        mc.setSign(x+1,y,z,wallsignid,4,key,"id=" + str(e.id))
+        mc.setSign(x+1,y,z,wallsign,4,key,"id=" + str(e.id))
         mc.spawnEntity(x+1,y+2,z,e)
         untested.discard(e.id)
     z = ztest - 4
@@ -563,7 +491,7 @@ def runEntityTests(mc):
         mc.setBlocks(x-2,y,z-2,x+2,y,z+2,fence)
         mc.setBlocks(x-1,y,z-1,x+1,y,z+1,air)
         mc.setBlock(x-3,y,z-1,torch)
-        mc.setSign(x-3,y,z,wallsignid,4,key,"id=" + str(e.id))
+        mc.setSign(x-3,y,z,wallsign,4,key,"id=" + str(e.id))
         mc.spawnEntity(x,y,z,e)
         untested.discard(e.id)
     x+=10
@@ -576,8 +504,8 @@ def runEntityTests(mc):
             x += 10
         e = getattr(entitymodded,key)
         mc.setBlock(x+2,y,z,signmount)
-        mc.setSign(x+2,y+1,z,sign,key,"id=" + str(e.id))
-        mc.setBlock(x+2,y,z-1,torch.id,4)
+        mc.setSign(x+2,y+1,z,key,signface,"id=" + str(e.id))
+        mc.setBlock(x+2,y,z-1,torch.id)
         mc.setBlocks(x,y,z-1,x,y,z+1,rail)
         mc.spawnEntity(x,y,z,e)
         untested.discard(e.id)
@@ -589,10 +517,10 @@ def runEntityTests(mc):
             x += 10
         e = getattr(entitymodded,key)
         mc.setBlock(x+2,y,z,signmount)
-        mc.setSign(x+2,y+1,z,sign,key,"id=" + str(e.id))
-        mc.setBlock(x+2,y,z-1,torch.id,2)
+        mc.setSign(x+2,y+1,z,key,signface,"id=" + str(e.id))
+        mc.setBlock(x+2,y,z-1,torch.id)
         mc.setBlocks(x-2,y-2,z-3,x+2,y-1,z+2,floor)
-        mc.setBlocks(x-1,y-1,z-2,x+1,y-1,z+1,blockmodded.WATER_STATIONARY)
+        mc.setBlocks(x-1,y-1,z-2,x+1,y-1,z+1,"WATER_STATIONARY")
         mc.spawnEntity(x,y,z,e)
         untested.discard(e.id)
             
@@ -610,7 +538,7 @@ def runEntityTests(mc):
         mc.setBlocks(x-2,y-1,z,x+6,y-1,z+4,floor)
         mc.setBlocks(x+1,y,z+1,x+3,y+3,z+3,air)
         mc.setBlock(x-1,y,z+1,torch)
-        mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
+        mc.setSign(x-1,y,z+2,key,signface,"id=" + str(e.id))
         mc.spawnEntity(x+2,y,z+2,e)
         untested.discard(e.id)
 
@@ -624,7 +552,7 @@ def runEntityTests(mc):
         mc.setBlocks(x,y+21,z,x+20,y+21,z+20,roof)
         mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,floor)
         mc.setBlocks(x+1,y,z+1,x+19,y+20,z+19,air)
-        mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
+        mc.setSign(x-1,y,z+2,key,signface,"id=" + str(e.id))
         mc.spawnEntity(x+10,y+5,z+10,e)
         untested.discard(e.id)
         z += 20
@@ -634,19 +562,19 @@ def runEntityTests(mc):
     time.sleep(1)
     for key in bosses:
         e = getattr(entitymodded,key)
-        mc.setBlocks(x,y,z,x+20,y+20,z+20,blockmodded.BEDROCK)
-        mc.setBlocks(x,y+21,z,x+20,y+21,z+20,blockmodded.BEDROCK)
-        mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,blockmodded.BEDROCK)
+        mc.setBlocks(x,y,z,x+20,y+20,z+20,"BEDROCK")
+        mc.setBlocks(x,y+21,z,x+20,y+21,z+20,"BEDROCK")
+        mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,"BEDROCK")
         mc.setBlocks(x+1,y,z+1,x+19,y+20,z+19,air)
         mc.setBlocks(x+1,y,z+8,x+19,y,z+12,torch)
         mc.setBlocks(x+1,y+10,z+2,x+1,y+15,z+18,torch.id,1)
         mc.setBlocks(x+19,y+10,z+2,x+19,y+15,z+18,torch.id,2)
         mc.setBlocks(x+1,y+10,z+19,x+19,y+15,z+19,torch.id,4)
         mc.setBlocks(x+1,y+10,z+1,x+19,y+15,z+1,torch.id,3)
-        mc.setBlocks(x,y,z+9,x+3,y+3,z+11,blockmodded.BEDROCK)
+        mc.setBlocks(x,y,z+9,x+3,y+3,z+11,"BEDROCK")
         mc.setBlocks(x+4,y,z+9,x+19,y+3,z+11,wall)
         mc.setBlocks(x,y,z+10,x+19,y+2,z+10,air)
-        mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
+        mc.setSign(x-1,y,z+2,key,signface,"id=" + str(e.id))
         mc.spawnEntity(x+10,y+5,z+10,e)
         untested.discard(e.id)
         z += 20
@@ -659,8 +587,8 @@ def runEntityTests(mc):
         mc.setBlocks(x,y,z,x+20,y+20,z+20,wall)
         mc.setBlocks(x,y+21,z,x+20,y+21,z+20,roof)
         mc.setBlocks(x-5,y-1,z-1,x+20,y-1,z+21,floor)
-        mc.setBlocks(x+1,y,z+1,x+19,y+20,z+19,blockmodded.WATER_STATIONARY)
-        mc.setSign(x-1,y,z+2,sign,key,"id=" + str(e.id))
+        mc.setBlocks(x+1,y,z+1,x+19,y+20,z+19,"WATER_STATIONARY")
+        mc.setSign(x-1,y,z+2,key,signface,"id=" + str(e.id))
         mc.spawnEntity(x+10,y,z+10,e)
         untested.discard(e.id)
         z += 20
@@ -711,20 +639,15 @@ def runTests(mc, library="Standard library", extended=False):
 
     mc.postToChat("block below is - " + str(below))
 
-    #getBlockWithData
-    blockBelow = mc.getBlockWithData(pos.x, pos.y-1, pos.z)
-    mc.postToChat("block data below is = " + str(blockBelow.data))
-
-
     #setBlock no data
-    mc.setBlock(pos.x,pos.y+2,pos.z, block.GOLD_BLOCK.id)
+    mc.setBlock(pos.x,pos.y+2,pos.z, "GOLD_BLOCK")
     #setBlock with data
-    mc.setBlock(pos.x,pos.y+3,pos.z, block.WOOL.id, 1)
+    mc.setBlock(pos.x,pos.y+3,pos.z, "BLUE_WOOL")
 
     #setBlocks
     mc.setBlocks(pos.x,pos.y + 10,pos.z,
                  pos.x + 5, pos.y + 15, pos.z + 5,
-                 block.WOOL.id, 5)
+                 "BLUE_WOOL")
 
     #getBlocks
     if extended:
@@ -771,8 +694,8 @@ def runTests(mc, library="Standard library", extended=False):
 
     if extended:
         entity_types = mc.getEntityTypes()
-        mc.postToChat("The last found was entity: id=" + str(entity_types[-1].id) + " name=" + entity_types[-1].name)
-        mc.spawnEntity(tilePos.x + 2, tilePos.y + 2, tilePos.x + 2, entitymodded.CREEPER)
+        mc.postToChat("The last found was entity: name=" + entity_types[-1])
+        mc.spawnEntity(tilePos.x + 2, tilePos.y + 2, tilePos.x + 2, "CREEPER")
         mc.postToChat("Creeper spawned")
 
         mc.postToChat("Post To Chat - Run full block and entity test Y/N?")

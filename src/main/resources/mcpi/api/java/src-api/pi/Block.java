@@ -7,41 +7,26 @@ package pi;
  */
 public class Block {
 
-    final int id, data;
+    final int id;
 
-    Block(int id, int data) {
+    Block(int id) {
         this.id = id;
-        this.data = data & 0xf;
     }
 
     /**
      * Get a block with and withId (use a constant like Block.TNT)
      */
     public static Block id(int id) {
-        return new Block(id, 0);
-    }
-
-    /**
-     * Get a block with extra data
-     */
-    public Block withData(int data) {
-        return new Block(id, data);
+        return new Block(id);
     }
 
     static Block decode(String s) {
         return id(Integer.parseInt(s));
     }
 
-    static Block decodeWithData(String s) {
-        String[] ss = s.split(",");
-        int id = Integer.parseInt(ss[0]);
-        int data = Integer.parseInt(ss[1]);
-        return new Block(id, data);
-    }
-
     @Override
     public int hashCode() {
-        return (id << 8) + data;
+        return (id << 8);
     }
 
     @Override
@@ -54,15 +39,9 @@ public class Block {
 
     @Override
     public String toString() {
-        return id + (data == 0 ? "" : "," + data);
+        return id;
     }
 
-    /**
-     * Get a wool block of a specific color
-     */
-    public static Block wool(Color color) {
-        return WOOL.withData(color.woolColorData);
-    }
     // Predefined blocks
     public static final Block //
             AIR = id(0),

@@ -31,7 +31,7 @@ public class ChristmasTreeDemo {
 
         // Draw "branches"
         for (int i = 0; i < tree.length; i++) {
-            drawDisc(mc, p.add(0, h, 0), tree[tree.length - i - 1], Block.LEAVES.withData(1));
+            drawDisc(mc, p.add(0, h, 0), tree[tree.length - i - 1], Block.LEAVES);
             h++;
         }
 

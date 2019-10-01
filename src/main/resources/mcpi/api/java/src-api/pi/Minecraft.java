@@ -70,14 +70,6 @@ public class Minecraft {
     }
 
     /**
-     * Get a block
-     */
-    public Block getBlockWithData(Vec position) {
-        send("world.getBlock", position);
-        return Block.decodeWithData(receive());
-    }
-
-    /**
      * Set a block
      */
     public void setBlock(int x, int y, int z, Block block) {

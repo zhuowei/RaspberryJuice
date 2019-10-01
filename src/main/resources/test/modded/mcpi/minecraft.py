@@ -1,8 +1,6 @@
 from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent, ChatEvent
-from .entity import Entity
-from .block import Block
 import math
 from .util import flatten
 
@@ -28,9 +26,6 @@ from .util import flatten
 - setSign()
 - spawnEntity()"""
 
-def intFloor(*args):
-    return [int(math.floor(x)) for x in flatten(args)]
-
 class CmdPositioner:
     """Methods for setting and getting positions"""
     def __init__(self, connection, packagePrefix):
@@ -53,7 +48,7 @@ class CmdPositioner:
 
     def setTilePos(self, id, *args):
         """Set entity tile position (entityId:int) => Vec3"""
-        self.conn.send(self.pkg + b".setTile", id, intFloor(*args))
+        self.conn.send(self.pkg + b".setTile", id, args)
 
     def setDirection(self, id, *args):
         """Set entity direction (entityId:int, x,y,z)"""
@@ -176,32 +171,24 @@ class Minecraft:
         self.events = CmdEvents(connection)
 
     def getBlock(self, *args):
-        """Get block (x,y,z) => id:int"""
-        return int(self.conn.sendReceive(b"world.getBlock", intFloor(args)))
-
-    def getBlockWithData(self, *args):
-        """Get block with data (x,y,z) => Block"""
-        ans = self.conn.sendReceive(b"world.getBlockWithData", intFloor(args))
-        return Block(*list(map(int, ans.split(","))))
+        """Get block (x,y,z) => material:string"""
+        return self.conn.sendReceive(b"world.getBlock", args)
 
     def getBlocks(self, *args):
-        """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
-        s = self.conn.sendReceive(b"world.getBlocks", intFloor(args))
-        return map(int, s.split(","))
+        """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [material:string]"""
+        s = self.conn.sendReceive(b"world.getBlocks", args)
+        return s.split(",")
 
     def setBlock(self, *args):
         """Set block (x,y,z,id,[data])"""
-        self.conn.send(b"world.setBlock", intFloor(args))
+        self.conn.send(b"world.setBlock", args)
 
     def setBlocks(self, *args):
         """Set a cuboid of blocks (x0,y0,z0,x1,y1,z1,id,[data])"""
-        self.conn.send(b"world.setBlocks", intFloor(args))
+        self.conn.send(b"world.setBlocks", args)
 
     def setSign(self, *args):
-        """Set a sign (x,y,z,id,data,[line1,line2,line3,line4])
-        
-        Wall signs (id=68) require data for facing direction 2=north, 3=south, 4=west, 5=east
-        Standing signs (id=63) require data for facing rotation (0-15) 0=south, 4=west, 8=north, 12=east
+        """Set a sign (x,y,z,material,facing,[line1,line2,line3,line4])
         @author: Tim Cummings https://www.triptera.com.au/wordpress/"""
         lines = []
         flatargs = []
@@ -209,15 +196,15 @@ class Minecraft:
             flatargs.append(arg)
         for flatarg in flatargs[5:]:
             lines.append(flatarg.replace(",",";").replace(")","]").replace("(","["))
-        self.conn.send(b"world.setSign",intFloor(flatargs[0:5]) + lines)
+        self.conn.send(b"world.setSign",flatargs[0:4] + lines)
 
     def spawnEntity(self, *args):
         """Spawn entity (x,y,z,id,[data])"""
-        return int(self.conn.sendReceive(b"world.spawnEntity", intFloor(args)))
+        return int(self.conn.sendReceive(b"world.spawnEntity", args))
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
-        return int(self.conn.sendReceive(b"world.getHeight", intFloor(args)))
+        return int(self.conn.sendReceive(b"world.getHeight", args))
 
     def getPlayerEntityIds(self):
         """Get the entity ids of the connected players => [id:int]"""
@@ -245,10 +232,10 @@ class Minecraft:
         self.conn.send(b"world.setting", setting, 1 if bool(status) else 0)
 
     def getEntityTypes(self):
-        """Return a list of Entity objects representing all the entity types in Minecraft"""  
+        """Return a list of strings representing all the entity types in Minecraft"""  
         s = self.conn.sendReceive(b"world.getEntityTypes")
         types = [t for t in s.split("|") if t]
-        return [Entity(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in types]
+        return [e[:e.find(",")] for e in types]
 
 
     @staticmethod

@@ -12,8 +12,4 @@ public enum Color {
     LIGHT_GRAY, CYAN, PURPLE, BLUE,
     BROWN, GREEN, RED, BLACK;
 
-    /**
-     * the block DATA for the color
-     */
-    final int woolColorData = ordinal();
 }

@@ -1,7 +1,6 @@
 from .connection import Connection
 from .vec3 import Vec3
 from .event import BlockEvent
-from .block import Block
 import math
 from .util import flatten
 
@@ -17,9 +16,6 @@ from .util import flatten
 
     @author: Aron Nieminen, Mojang AB"""
 
-
-def intFloor(*args):
-    return [int(math.floor(x)) for x in flatten(args)]
 
 class CmdPositioner:
     """Methods for setting and getting positions"""
@@ -43,7 +39,7 @@ class CmdPositioner:
 
     def setTilePos(self, id, *args):
         """Set entity tile position (entityId:int) => Vec3"""
-        self.conn.send(self.pkg + b".setTile", id, intFloor(*args))
+        self.conn.send(self.pkg + b".setTile", id, args)
 
     def setting(self, setting, status):
         """Set a player setting (setting, status). keys: autojump"""
@@ -119,31 +115,26 @@ class Minecraft:
         self.events = CmdEvents(connection)
 
     def getBlock(self, *args):
-        """Get block (x,y,z) => id:int"""
-        return int(self.conn.sendReceive(b"world.getBlock", intFloor(args)))
-
-    def getBlockWithData(self, *args):
-        """Get block with data (x,y,z) => Block"""
-        ans = self.conn.sendReceive(b"world.getBlockWithData", intFloor(args))
-        return Block(*list(map(int, ans.split(","))))
+        """Get block (x,y,z) => material:string"""
+        return self.conn.sendReceive(b"world.getBlock", args)
     """
         @TODO
     """
     def getBlocks(self, *args):
-        """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [id:int]"""
-        return int(self.conn.sendReceive(b"world.getBlocks", intFloor(args)))
+        """Get a cuboid of blocks (x0,y0,z0,x1,y1,z1) => [material:string]"""
+        return self.conn.sendReceive(b"world.getBlocks", args)
 
     def setBlock(self, *args):
         """Set block (x,y,z,id,[data])"""
-        self.conn.send(b"world.setBlock", intFloor(args))
+        self.conn.send(b"world.setBlock", args)
 
     def setBlocks(self, *args):
         """Set a cuboid of blocks (x0,y0,z0,x1,y1,z1,id,[data])"""
-        self.conn.send(b"world.setBlocks", intFloor(args))
+        self.conn.send(b"world.setBlocks", args)
 
     def getHeight(self, *args):
         """Get the height of the world (x,z) => int"""
-        return int(self.conn.sendReceive(b"world.getHeight", intFloor(args)))
+        return int(self.conn.sendReceive(b"world.getHeight", args))
 
     def getPlayerEntityIds(self):
         """Get the entity ids of the connected players => [id:int]"""
