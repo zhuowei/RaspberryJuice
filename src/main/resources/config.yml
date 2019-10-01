@@ -5,4 +5,4 @@ port: 4711
 location: ABSOLUTE
 
 # Determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH
-hitclick: RIGHT
+hitclick: LEFT
