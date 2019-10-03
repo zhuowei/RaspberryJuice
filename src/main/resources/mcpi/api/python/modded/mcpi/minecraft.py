@@ -100,16 +100,16 @@ class CmdEntity(CmdPositioner):
         return self.conn.sendReceive(b"entity.getName", id)
 
     def getEntities(self, id, distance=10):
-        """Return a list of entities near player (playerEntityId:int, [distanceFromPlayerInBlocks:int]) => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
+        """Return a list of entities near entity (playerEntityId:int, [distanceFromPlayerInBlocks:int]) => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
         """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
         s = self.conn.sendReceive(b"entity.getEntities", id, distance)
         entities = [e for e in s.split("|") if e]
         return [ [int(n.split(",")[0]), int(n.split(",")[1]), n.split(",")[2], float(n.split(",")[3]), float(n.split(",")[4]), float(n.split(",")[5])] for n in entities]
 
-    def removeEntityType(self, *args):
-        """Remove entities all entities near player by type (playerEntityId:int, entityTypeId:int, [distanceFromPlayerInBlocks:int]) => (removedEntitiesCount:int)"""
+    def removeEntities(self, id, distance=10, type=-1):
+        """Remove entities all entities near entity (playerEntityId:int, [distanceFromPlayerInBlocks:int], entityTypeId:int, ) => (removedEntitiesCount:int)"""
         """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
-        return int(self.conn.sendReceive(b"entity.removeEntityType", args))
+        return int(self.conn.sendReceive(b"entity.removeEntities", id, distance, type))
 
 
 class CmdPlayer(CmdPositioner):

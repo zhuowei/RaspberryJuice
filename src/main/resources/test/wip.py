@@ -5,5 +5,7 @@ mc = minecraftmodded.Minecraft.create()
 
 entityid = mc.getPlayerEntityId("martinohanlon")
 print(mc.entity.getEntities(entityid))
+mc.entity.removeEntities(entityid)
+print(mc.entity.getEntities(entityid))
 
 print(entityid)

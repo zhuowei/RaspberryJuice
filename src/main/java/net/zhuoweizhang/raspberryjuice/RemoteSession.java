@@ -633,15 +633,14 @@ public class RemoteSession {
 				}
 				send(bdr.toString());
 					
-			// entity.removeEntityType
-			} else if (c.equals("entity.removeEntityType")) {
+			// entity.removeEntities
+			} else if (c.equals("entity.removeEntities")) {
 				int removedEntitiesCount = 0;
-				int distance = 10;
-				if (args.length > 2)
-					distance = Integer.parseInt(args[2]);
+				int distance = Integer.parseInt(args[1]);
 				Entity playerEntityId = plugin.getEntity(Integer.parseInt(args[0]));
+				int entityType = Integer.parseInt(args[2]);
 				for (Entity e : world.getEntities()) {
-					if (e.getType().getTypeId() == Integer.parseInt(args[1]) && getDistance(playerEntityId, e) <= distance)
+					if ((entityType == -1 || e.getType().getTypeId() == entityType) && getDistance(playerEntityId, e) <= distance)
 					{
 						e.remove();
 						removedEntitiesCount++;
