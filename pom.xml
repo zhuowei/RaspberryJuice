@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.zhuoweizhang</groupId>
     <artifactId>raspberryjuice</artifactId>
-    <version>1.11</version>
+    <version>1.12.1</version>
     <name>RaspberryJuice</name>
     <repositories>
         <repository>
