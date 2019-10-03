@@ -99,10 +99,10 @@ class CmdEntity(CmdPositioner):
         Also can be used to find name of entity if entity is not a player."""
         return self.conn.sendReceive(b"entity.getName", id)
 
-    def getEntities(self, *args):
+    def getEntities(self, id, distance=10):
         """Return a list of entities near player (playerEntityId:int, [distanceFromPlayerInBlocks:int]) => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
         """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
-        s = self.conn.sendReceive(b"entity.getEntities", args)
+        s = self.conn.sendReceive(b"entity.getEntities", id, distance)
         entities = [e for e in s.split("|") if e]
         return [ [int(n.split(",")[0]), int(n.split(",")[1]), n.split(",")[2], float(n.split(",")[3]), float(n.split(",")[4]), float(n.split(",")[5])] for n in entities]
 
@@ -276,7 +276,6 @@ class Minecraft:
         types = [t for t in s.split("|") if t]
         return [Entity(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in types]
     
-
     def getEntities(self):
         """Return a list of all currently loaded entities () => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
         s = self.conn.sendReceive(b"world.getEntities")

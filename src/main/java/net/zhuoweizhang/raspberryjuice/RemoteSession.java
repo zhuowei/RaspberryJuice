@@ -612,9 +612,7 @@ public class RemoteSession {
 				
 			// entity.getEntities
 			} else if (c.equals("entity.getEntities")) {
-				int distance = 10;
-				if (args.length > 1)
-					distance = Integer.parseInt(args[1]);
+				int distance = Integer.parseInt(args[1]);
 				Entity playerEntityId = plugin.getEntity(Integer.parseInt(args[0]));
 				StringBuilder bdr = new StringBuilder();
 				for (Entity e : world.getEntities()) {

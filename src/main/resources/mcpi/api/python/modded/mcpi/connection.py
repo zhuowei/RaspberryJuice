@@ -37,7 +37,7 @@ class Connection:
         """
 
         s = b"".join([f, b"(", flatten_parameters_to_bytestring(data), b")", b"\n"])
-
+        print(s)
         self._send(s)
 
     def _send(self, s):

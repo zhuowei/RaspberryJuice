@@ -1,6 +1,6 @@
 from .connection import Connection
 from .vec3 import Vec3
-from .event import BlockEvent, ChatEvent
+from .event import BlockEvent, ChatEvent, ProjectileEvent
 from .entity import Entity
 from .block import Block
 import math
@@ -99,17 +99,17 @@ class CmdEntity(CmdPositioner):
         Also can be used to find name of entity if entity is not a player."""
         return self.conn.sendReceive(b"entity.getName", id)
 
-    def getEntities(self, *args):
+    def getEntities(self, id, distance=10):
         """Return a list of entities near player (playerEntityId:int, [distanceFromPlayerInBlocks:int]) => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
         """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
-        s = self.conn.sendReceive(b"entity.getEntities", args)
+        s = self.conn.sendReceive(b"entity.getEntities", id, distance)
         entities = [e for e in s.split("|") if e]
         return [ [int(n.split(",")[0]), int(n.split(",")[1]), n.split(",")[2], float(n.split(",")[3]), float(n.split(",")[4]), float(n.split(",")[5])] for n in entities]
 
     def removeEntityType(self, *args):
         """Remove entities all entities near player by type (playerEntityId:int, entityTypeId:int, [distanceFromPlayerInBlocks:int]) => (removedEntitiesCount:int)"""
         """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
-        return self.conn.sendReceive(b"entity.removeEntityType", args)
+        return int(self.conn.sendReceive(b"entity.removeEntityType", args))
 
 
 class CmdPlayer(CmdPositioner):
@@ -165,21 +165,31 @@ class CmdEvents:
     def __init__(self, connection):
         self.conn = connection
 
-    def clearAll(self):
+    def clearAll(self, *args):
         """Clear all old events"""
-        self.conn.send(b"events.clear")
+        self.conn.send(b"events.clear", intFloor(args))
 
-    def pollBlockHits(self):
+    def pollBlockHits(self, *args):
         """Only triggered by sword => [BlockEvent]"""
-        s = self.conn.sendReceive(b"events.block.hits")
+        s = self.conn.sendReceive(b"events.block.hits", intFloor(args))
         events = [e for e in s.split("|") if e]
         return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
 
-    def pollChatPosts(self):
+    def pollChatPosts(self, *args):
         """Triggered by posts to chat => [ChatEvent]"""
-        s = self.conn.sendReceive(b"events.chat.posts")
+        s = self.conn.sendReceive(b"events.chat.posts", intFloor(args))
         events = [e for e in s.split("|") if e]
         return [ChatEvent.Post(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in events]
+    
+    def pollProjectileHits(self, *args):
+        """Only triggered by projectiles => [BlockEvent]"""
+        s = self.conn.sendReceive(b"events.projectile.hits", intFloor(args))
+        events = [e for e in s.split("|") if e]
+        results = []
+        for e in events:
+            info = e.split(",")
+            results.append(ProjectileEvent.Hit(*map(int,info[0:4]),*info[4:]))
+        return results
 
 class Minecraft:
     """The main class to interact with a running instance of Minecraft Pi."""
@@ -265,7 +275,7 @@ class Minecraft:
         s = self.conn.sendReceive(b"world.getEntityTypes")
         types = [t for t in s.split("|") if t]
         return [Entity(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in types]
-
+    
     def getEntities(self):
         """Return a list of all currently loaded entities () => [[entityId:int,entityTypeId:int,entityTypeName:str,posX:float,posY:float,posZ:float]]"""
         s = self.conn.sendReceive(b"world.getEntities")
@@ -274,11 +284,11 @@ class Minecraft:
 
     def removeEntity(self, id):
         """Remove entity by id (entityId:int) => (removedEntitiesCount:int)"""
-        return self.conn.sendReceive(b"world.removeEntity", int(id))
+        return int(self.conn.sendReceive(b"world.removeEntity", int(id)))
 
     def removeEntityType(self, entityTypeId):
         """Remove entities all currently loaded Entities by type (entityTypeId:int) => (removedEntitiesCount:int)"""
-        return self.conn.sendReceive(b"world.removeEntityType", int(entityTypeId))
+        return int(self.conn.sendReceive(b"world.removeEntityType", int(entityTypeId)))
 
     @staticmethod
     def create(address = "localhost", port = 4711):
