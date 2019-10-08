@@ -226,24 +226,8 @@ public class RemoteSession {
 				
 			// world.getEntities
 			} else if (c.equals("world.getEntities")) {
-				StringBuilder bdr = new StringBuilder();				
-				for (Entity e : world.getEntities()) {
-					if ( e.getType().isSpawnable() && e.getType().getTypeId() >= 0 ) {
-						bdr.append(e.getEntityId());
-						bdr.append(",");
-						bdr.append(e.getType().getTypeId());
-						bdr.append(",");
-						bdr.append(e.getType().toString());
-						bdr.append(",");
-						bdr.append(e.getLocation().getX());
-						bdr.append(",");
-						bdr.append(e.getLocation().getY());
-						bdr.append(",");
-						bdr.append(e.getLocation().getZ());
-						bdr.append("|");
-					}
-				}
-				send(bdr.toString());
+				int entityType = Integer.parseInt(args[0]);
+				send(getEntities(world, entityType));
 				
 			// world.removeEntity
 			} else if (c.equals("world.removeEntity")) {
@@ -258,11 +242,12 @@ public class RemoteSession {
 				}
 				send(result);
 				
-			// world.removeEntityType
-			} else if (c.equals("world.removeEntityType")) {
+			// world.removeEntities
+			} else if (c.equals("world.removeEntities")) {
+				int entityType = Integer.parseInt(args[0]);
 				int removedEntitiesCount = 0;
 				for (Entity e : world.getEntities()) {
-					if (e.getType().getTypeId() == Integer.parseInt(args[0]))
+					if (entityType == -1 || e.getType().getTypeId() == entityType)
 					{
 						e.remove();
 						removedEntitiesCount++;
@@ -483,8 +468,24 @@ public class RemoteSession {
 			} else if (c.equals("player.getPitch")) {
 				Player currentPlayer = getCurrentPlayer();
 				send(currentPlayer.getLocation().getPitch());
+
+			// player.getEntities
+			} else if (c.equals("player.getEntities")) {
+				Player currentPlayer = getCurrentPlayer();
+				int distance = Integer.parseInt(args[0]);
+				int entityTypeId = Integer.parseInt(args[1]);
+
+				send(getEntities(world, currentPlayer.getEntityId(), distance, entityTypeId));
+
+			// player.removeEntities
+			} else if (c.equals("player.removeEntities")) {
+				Player currentPlayer = getCurrentPlayer();
+				int distance = Integer.parseInt(args[0]);
+				int entityType = Integer.parseInt(args[1]);
+
+				send(removeEntities(world, currentPlayer.getEntityId(), distance, entityType));
 				
-				// world.getHeight
+			// world.getHeight
 			} else if (c.equals("world.getHeight")) {
 				send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
 				
@@ -612,41 +613,19 @@ public class RemoteSession {
 				
 			// entity.getEntities
 			} else if (c.equals("entity.getEntities")) {
+				int entityId = Integer.parseInt(args[0]);
 				int distance = Integer.parseInt(args[1]);
-				Entity playerEntityId = plugin.getEntity(Integer.parseInt(args[0]));
-				StringBuilder bdr = new StringBuilder();
-				for (Entity e : world.getEntities()) {
-					if ( e.getType().isSpawnable() && e.getType().getTypeId() >= 0 && getDistance(playerEntityId, e) <= distance) {
-						bdr.append(e.getEntityId());
-						bdr.append(",");
-						bdr.append(e.getType().getTypeId());
-						bdr.append(",");
-						bdr.append(e.getType().toString());
-						bdr.append(",");
-						bdr.append(e.getLocation().getX());
-						bdr.append(",");
-						bdr.append(e.getLocation().getY());
-						bdr.append(",");
-						bdr.append(e.getLocation().getZ());
-						bdr.append("|");
-					}
-				}
-				send(bdr.toString());
+				int entityTypeId = Integer.parseInt(args[2]);
+
+				send(getEntities(world, entityId, distance, entityTypeId));
 					
 			// entity.removeEntities
 			} else if (c.equals("entity.removeEntities")) {
-				int removedEntitiesCount = 0;
+				int entityId = Integer.parseInt(args[0]);
 				int distance = Integer.parseInt(args[1]);
-				Entity playerEntityId = plugin.getEntity(Integer.parseInt(args[0]));
 				int entityType = Integer.parseInt(args[2]);
-				for (Entity e : world.getEntities()) {
-					if ((entityType == -1 || e.getType().getTypeId() == entityType) && getDistance(playerEntityId, e) <= distance)
-					{
-						e.remove();
-						removedEntitiesCount++;
-					}
-				}
-				send(removedEntitiesCount);
+
+				send(removeEntities(world, entityId, distance, entityType));
 				
 			// world.setSign
 			} else if (c.equals("world.setSign")) {
@@ -851,7 +830,61 @@ public class RemoteSession {
 		double dz = ent2.getLocation().getZ() - ent1.getLocation().getZ();
 		return (int)Math.sqrt(dx*dx + dy*dy + dz*dz);
 	}
+
+	private String getEntities(World world, int entityType) {
+		StringBuilder bdr = new StringBuilder();				
+		for (Entity e : world.getEntities()) {
+			if (((entityType == -1 && e.getType().getTypeId() >= 0) || e.getType().getTypeId() == entityType) && 
+				e.getType().isSpawnable()) {
+				bdr.append(getEntityMsg(e));
+			}
+		}
+		return bdr.toString();
+	}
 	
+	private String getEntities(World world, int entityId, int distance, int entityType) {
+		Entity playerEntity = plugin.getEntity(entityId);
+		StringBuilder bdr = new StringBuilder();
+		for (Entity e : world.getEntities()) {
+			if (((entityType == -1 && e.getType().getTypeId() >= 0) || e.getType().getTypeId() == entityType) && 
+				e.getType().isSpawnable() && 
+				getDistance(playerEntity, e) <= distance) {
+				bdr.append(getEntityMsg(e));
+			}
+		}
+		return bdr.toString();
+	}
+
+	private String getEntityMsg(Entity entity) {
+		StringBuilder bdr = new StringBuilder();
+		bdr.append(entity.getEntityId());
+		bdr.append(",");
+		bdr.append(entity.getType().getTypeId());
+		bdr.append(",");
+		bdr.append(entity.getType().toString());
+		bdr.append(",");
+		bdr.append(entity.getLocation().getX());
+		bdr.append(",");
+		bdr.append(entity.getLocation().getY());
+		bdr.append(",");
+		bdr.append(entity.getLocation().getZ());
+		bdr.append("|");
+		return bdr.toString();
+	}
+
+	private int removeEntities(World world, int entityId, int distance, int entityType) {
+		int removedEntitiesCount = 0;
+		Entity playerEntityId = plugin.getEntity(entityId);
+		for (Entity e : world.getEntities()) {
+			if ((entityType == -1 || e.getType().getTypeId() == entityType) && getDistance(playerEntityId, e) <= distance)
+			{
+				e.remove();
+				removedEntitiesCount++;
+			}
+		}
+		return removedEntitiesCount;
+	}
+
 	public void send(Object a) {
 		send(a.toString());
 	}
