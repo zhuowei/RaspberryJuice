@@ -822,13 +822,13 @@ public class RemoteSession {
 		return new Location(world, originX + x, originY + y, originZ + z);
 	}
 
-	private int getDistance(Entity ent1, Entity ent2) {
+	private double getDistance(Entity ent1, Entity ent2) {
 		if (ent1 == null || ent2 == null)
 			return -1;
 		double dx = ent2.getLocation().getX() - ent1.getLocation().getX();
 		double dy = ent2.getLocation().getY() - ent1.getLocation().getY();
 		double dz = ent2.getLocation().getZ() - ent1.getLocation().getZ();
-		return (int)Math.sqrt(dx*dx + dy*dy + dz*dz);
+		return Math.sqrt(dx*dx + dy*dy + dz*dz);
 	}
 
 	private String getEntities(World world, int entityType) {
