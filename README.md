@@ -51,11 +51,11 @@ Modify config.yml:
 
  - port: 4711 - the default tcp port can be changed in config.yml
  - location: RELATIVE - determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
- - hitclick: RIGHT - determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH 
+ - hitclick: RIGHT - determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH
 
 ## Libraries
 
-To use the extra features an modded version of the java and python libraries that were originally supplied by Mojang with the Pi is required, [github.com/zhuowei/RaspberryJuice/tree/master/src/main/resources/mcpi](https://github.com/zhuowei/RaspberryJuice/tree/master/src/main/resources/mcpi).  
+To use the extra features an modded version of the java and python libraries that were originally supplied by Mojang with the Pi is required, [github.com/zhuowei/RaspberryJuice/tree/master/src/main/resources/mcpi](https://github.com/zhuowei/RaspberryJuice/tree/master/src/main/resources/mcpi).
 
 You only need the modded libraries to use the extra features, the original libraries supplied with Minecraft Pi edition still work, you just wont be able to use the extra features
 
@@ -68,6 +68,35 @@ git clone https://github.com/zhuowei/RaspberryJuice
 cd RaspberryJuice
 mvn package
 ```
+
+## Pocket edition clients
+
+Mobile clients (also known as Bedrock edition) are supported using [Nukkit]
+server and [Pokkit] plugin that provides interoperability between Nukkit and
+Bukkit.
+
+I made sure the following versions work together: Minecraft PE for Android
+1.12.1, Nukkit server 1.0-SNAPSHOT, Pokkit plugin 0.9 and this RaspberryJuice
+plugin 1.11-pe.
+
+Running the server is easy. First run the server:
+
+    java -jar nukkit-1.0-SNAPSHOT.jar
+
+Then stop it, note the `plugins` directory appeared next to it. Put Pokkit jar
+there and run the server again. Then stop it again and note new directories
+`plugins/Pokkit/bukkitPlugins/` appeared. Put RaspberryJuice jar there and
+eventually run the server again. Connect your mobile client to the server at
+port 19132 by default. To manually check the setup, you may do the following:
+
+    nc localhost 4711
+    player.getTile()
+    75,-5,-5                           <-- your coordinates
+    world.setBlock(75,-6,-5,3)         <-- will add a dirt block below you
+    world.spawnEntity(75,-4,-5,93)     <-- will spawn a chicken above you
+
+[Nukkit]: https://github.com/NukkitX/Nukkit
+[Pokkit]: https://github.com/PetteriM1/Pokkit
 
 ## Version history
 
