@@ -37,6 +37,8 @@ public class RemoteSession {
 
 	public RaspberryJuicePlugin plugin;
 
+	public Map<Integer, Material> materialById;
+
 	protected ArrayDeque<PlayerInteractEvent> interactEventQueue = new ArrayDeque<PlayerInteractEvent>();
 	
 	protected ArrayDeque<AsyncPlayerChatEvent> chatPostedQueue = new ArrayDeque<AsyncPlayerChatEvent>();
@@ -60,6 +62,10 @@ public class RemoteSession {
 		socket.setTrafficClass(0x10);
 		this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		this.materialById = new HashMap<Integer, Material>();
+		for (Material m : Material.values()) {
+			this.materialById.put(m.getId(), m);
+		}
 		startThreads();
 		plugin.getLogger().info("Opened connection to" + socket.getRemoteSocketAddress() + ".");
 	}
@@ -146,7 +152,7 @@ public class RemoteSession {
 			// world.getBlock
 			if (c.equals("world.getBlock")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockTypeIdAt(loc));
+				send(world.getBlockAt(loc).getType().getId());
 				
 			// world.getBlocks
 			} else if (c.equals("world.getBlocks")) {
@@ -157,7 +163,8 @@ public class RemoteSession {
 			// world.getBlockWithData
 			} else if (c.equals("world.getBlockWithData")) {
 				Location loc = parseRelativeBlockLocation(args[0], args[1], args[2]);
-				send(world.getBlockTypeIdAt(loc) + "," + world.getBlockAt(loc).getData());
+				Block block = world.getBlockAt(loc);
+				send(block.getType().getId() + "," + block.getData());
 				
 			// world.setBlock
 			} else if (c.equals("world.setBlock")) {
@@ -478,8 +485,8 @@ public class RemoteSession {
 				//facing direction for wall sign : 2=north, 3=south, 4=west, 5=east
 				//rotation 0 - to 15 for standing sign : 0=south, 4=west, 8=north, 12=east
 				byte blockData = Byte.parseByte(args[4]); 
-				if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
-					thisBlock.setTypeIdAndData(blockType, blockData, true);
+				if ((thisBlock.getType().getId() != blockType) || (thisBlock.getData() != blockData)) {
+					updateBlock(thisBlock, blockType, blockData);
 				}
 				//plugin.getLogger().info("Creating sign at " + loc);
 				if ( thisBlock.getState() instanceof Sign ) {
@@ -559,7 +566,7 @@ public class RemoteSession {
 		for (int y = minY; y <= maxY; ++y) {
 			 for (int x = minX; x <= maxX; ++x) {
 				 for (int z = minZ; z <= maxZ; ++z) {
-					blockData.append(new Integer(world.getBlockTypeIdAt(x, y, z)).toString() + ",");
+					 blockData.append(new Integer(world.getBlockAt(x, y, z).getType().getId()).toString() + ",");
 				}
 			}
 		}
@@ -579,9 +586,16 @@ public class RemoteSession {
 	}
 	
 	private void updateBlock(Block thisBlock, int blockType, byte blockData) {
+		if (blockData != 0) {
+			plugin.getLogger().warning(
+				"Block data byte (" + blockData + ") " +
+				"is no longer supported by API, ignored. " +
+				"Use materials instead.");
+		}
 		// check to see if the block is different - otherwise leave it 
-		if ((thisBlock.getTypeId() != blockType) || (thisBlock.getData() != blockData)) {
-			thisBlock.setTypeIdAndData(blockType, blockData, true);
+		if (thisBlock.getType().getId() != blockType) {
+			Material material = this.materialById.get(blockType);
+			thisBlock.setType(material, true);
 		}
 	}
 	

@@ -1,6 +1,7 @@
 # RaspberryJuice
 
 A Bukkit plugin which implements the Minecraft Pi Socket API.
+Also supports Nukkit (server for pocket edition clients).
 
 ## Commands
 

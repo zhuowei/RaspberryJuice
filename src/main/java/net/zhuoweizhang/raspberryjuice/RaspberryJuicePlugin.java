@@ -18,10 +18,10 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	public static final Set<Material> blockBreakDetectionTools = EnumSet.of(
 			Material.DIAMOND_SWORD,
-			Material.GOLD_SWORD, 
+			Material.LEGACY_GOLD_SWORD,
 			Material.IRON_SWORD, 
 			Material.STONE_SWORD, 
-			Material.WOOD_SWORD);
+			Material.LEGACY_WOOD_SWORD);
 
 	public ServerListenerThread serverThread;
 
