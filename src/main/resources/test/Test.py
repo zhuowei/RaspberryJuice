@@ -775,6 +775,15 @@ def runTests(mc, library="Standard library", extended=False):
         mc.spawnEntity(tilePos.x + 2, tilePos.y + 2, tilePos.x + 2, entitymodded.CREEPER)
         mc.postToChat("Creeper spawned")
 
+        mc.postToChat("Fire Arrow")
+        arrowFired = False
+        while not arrowFired:
+            time.sleep(1)
+            projectileHits = mc.events.pollProjectileHits()
+            for projectileHit in projectileHits:
+                mc.postToChat("Arrow hit - x:" + str(projectileHit.pos.x) + " y:" + str(projectileHit.pos.y) + " z:" + str(projectileHit.pos.z))
+                arrowFired = True
+                
         mc.postToChat("Post To Chat - Run full block and entity test Y/N?")
         chatPosted = False
         fullTests = False
