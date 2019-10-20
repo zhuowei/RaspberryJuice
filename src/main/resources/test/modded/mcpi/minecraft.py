@@ -111,6 +111,31 @@ class CmdEntity(CmdPositioner):
         """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
         return int(self.conn.sendReceive(b"entity.removeEntities", id, distance, typeId))
 
+    def pollBlockHits(self, *args):
+        """Only triggered by sword => [BlockEvent]"""
+        s = self.conn.sendReceive(b"entity.events.block.hits", intFloor(args))
+        events = [e for e in s.split("|") if e]
+        return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
+
+    def pollChatPosts(self, *args):
+        """Triggered by posts to chat => [ChatEvent]"""
+        s = self.conn.sendReceive(b"entity.events.chat.posts", intFloor(args))
+        events = [e for e in s.split("|") if e]
+        return [ChatEvent.Post(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in events]
+    
+    def pollProjectileHits(self, *args):
+        """Only triggered by projectiles => [BlockEvent]"""
+        s = self.conn.sendReceive(b"entity.events.projectile.hits", intFloor(args))
+        events = [e for e in s.split("|") if e]
+        results = []
+        for e in events:
+            info = e.split(",")
+            results.append(ProjectileEvent.Hit(*map(int,info[0:4]),*info[4:]))
+        return results
+
+    def clearEvents(self, *args):
+        """Clear the entities events"""
+        self.conn.send(b"entity.events.clear", intFloor(args))
 
 class CmdPlayer(CmdPositioner):
     """Methods for the host (Raspberry Pi) player"""
@@ -151,6 +176,32 @@ class CmdPlayer(CmdPositioner):
         """If distanceFromPlayerInBlocks:int is not specified then default 10 blocks will be used"""
         return int(self.conn.sendReceive(b"player.removeEntities", distance, typeId))
 
+    def pollBlockHits(self):
+        """Only triggered by sword => [BlockEvent]"""
+        s = self.conn.sendReceive(b"player.events.block.hits")
+        events = [e for e in s.split("|") if e]
+        return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
+
+    def pollChatPosts(self):
+        """Triggered by posts to chat => [ChatEvent]"""
+        s = self.conn.sendReceive(b"player.events.chat.posts")
+        events = [e for e in s.split("|") if e]
+        return [ChatEvent.Post(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in events]
+    
+    def pollProjectileHits(self):
+        """Only triggered by projectiles => [BlockEvent]"""
+        s = self.conn.sendReceive(b"player.events.projectile.hits")
+        events = [e for e in s.split("|") if e]
+        results = []
+        for e in events:
+            info = e.split(",")
+            results.append(ProjectileEvent.Hit(*map(int,info[0:4]),*info[4:]))
+        return results
+
+    def clearEvents(self):
+        """Clear the players events"""
+        self.conn.send(b"player.events.clear")
+
 class CmdCamera:
     def __init__(self, connection):
         self.conn = connection
@@ -177,25 +228,25 @@ class CmdEvents:
     def __init__(self, connection):
         self.conn = connection
 
-    def clearAll(self, *args):
+    def clearAll(self):
         """Clear all old events"""
-        self.conn.send(b"events.clear", intFloor(args))
+        self.conn.send(b"events.clear")
 
-    def pollBlockHits(self, *args):
+    def pollBlockHits(self):
         """Only triggered by sword => [BlockEvent]"""
-        s = self.conn.sendReceive(b"events.block.hits", intFloor(args))
+        s = self.conn.sendReceive(b"events.block.hits")
         events = [e for e in s.split("|") if e]
         return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
 
-    def pollChatPosts(self, *args):
+    def pollChatPosts(self):
         """Triggered by posts to chat => [ChatEvent]"""
-        s = self.conn.sendReceive(b"events.chat.posts", intFloor(args))
+        s = self.conn.sendReceive(b"events.chat.posts")
         events = [e for e in s.split("|") if e]
         return [ChatEvent.Post(int(e[:e.find(",")]), e[e.find(",") + 1:]) for e in events]
     
-    def pollProjectileHits(self, *args):
+    def pollProjectileHits(self):
         """Only triggered by projectiles => [BlockEvent]"""
-        s = self.conn.sendReceive(b"events.projectile.hits", intFloor(args))
+        s = self.conn.sendReceive(b"events.projectile.hits")
         events = [e for e in s.split("|") if e]
         results = []
         for e in events:
