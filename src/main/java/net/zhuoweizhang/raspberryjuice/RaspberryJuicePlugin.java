@@ -1,17 +1,26 @@
 package net.zhuoweizhang.raspberryjuice;
 
-import java.net.*;
-import java.util.*;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
@@ -84,6 +93,14 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		//setup the schedule to called the tick handler
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new TickHandler(), 1, 1);
 	}
+	
+	@EventHandler
+	public void PlayerJoin(PlayerJoinEvent event) {
+		Player p = event.getPlayer();
+		//p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 2, true, false));	// give night vision power
+		Server server = getServer();
+		server.broadcastMessage("Welcome " + p.getPlayerListName());
+	}
 
 	@EventHandler(ignoreCancelled=true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
@@ -114,6 +131,14 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		//getLogger().info("Chat event fired");
 		for (RemoteSession session: sessions) {
 			session.queueChatPostedEvent(event);
+		}
+	}
+	
+	@EventHandler(ignoreCancelled=true)
+	public void onProjectileHit(ProjectileHitEvent event) {
+		
+		for (RemoteSession session: sessions) {
+			session.queueProjectileHitEvent(event);
 		}
 	}
 
@@ -209,4 +234,3 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		}
 	}
 }
-

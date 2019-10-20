@@ -1,14 +1,30 @@
 package net.zhuoweizhang.raspberryjuice;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
+import java.util.ArrayDeque;
+import java.util.Collection;
+import java.util.Iterator;
 
-import org.bukkit.*;
-import org.bukkit.entity.*;
-import org.bukkit.block.*;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Server;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
 
 public class RemoteSession {
@@ -40,6 +56,8 @@ public class RemoteSession {
 	protected ArrayDeque<PlayerInteractEvent> interactEventQueue = new ArrayDeque<PlayerInteractEvent>();
 	
 	protected ArrayDeque<AsyncPlayerChatEvent> chatPostedQueue = new ArrayDeque<AsyncPlayerChatEvent>();
+	
+	protected ArrayDeque<ProjectileHitEvent> projectileHitQueue = new ArrayDeque<ProjectileHitEvent>();
 
 	private int maxCommandsPerTick = 9000;
 
@@ -58,8 +76,8 @@ public class RemoteSession {
 		socket.setTcpNoDelay(true);
 		socket.setKeepAlive(true);
 		socket.setTrafficClass(0x10);
-		this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+		this.in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+		this.out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
 		startThreads();
 		plugin.getLogger().info("Opened connection to" + socket.getRemoteSocketAddress() + ".");
 	}
@@ -92,6 +110,17 @@ public class RemoteSession {
 	public void queueChatPostedEvent(AsyncPlayerChatEvent event) {
 		//plugin.getLogger().info(event.toString());
 		chatPostedQueue.add(event);
+	}
+	
+	public void queueProjectileHitEvent(ProjectileHitEvent event) {
+		//plugin.getLogger().info(event.toString());
+
+		if (event.getEntityType() == EntityType.ARROW) {
+			Arrow arrow = (Arrow) event.getEntity();
+			if (arrow.getShooter() instanceof Player) {
+				projectileHitQueue.add(event);
+			}
+		}
 	}
 
 	/** called from the server main thread */
@@ -196,6 +225,7 @@ public class RemoteSession {
 					plugin.getLogger().info("Player [" + args[0] + "] not found.");
 					send("Fail");
 				}
+				
 			// entity.getListName
 			} else if (c.equals("entity.getName")) {
 				Entity e = plugin.getEntity(Integer.parseInt(args[0]));
@@ -209,6 +239,37 @@ public class RemoteSession {
 					send(e.getName());
 				}
 				
+			// world.getEntities
+			} else if (c.equals("world.getEntities")) {
+				int entityType = Integer.parseInt(args[0]);
+				send(getEntities(world, entityType));
+				
+			// world.removeEntity
+			} else if (c.equals("world.removeEntity")) {
+				int result = 0;
+				for (Entity e : world.getEntities()) {
+					if (e.getEntityId() == Integer.parseInt(args[0]))
+					{
+						e.remove();
+						result = 1;
+						break;
+					}
+				}
+				send(result);
+				
+			// world.removeEntities
+			} else if (c.equals("world.removeEntities")) {
+				int entityType = Integer.parseInt(args[0]);
+				int removedEntitiesCount = 0;
+				for (Entity e : world.getEntities()) {
+					if (entityType == -1 || e.getType().getTypeId() == entityType)
+					{
+						e.remove();
+						removedEntitiesCount++;
+					}
+				}
+				send(removedEntitiesCount);
+				
 			// chat.post
 			} else if (c.equals("chat.post")) {
 				//create chat message from args as it was split by ,
@@ -219,7 +280,7 @@ public class RemoteSession {
 				}
 				chatMessage = chatMessage.substring(0, chatMessage.length() - 1);
 				server.broadcastMessage(chatMessage);
-				
+
 			// events.clear
 			} else if (c.equals("events.clear")) {
 				interactEventQueue.clear();
@@ -227,38 +288,38 @@ public class RemoteSession {
 				
 			// events.block.hits
 			} else if (c.equals("events.block.hits")) {
-				StringBuilder b = new StringBuilder();
-		 		PlayerInteractEvent event;
-				while ((event = interactEventQueue.poll()) != null) {
-					Block block = event.getClickedBlock();
-					Location loc = block.getLocation();
-					b.append(blockLocationToRelative(loc));
-					b.append(",");
-					b.append(blockFaceToNotch(event.getBlockFace()));
-					b.append(",");
-					b.append(event.getPlayer().getEntityId());
-					if (interactEventQueue.size() > 0) {
-						b.append("|");
-					}
-				}
-				send(b.toString());
-			
+				send(getBlockHits());
+				
 			// events.chat.posts
 			} else if (c.equals("events.chat.posts")) {
-				StringBuilder b = new StringBuilder();
-				AsyncPlayerChatEvent event;
-				while ((event = chatPostedQueue.poll()) != null) {
-					b.append(event.getPlayer().getEntityId());
-					b.append(",");
-					b.append(event.getMessage());
-					if (chatPostedQueue.size() > 0) {
-						b.append("|");
-					}
-				}
-				send(b.toString());
+				send(getChatPosts());
 				
+			// events.projectile.hits
+			} else if(c.equals("events.projectile.hits")) {
+				send(getProjectileHits());
+				
+			// entity.events.clear
+			} else if (c.equals("entity.events.clear")) {
+				int entityId = Integer.parseInt(args[0]);
+				clearEntityEvents(entityId);
+				
+			// entity.events.block.hits
+			} else if (c.equals("entity.events.block.hits")) {
+				int entityId = Integer.parseInt(args[0]);
+				send(getBlockHits(entityId));
+				
+			// entity.events.chat.posts
+			} else if (c.equals("entity.events.chat.posts")) {
+				int entityId = Integer.parseInt(args[0]);
+				send(getChatPosts(entityId));
+				
+			// entity.events.projectile.hits
+			} else if(c.equals("entity.events.projectile.hits")) {
+				int entityId = Integer.parseInt(args[0]);
+				send(getProjectileHits(entityId));
+			
 			// player.getTile
-			} else if (c.equals("player.getTile")) {
+			}else if (c.equals("player.getTile")) {
 				Player currentPlayer = getCurrentPlayer();
 				send(blockLocationToRelative(currentPlayer.getLocation()));
 				
@@ -342,8 +403,44 @@ public class RemoteSession {
 			} else if (c.equals("player.getPitch")) {
 				Player currentPlayer = getCurrentPlayer();
 				send(currentPlayer.getLocation().getPitch());
+
+			// player.getEntities
+			} else if (c.equals("player.getEntities")) {
+				Player currentPlayer = getCurrentPlayer();
+				int distance = Integer.parseInt(args[0]);
+				int entityTypeId = Integer.parseInt(args[1]);
+
+				send(getEntities(world, currentPlayer.getEntityId(), distance, entityTypeId));
+
+			// player.removeEntities
+			} else if (c.equals("player.removeEntities")) {
+				Player currentPlayer = getCurrentPlayer();
+				int distance = Integer.parseInt(args[0]);
+				int entityType = Integer.parseInt(args[1]);
+
+				send(removeEntities(world, currentPlayer.getEntityId(), distance, entityType));
+
+			// player.events.block.hits
+			} else if (c.equals("player.events.block.hits")) {
+				Player currentPlayer = getCurrentPlayer();
+				send(getBlockHits(currentPlayer.getEntityId()));
 				
-				// world.getHeight
+			// player.events.chat.posts
+			} else if (c.equals("player.events.chat.posts")) {
+				Player currentPlayer = getCurrentPlayer();
+				send(getChatPosts(currentPlayer.getEntityId()));
+				
+			// player.events.projectile.hits
+			} else if(c.equals("player.events.projectile.hits")) {
+				Player currentPlayer = getCurrentPlayer();
+				send(getProjectileHits(currentPlayer.getEntityId()));
+			
+			// player.events.clear
+			} else if (c.equals("player.events.clear")) {
+				Player currentPlayer = getCurrentPlayer();
+				clearEntityEvents(currentPlayer.getEntityId());
+				
+			// world.getHeight
 			} else if (c.equals("world.getHeight")) {
 				send(world.getHighestBlockYAt(parseRelativeBlockLocation(args[0], "0", args[1])) - origin.getBlockY());
 				
@@ -468,6 +565,22 @@ public class RemoteSession {
 					plugin.getLogger().info("Entity [" + args[0] + "] not found.");
 					send("Fail");
 				}
+				
+			// entity.getEntities
+			} else if (c.equals("entity.getEntities")) {
+				int entityId = Integer.parseInt(args[0]);
+				int distance = Integer.parseInt(args[1]);
+				int entityTypeId = Integer.parseInt(args[2]);
+
+				send(getEntities(world, entityId, distance, entityTypeId));
+					
+			// entity.removeEntities
+			} else if (c.equals("entity.removeEntities")) {
+				int entityId = Integer.parseInt(args[0]);
+				int distance = Integer.parseInt(args[1]);
+				int entityType = Integer.parseInt(args[2]);
+
+				send(removeEntities(world, entityId, distance, entityType));
 				
 			// world.setSign
 			} else if (c.equals("world.setSign")) {
@@ -595,6 +708,22 @@ public class RemoteSession {
 		}
 		return player;
 	}
+	
+	public Player getCurrentPlayer(String name) {
+		// if a named player is returned use that
+		Player player = plugin.getNamedPlayer(name);
+		// otherwise if there is an attached player for this session use that
+		if (player == null) {
+			player = attachedPlayer;
+			// otherwise go and get the host player and make that the attached player
+			if (player == null) {
+				player = plugin.getHostPlayer();
+				attachedPlayer = player;
+			}
+		}
+		return player;
+	}
+
 
 	public Location parseRelativeBlockLocation(String xstr, String ystr, String zstr) {
 		int x = (int) Double.parseDouble(xstr);
@@ -648,6 +777,180 @@ public class RemoteSession {
 		return new Location(world, originX + x, originY + y, originZ + z);
 	}
 
+	private double getDistance(Entity ent1, Entity ent2) {
+		if (ent1 == null || ent2 == null)
+			return -1;
+		double dx = ent2.getLocation().getX() - ent1.getLocation().getX();
+		double dy = ent2.getLocation().getY() - ent1.getLocation().getY();
+		double dz = ent2.getLocation().getZ() - ent1.getLocation().getZ();
+		return Math.sqrt(dx*dx + dy*dy + dz*dz);
+	}
+
+	private String getEntities(World world, int entityType) {
+		StringBuilder bdr = new StringBuilder();				
+		for (Entity e : world.getEntities()) {
+			if (((entityType == -1 && e.getType().getTypeId() >= 0) || e.getType().getTypeId() == entityType) && 
+				e.getType().isSpawnable()) {
+				bdr.append(getEntityMsg(e));
+			}
+		}
+		return bdr.toString();
+	}
+	
+	private String getEntities(World world, int entityId, int distance, int entityType) {
+		Entity playerEntity = plugin.getEntity(entityId);
+		StringBuilder bdr = new StringBuilder();
+		for (Entity e : world.getEntities()) {
+			if (((entityType == -1 && e.getType().getTypeId() >= 0) || e.getType().getTypeId() == entityType) && 
+				e.getType().isSpawnable() && 
+				getDistance(playerEntity, e) <= distance) {
+				bdr.append(getEntityMsg(e));
+			}
+		}
+		return bdr.toString();
+	}
+
+	private String getEntityMsg(Entity entity) {
+		StringBuilder bdr = new StringBuilder();
+		bdr.append(entity.getEntityId());
+		bdr.append(",");
+		bdr.append(entity.getType().getTypeId());
+		bdr.append(",");
+		bdr.append(entity.getType().toString());
+		bdr.append(",");
+		bdr.append(entity.getLocation().getX());
+		bdr.append(",");
+		bdr.append(entity.getLocation().getY());
+		bdr.append(",");
+		bdr.append(entity.getLocation().getZ());
+		bdr.append("|");
+		return bdr.toString();
+	}
+
+	private int removeEntities(World world, int entityId, int distance, int entityType) {
+		int removedEntitiesCount = 0;
+		Entity playerEntityId = plugin.getEntity(entityId);
+		for (Entity e : world.getEntities()) {
+			if ((entityType == -1 || e.getType().getTypeId() == entityType) && getDistance(playerEntityId, e) <= distance)
+			{
+				e.remove();
+				removedEntitiesCount++;
+			}
+		}
+		return removedEntitiesCount;
+	}
+
+	private String getBlockHits() {
+		return getBlockHits(-1);
+	}
+
+	private String getBlockHits(int entityId) {
+		StringBuilder b = new StringBuilder();
+		for (Iterator<PlayerInteractEvent> iter = interactEventQueue.iterator(); iter.hasNext(); ) {
+			PlayerInteractEvent event = iter.next();
+			if (entityId == -1 || event.getPlayer().getEntityId() == entityId) {
+				Block block = event.getClickedBlock();
+				Location loc = block.getLocation();
+				b.append(blockLocationToRelative(loc));
+				b.append(",");
+				b.append(blockFaceToNotch(event.getBlockFace()));
+				b.append(",");
+				b.append(event.getPlayer().getEntityId());
+				b.append("|");
+				iter.remove();
+			}
+		}
+		if (b.length() > 0)
+			b.deleteCharAt(b.length() - 1);
+
+		return b.toString();
+	}
+
+	private String getChatPosts() {
+		return getChatPosts(-1);
+	}
+
+	private String getChatPosts(int entityId) {
+		StringBuilder b = new StringBuilder();
+		for (Iterator<AsyncPlayerChatEvent> iter = chatPostedQueue.iterator(); iter.hasNext(); ) {
+			AsyncPlayerChatEvent event = iter.next();
+			if (entityId == -1 || event.getPlayer().getEntityId() == entityId) {
+				b.append(event.getPlayer().getEntityId());
+				b.append(",");
+				b.append(event.getMessage());
+				b.append("|");
+				iter.remove();
+			}
+		}
+		if (b.length() > 0)
+			b.deleteCharAt(b.length() - 1);
+		 return b.toString();
+	}
+
+	private String getProjectileHits() {
+		return getProjectileHits(-1);
+	}
+
+	private String getProjectileHits(int entityId) {
+		StringBuilder b = new StringBuilder();
+		for (Iterator<ProjectileHitEvent> iter = projectileHitQueue.iterator(); iter.hasNext(); ) {
+			ProjectileHitEvent event = iter.next();
+			Arrow arrow = (Arrow) event.getEntity();
+			LivingEntity shooter = (LivingEntity)arrow.getShooter();
+			if (entityId == -1 || shooter.getEntityId() == entityId) {
+				if (shooter instanceof Player) {
+					Player player = (Player)shooter;
+					Block block = arrow.getAttachedBlock(); 
+					if (block == null)
+						block = arrow.getLocation().getBlock();
+					Location loc = block.getLocation();
+					b.append(blockLocationToRelative(loc));
+					b.append(",");
+					b.append(1); //blockFaceToNotch(event.getBlockFace()), but don't really care
+					b.append(",");
+					b.append(player.getPlayerListName());
+					b.append(",");
+					Entity hitEntity = event.getHitEntity();
+					if(hitEntity!=null){
+						if(hitEntity instanceof Player){	
+							Player hitPlayer = (Player)hitEntity;
+							b.append(hitPlayer.getPlayerListName());
+						}else{
+							b.append(hitEntity.getName());
+						}
+					}
+				}
+				b.append("|");
+				arrow.remove();
+				iter.remove();
+			}						
+		}
+		if (b.length() > 0)
+			b.deleteCharAt(b.length() - 1);
+		return b.toString();
+	
+	}
+
+	private void clearEntityEvents(int entityId) {
+		for (Iterator<PlayerInteractEvent> iter = interactEventQueue.iterator(); iter.hasNext(); ) {
+			PlayerInteractEvent event = iter.next();
+			if (event.getPlayer().getEntityId() == entityId)
+				iter.remove();
+		}
+		for (Iterator<AsyncPlayerChatEvent> iter = chatPostedQueue.iterator(); iter.hasNext(); ) {
+			AsyncPlayerChatEvent event = iter.next();
+			if (event.getPlayer().getEntityId() == entityId)
+				iter.remove();
+		}
+		for (Iterator<ProjectileHitEvent> iter = projectileHitQueue.iterator(); iter.hasNext(); ) {
+			ProjectileHitEvent event = iter.next();
+			Arrow arrow = (Arrow) event.getEntity();
+			LivingEntity shooter = (LivingEntity)arrow.getShooter();
+			if (shooter.getEntityId() == entityId)
+				iter.remove();
+		}
+	}
+				
 	public void send(Object a) {
 		send(a.toString());
 	}

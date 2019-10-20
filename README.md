@@ -41,7 +41,23 @@ A Bukkit plugin which implements the Minecraft Pi Socket API.
  - spawnEntity(x,y,z,entity) - creates an entity and returns its entity id. see entity.py for list.
  - getEntityTypes - returns all the entities supported by the server.
  - entity.getName(id) - get a player name for entity id. Reverse of getPlayerId(playerName)
-
+ - getEntities - get all currently loaded entities list by optional entity type id
+ - removeEntity - removes entity with specified id
+ - removeEntities - removes all currently loaded entities by optional entity type id
+ - entity.getEntities - get currently loaded entities list near specified entity by optional entity type id
+ - entity.removeEntities - removes currently loaded entities near specified entity, by optional entity type id
+ - player.getEntities - get currently loaded entities list near specified player entity id by optional entity type id
+ - player.removeEntities - removes currently loaded entities near specified player entity id, by optional entity type id
+ - events.pollProjectileHits - get events back of arrow hit
+ - player.pollProjectileHits - get events back of arrow hit for the player
+ - player.pollBlockHits - get block hits for the player
+ - player.pollChatPosts - get events back for posts to the chat for the player
+ - player.clearEvents - clear events for the player
+ - entity.pollProjectileHits - get events back of arrow hit for an entity
+ - entity.pollBlockHits - get block hits for an entity
+ - entity.pollChatPosts - get events back for posts to the chat for an entity
+ - entity.clearEvents - clear events for this entity
+ 
 Note - extra features are NOT guaranteed to be maintained in future releases, particularly if updates are made to the original Pi API which replace the functionality
 
 ## Config
@@ -70,6 +86,7 @@ mvn package
 
 ## Version history
 
+ - 1.12 - getEntities, removeEntities, pollProjectileHits, events calls by player and entity
  - 1.11 - spawnEntity, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
  - 1.10 - left, right, both hit clicks added to config.yml & fixed minor hit events bug
@@ -94,3 +111,6 @@ mvn package
  - [opticyclic](https://github.com/opticyclic)
  - [timcu](https://www.triptera.com.au/wordpress/)
  - [pxai](https://github.com/pxai)
+ - [RonTang](https://github.com/RonTang)
+ - [Marcinosoft](https://github.com/Marcinosoft)
+ 
