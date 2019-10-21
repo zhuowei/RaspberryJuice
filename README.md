@@ -48,7 +48,7 @@ Note - extra features are NOT guaranteed to be maintained in future releases, pa
 
 Modify config.yml:
 
- - hostname: localhost - the interface to bind to. Can be "localhost", "\*", an IP address or a hostname.
+ - hostname: * - the interface to bind to. Can be "localhost", "\*", an IP address or a hostname.
  - port: 4711 - the default tcp port can be changed in config.yml
  - location: RELATIVE - determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
  - hitclick: RIGHT - determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH 
