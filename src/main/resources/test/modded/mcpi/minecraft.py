@@ -130,7 +130,13 @@ class CmdEntity(CmdPositioner):
         results = []
         for e in events:
             info = e.split(",")
-            results.append(ProjectileEvent.Hit(*map(int,info[0:4]),*info[4:]))
+            results.append(ProjectileEvent.Hit(
+                int(info[0]), 
+                int(info[1]), 
+                int(info[2]), 
+                int(info[3]), 
+                info[4],
+                info[5]))
         return results
 
     def clearEvents(self, *args):
@@ -195,7 +201,13 @@ class CmdPlayer(CmdPositioner):
         results = []
         for e in events:
             info = e.split(",")
-            results.append(ProjectileEvent.Hit(*map(int,info[0:4]),*info[4:]))
+            results.append(ProjectileEvent.Hit(
+                int(info[0]), 
+                int(info[1]), 
+                int(info[2]), 
+                int(info[3]), 
+                info[4],
+                info[5]))
         return results
 
     def clearEvents(self):
@@ -251,7 +263,13 @@ class CmdEvents:
         results = []
         for e in events:
             info = e.split(",")
-            results.append(ProjectileEvent.Hit(*map(int,info[0:4]),*info[4:]))
+            results.append(ProjectileEvent.Hit(
+                int(info[0]), 
+                int(info[1]), 
+                int(info[2]), 
+                int(info[3]), 
+                info[4],
+                info[5]))
         return results
 
 class Minecraft:
