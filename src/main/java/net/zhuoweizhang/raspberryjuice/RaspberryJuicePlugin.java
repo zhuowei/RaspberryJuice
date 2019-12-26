@@ -52,6 +52,7 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		//save a copy of the default config.yml if one is not there
         this.saveDefaultConfig();
         //get port from config.yml
+		String hostname = this.getConfig().getString("hostname");
 		int port = this.getConfig().getInt("port");
 		getLogger().info("Using port " + Integer.toString(port));
 		
@@ -80,7 +81,11 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 		
 		//create new tcp listener thread
 		try {
-			serverThread = new ServerListenerThread(this, new InetSocketAddress(port));
+			if (hostname != null && ! hostname.isEmpty() && ! hostname.equals("*")) {
+				serverThread = new ServerListenerThread(this, new InetSocketAddress(hostname, port));
+			} else {
+				serverThread = new ServerListenerThread(this, new InetSocketAddress(port));
+			}
 			new Thread(serverThread).start();
 			getLogger().info("ThreadListener Started");
 		} catch (Exception e) {
