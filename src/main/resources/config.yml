@@ -1,4 +1,9 @@
 # default config.yml
+
+# The host name and port to listen on
+# hostname - ip address or hostname to allow connections from, default is "0.0.0.0" 
+#            (any). "localhost" would prevent remote clients from connecting.
+hostname: 
 port: 4711
 
 # Determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE

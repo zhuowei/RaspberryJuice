@@ -64,6 +64,7 @@ Note - extra features are NOT guaranteed to be maintained in future releases, pa
 
 Modify config.yml:
 
+ - hostname: - ip address or hostname to allow connections from, default is "0.0.0.0" (any). "localhost" would prevent remote clients from connecting.
  - port: 4711 - the default tcp port can be changed in config.yml
  - location: RELATIVE - determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
  - hitclick: RIGHT - determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH 
@@ -86,6 +87,7 @@ mvn package
 
 ## Version history
 
+ - 1.12.1 - hostname specified in config.yml
  - 1.12 - getEntities, removeEntities, pollProjectileHits, events calls by player and entity
  - 1.11 - spawnEntity, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
@@ -113,4 +115,4 @@ mvn package
  - [pxai](https://github.com/pxai)
  - [RonTang](https://github.com/RonTang)
  - [Marcinosoft](https://github.com/Marcinosoft)
- 
+ - [neuhaus](https://github.com/neuhaus)
