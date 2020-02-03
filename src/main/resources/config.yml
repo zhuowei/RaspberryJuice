@@ -1,8 +1,9 @@
 # default config.yml
 
-# The interface to listen on. It can be also be "localhost", "*" or an IP address 
+# The interface to listen on. It can be also be "localhost", "0.0.0.0" (which means any)
+# or an IP address.
 # "localhost" is the safe option but it prevents remote clients from connecting.
-hostname: *
+hostname: 0.0.0.0
 port: 4711
 
 # Determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
