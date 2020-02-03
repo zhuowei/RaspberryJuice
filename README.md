@@ -87,6 +87,7 @@ mvn package
 
 ## Version history
 
+ - 1.12.1 - hostname specified in config.yml
  - 1.12 - getEntities, removeEntities, pollProjectileHits, events calls by player and entity
  - 1.11 - spawnEntity, setDirection, setRotation, setPitch
  - 1.10.1 - bug fixes
@@ -114,4 +115,4 @@ mvn package
  - [pxai](https://github.com/pxai)
  - [RonTang](https://github.com/RonTang)
  - [Marcinosoft](https://github.com/Marcinosoft)
- 
+ - [neuhaus](https://github.com/neuhaus)
