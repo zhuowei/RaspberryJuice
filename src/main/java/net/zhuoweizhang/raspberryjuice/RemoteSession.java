@@ -621,6 +621,25 @@ public class RemoteSession {
 					}
 				}
 				send(bdr.toString());
+        
+      //getWorlds
+			} else if (c.equals("getWorlds")) {
+				 send(Bukkit.getWorlds());
+				 
+			// setWorld
+			}
+			
+			else if (c.equals("setWorld")) {
+				
+        //send("Set world to " + args[0]);
+
+			// player.getWorld
+			}
+			
+			else if (c.equals("player.getWorld")) {
+
+        Player currentPlayer = getCurrentPlayer();
+				send(currentPlayer.getWorld());
 
 			// not a command which is supported
 			} else {
