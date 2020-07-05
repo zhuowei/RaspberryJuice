@@ -9,5 +9,8 @@ port: 4711
 # Determine whether locations are RELATIVE to the spawn point (default like pi) or ABSOLUTE
 location: RELATIVE
 
+# Determine in what world RaspberryJuice will execute its commands
+world: 
+
 # Determine whether hit events are triggered by LEFT clicks, RIGHT clicks or BOTH
 hitclick: RIGHT

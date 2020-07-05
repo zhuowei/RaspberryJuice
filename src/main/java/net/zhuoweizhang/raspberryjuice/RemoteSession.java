@@ -7,8 +7,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -170,7 +172,24 @@ public class RemoteSession {
 			Server server = plugin.getServer();
 			
 			// get the world
-			World world = origin.getWorld();
+      String worldString = plugin.getConfig().getString("world");
+      World world;
+      
+      List<World> worldsList = Bukkit.getWorlds();
+      List<String> worldNamesList = new ArrayList<String>();
+    
+			for(World w: worldsList){
+				worldNamesList.add(w.getName());			
+			}
+           
+      if((worldNamesList.contains(worldString)) && (worldString != null)) {
+				 world = plugin.getServer().getWorld(worldString);
+			} else {
+         world = plugin.getServer().getWorlds().get(0);
+         plugin.getConfig().set("world", world.getName());
+         plugin.saveConfig();
+         plugin.reloadConfig();
+      }
 			
 			// world.getBlock
 			if (c.equals("world.getBlock")) {
@@ -624,22 +643,34 @@ public class RemoteSession {
         
       //getWorlds
 			} else if (c.equals("getWorlds")) {
-				 send(Bukkit.getWorlds());
+           
+        String worldNames = "";
+				List<World> worlds = Bukkit.getWorlds();
+        for(World w: worlds){
+          worldNames += w.getName() + ",";
+        }
+        send(worldNames);
 				 
 			// setWorld
 			}
 			
 			else if (c.equals("setWorld")) {
+        if(worldNamesList.contains(args[0])) {
+					plugin.getConfig().set("world", args[0]);
+					plugin.saveConfig();
+					plugin.reloadConfig();
+					send("Set active world to " + args[0]);
+				} else {
+          
+					send(args[0] + " is not a valid world!");
+				}
 				
-        //send("Set world to " + args[0]);
-
-			// player.getWorld
 			}
 			
 			else if (c.equals("player.getWorld")) {
 
         Player currentPlayer = getCurrentPlayer();
-				send(currentPlayer.getWorld());
+				send(currentPlayer.getWorld().getName());
 
 			// not a command which is supported
 			} else {
