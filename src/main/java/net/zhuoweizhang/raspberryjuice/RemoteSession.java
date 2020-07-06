@@ -651,8 +651,12 @@ public class RemoteSession {
         }
         send(worldNames);
 				 
+			// getCurrentWorld
+			}else if (c.equals("getCurrentWorld")) {
+				send(world.getName());
+				
 			// setWorld
-			}
+			} 
 			
 			else if (c.equals("setWorld")) {
         if(worldNamesList.contains(args[0])) {
@@ -664,10 +668,8 @@ public class RemoteSession {
           
 					send(args[0] + " is not a valid world!");
 				}
-				
-			}
-			
-			else if (c.equals("player.getWorld")) {
+			//player.getWorld
+			}else if (c.equals("player.getWorld")) {
 
         Player currentPlayer = getCurrentPlayer();
 				send(currentPlayer.getWorld().getName());
