@@ -50,10 +50,13 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 
 	public void onEnable() {
 		//save a copy of the default config.yml if one is not there
-        this.saveDefaultConfig();
-        //get host and port from config.yml
+    this.saveDefaultConfig();
+    //get host and port from config.yml
 		String hostname = this.getConfig().getString("hostname");
-		if (hostname == null || hostname.isEmpty()) hostname = "0.0.0.0";
+		if (hostname == null || hostname.isEmpty()) {
+			hostname = "0.0.0.0";
+			this.getConfig().set("hostname", "0.0.0.0");
+		}
 		int port = this.getConfig().getInt("port");
 		getLogger().info("Using host:port - " + hostname + ":" + Integer.toString(port));
 		
@@ -66,7 +69,15 @@ public class RaspberryJuicePlugin extends JavaPlugin implements Listener {
 			locationType = LocationType.valueOf("RELATIVE");
 		}
 		getLogger().info("Using " + locationType.name() + " locations");
+    
+    //get world (and set it to default if empty) from config.yml
+		String world = this.getConfig().getString("world");
+		if (world == null || world.isEmpty()) this.getConfig().set("world", getServer().getWorlds().get(0).getName());
+    this.saveConfig();
+    this.reloadConfig();
 
+    getLogger().info("Using " + world + " as the active world!");
+    
 		//get hit click type (LEFT, RIGHT or BOTH) from config.yml
 		String hitClick = this.getConfig().getString("hitclick").toUpperCase();
 		try {
