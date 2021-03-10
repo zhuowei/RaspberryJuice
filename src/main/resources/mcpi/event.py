@@ -22,6 +22,27 @@ class BlockEvent:
     def Hit(x, y, z, face, entityId):
         return BlockEvent(BlockEvent.HIT, x, y, z, face, entityId)
 
+class ArrowHitEvent:
+    """An Event related to blocks (e.g. placed, removed, hit)"""
+    HIT = 0
+
+    def __init__(self, type, x, y, z, entityId):
+        self.type = type
+        self.pos = Vec3(x, y, z)
+        self.entityId = entityId
+
+    def __repr__(self):
+        sType = {
+            ArrowHitEvent.HIT: "ArrowHitEvent.HIT"
+        }.get(self.type, "???")
+
+        return "BlockEvent(%s, %d, %d, %d, %d)"%(
+            sType,self.pos.x,self.pos.y,self.pos.z,self.entityId);
+
+    @staticmethod
+    def Hit(x, y, z, entityId):
+        return ArrowHitEvent(ArrowHitEvent.HIT, x, y, z, entityId)
+
 class ChatEvent:
     """An Event related to chat (e.g. posts)"""
     POST = 0

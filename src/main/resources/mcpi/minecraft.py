@@ -1,6 +1,6 @@
 from .connection import Connection
 from .vec3 import Vec3
-from .event import BlockEvent, ChatEvent
+from .event import BlockEvent, ChatEvent, ArrowHitEvent
 #from .entity import Entity
 #from .block import Block
 from .util import flatten
@@ -167,6 +167,12 @@ class CmdEvents:
         s = self.conn.sendReceive(b"events.block.hits")
         events = [e for e in s.split("|") if e]
         return [BlockEvent.Hit(*list(map(int, e.split(",")))) for e in events]
+
+    def pollArrowHits(self):
+        """Only triggered by sword => [BlockEvent]"""
+        s = self.conn.sendReceive(b"events.arrow.hits")
+        events = [e for e in s.split("|") if e]
+        return [ArrowHitEvent.Hit(*list(map(int, e.split(",")))) for e in events]
     
     def pollChatPosts(self):
         """Triggered by posts to chat => [ChatEvent]"""
