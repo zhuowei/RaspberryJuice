@@ -8,6 +8,7 @@ import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -42,6 +43,8 @@ public class RemoteSession {
     public RaspberryJuicePlugin plugin;
 
     public ArrayDeque<PlayerInteractEvent> interactEventQueue = new ArrayDeque<PlayerInteractEvent>();
+
+    public ArrayDeque<ProjectileHitEvent> arrowHitEventQueue = new ArrayDeque<ProjectileHitEvent>();
 
     public ArrayDeque<AsyncPlayerChatEvent> chatPostedQueue = new ArrayDeque<AsyncPlayerChatEvent>();
 
@@ -110,6 +113,10 @@ public class RemoteSession {
     public void queueChatPostedEvent(AsyncPlayerChatEvent event) {
         //plugin.getLogger().info(event.toString());
         chatPostedQueue.add(event);
+    }
+
+    public void queueArrowHitEvent(ProjectileHitEvent event){
+        arrowHitEventQueue.add(event);
     }
 
     /**

@@ -3,6 +3,7 @@ package net.zhuoweizhang.raspberryjuice.cmd;
 import net.zhuoweizhang.raspberryjuice.RemoteSession;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -52,7 +53,21 @@ public class CmdEvent {
             }
             session.send(b.toString());
 
-        } else {
+        } else if(command.equals("arrow.hits")){
+            StringBuilder b = new StringBuilder();
+            ProjectileHitEvent event;
+            while ((event = session.arrowHitEventQueue.poll()) != null) {
+                Block block = event.getHitBlock();
+                Location loc = block.getLocation();
+                b.append(session.blockLocationToRelative(loc));
+                b.append(",");
+                b.append(event.getEntity().getEntityId());
+                if (session.interactEventQueue.size() > 0) {
+                    b.append("|");
+                }
+            }
+            session.send(b.toString());
+        } else{
             session.plugin.getLogger().warning(preFix + command + " is not supported.");
             session.send("Fail," + preFix + command + " is not supported.");
         }
