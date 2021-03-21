@@ -1,5 +1,4 @@
 ### Java template
-target/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -28,7 +27,7 @@ hs_err_pid*
 *.iws
 
 # IntelliJ
-/out/
+#/out/
 
 # JIRA plugin
 atlassian-ide-plugin.xml
@@ -56,6 +55,9 @@ tmp/
 
 # Editor detritus
 *.vim
-*.swp
+#*.swp
 tags
 .vscode
+.idea/encodings.xml
+.idea/modules.xml
+#target/
