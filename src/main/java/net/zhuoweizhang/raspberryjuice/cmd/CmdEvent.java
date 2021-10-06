@@ -58,6 +58,7 @@ public class CmdEvent {
             ProjectileHitEvent event;
             while ((event = session.arrowHitEventQueue.poll()) != null) {
                 Block block = event.getHitBlock();
+                if(block == null) continue;
                 Location loc = block.getLocation();
                 b.append(session.blockLocationToRelative(loc));
                 b.append(",");
