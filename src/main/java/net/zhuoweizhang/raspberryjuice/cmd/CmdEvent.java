@@ -63,7 +63,7 @@ public class CmdEvent {
                 b.append(session.blockLocationToRelative(loc));
                 b.append(",");
                 b.append(event.getEntity().getEntityId());
-                if (session.interactEventQueue.size() > 0) {
+                if (session.arrowHitEventQueue.size() > 0) {
                     b.append("|");
                 }
             }
