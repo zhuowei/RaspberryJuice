@@ -1,8 +1,0 @@
-Use one of the lines below to run a demo. [host] is an optional ip-address.
-
-java -cp McPiDemos.jar pi.demo.LoopDemo [host]
-java -cp McPiDemos.jar pi.demo.LowLevelDemo [host]
-java -cp McPiDemos.jar pi.demo.TextDemo [host]
-java -cp McPiDemos.jar pi.demo.TurtleDemo [host]
-
-java -cp McPiDemos.jar pi.demo.sokoban.Sokoban [host]
