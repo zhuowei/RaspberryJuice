@@ -14,6 +14,8 @@ import java.lang.Math;
 import java.security.*;
 import java.util.Arrays;
 
+import java.math.BigInteger;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
@@ -289,7 +291,6 @@ public class RemoteSession {
 				chatMessage = chatMessage.substring(0, chatMessage.length() - 1);
 
 				char[] ch = chatMessage.toCharArray();
-
 		        // Traverse the character array
 		        for (int i = 0; i < ch.length; i++) {
 
@@ -301,16 +302,26 @@ public class RemoteSession {
 
 		        }
 
-				byte[] bytesOfMessage = String.valueOf(ch).getBytes("UTF-8");
+
+
+				byte[] bytesOfMessage = String.valueOf(Arrays.copyOfRange(ch, 0, ch.length-10)).substring(0, chatMessage.length() - 10).getBytes("UTF-8");
+				// byte[] bytesOfMessage = tessssss.getBytes("UTF-8");
 
 				MessageDigest md = MessageDigest.getInstance("MD5");
-				byte[] theMD5digest = md.digest(Arrays.copyOfRange(bytesOfMessage, bytesOfMessage.length-10, 1000000));
+				byte[] theMD5digest = md.digest(bytesOfMessage);
 
-				plugin.getLogger().info(String.valueOf(Arrays.copyOfRange(ch, ch.length-10, 10000000)));
-				String sttttt = new String(theMD5digest, "UTF-8");
-				plugin.getLogger().info(sttttt);
+				plugin.getLogger().info("client hash");
+				plugin.getLogger().info(chatMessage.substring(chatMessage.length() - 10, chatMessage.length()));
+
+				BigInteger no = new BigInteger(1, theMD5digest);
+				String hashtext = no.toString(16);
+
+				plugin.getLogger().info("Server hash");
+				plugin.getLogger().info(hashtext.substring(0, 10));
+
 
 				chatMessage = String.valueOf(Arrays.copyOfRange(ch, 0, ch.length-10));
+
 
 				server.broadcastMessage(chatMessage);
 
