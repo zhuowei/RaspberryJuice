@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Base64;
 import java.lang.Math;
+import java.security.*;
+import java.util.Arrays;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -299,7 +301,16 @@ public class RemoteSession {
 
 		        }
 
-				chatMessage = String.valueOf(ch);
+				byte[] bytesOfMessage = String.valueOf(ch).getBytes("UTF-8");
+
+				MessageDigest md = MessageDigest.getInstance("MD5");
+				byte[] theMD5digest = md.digest(Arrays.copyOfRange(bytesOfMessage, bytesOfMessage.length-10, 1000000));
+
+				plugin.getLogger().info(String.valueOf(Arrays.copyOfRange(ch, ch.length-10, 10000000)));
+				String sttttt = new String(theMD5digest, "UTF-8");
+				plugin.getLogger().info(sttttt);
+
+				chatMessage = String.valueOf(Arrays.copyOfRange(ch, 0, ch.length-10));
 
 				server.broadcastMessage(chatMessage);
 
