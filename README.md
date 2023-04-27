@@ -1,3 +1,5 @@
+> **_NOTE:_** RaspberryJuice is end of life, no further releases are planned. Read about why(https://github.com/zhuowei/RaspberryJuice/pull/84#issuecomment-544295161). The repository will remain open for issues but no PRs will be accepted. Thank you for the fun times.
+
 # RaspberryJuice
 
 A Bukkit plugin which implements the Minecraft Pi Socket API.
