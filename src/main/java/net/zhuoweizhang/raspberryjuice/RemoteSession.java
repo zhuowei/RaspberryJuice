@@ -622,6 +622,14 @@ public class RemoteSession {
 				}
 				send(bdr.toString());
 
+			// player.addForce
+			} else if(c.equals("player.addForce")){
+				int x = Integer.parseInt(args[0]);
+				int y = Integer.parseInt(args[1]);
+				int z = Integer.parseInt(args[2]);
+				Player currentPlayer = getCurrentPlayer();
+				currentPlayer.setVelocity(new Vector(x,y,z));
+				
 			// not a command which is supported
 			} else {
 				plugin.getLogger().warning(c + " is not supported.");
